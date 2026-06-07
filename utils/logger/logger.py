@@ -7,6 +7,7 @@ ANSI colours and the fixed message structure::
     HH:MM:SS | <script> | <LEVEL>   | <message>
 """
 
+import io
 import logging
 import os
 import sys
@@ -15,18 +16,20 @@ import sys
 class _Colour:
     """ANSI escape codes used by ``_ColourFormatter``."""
 
-    RESET   = '\033[0m'
-    GREY    = '\033[38;5;245m'
-    CYAN    = '\033[36m'
-    YELLOW  = '\033[33m'
-    RED     = '\033[31m'
+    RESET    = '\033[0m'
+    GREY     = '\033[38;5;245m'
+    CYAN     = '\033[36m'
+    YELLOW   = '\033[33m'
+    RED      = '\033[31m'
+    BOLD_RED = '\033[1;31m'
 
 
 _LEVEL_COLOURS = {
-    logging.DEBUG:   _Colour.GREY,
-    logging.INFO:    _Colour.CYAN,
-    logging.WARNING: _Colour.YELLOW,
-    logging.ERROR:   _Colour.RED,
+    logging.DEBUG:    _Colour.GREY,
+    logging.INFO:     _Colour.CYAN,
+    logging.WARNING:  _Colour.YELLOW,
+    logging.ERROR:    _Colour.RED,
+    logging.CRITICAL: _Colour.BOLD_RED,
 }
 
 
@@ -94,7 +97,13 @@ def get_logger(name: str | None = None) -> logging.Logger:
     if logger.handlers:
         return logger
 
-    handler = logging.StreamHandler(sys.stdout)
+    # Use UTF-8 so Greek/non-ASCII log messages don't crash on Windows consoles
+    utf8_stdout = (
+        io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+        if hasattr(sys.stdout, "buffer")
+        else sys.stdout
+    )
+    handler = logging.StreamHandler(utf8_stdout)
     handler.setFormatter(_ColourFormatter())
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)
