@@ -1,0 +1,338 @@
+{
+  "metadata": {
+    "description": "Attica Municipalities data with coordinates, area size (km2), and wildfire risk factors for MILP Emergency Response.",
+    "risk_factor_scale": "1.0 (Low/Urban) to 5.0 (Extreme/Forest-National Park)"
+  },
+  "municipalities": {
+    "Δ. ΑΓΙΑΣ ΒΑΡΒΑΡΑΣ": {
+      "coords": [37.9903, 23.6606],
+      "area_km2": 2.4,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΑΓΙΑΣ ΠΑΡΑΣΚΕΥΗΣ": {
+      "coords": [38.0100, 23.8214],
+      "area_km2": 7.9,
+      "wildfire_risk_factor": 3.0
+    },
+    "Δ. ΑΓΙΟΥ ΔΗΜΗΤΡΙΟΥ": {
+      "coords": [37.9353, 23.7317],
+      "area_km2": 5.0,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΑΓΙΩΝ ΑΝΑΡΓΥΡΩΝ - ΚΑΜΑΤΕΡΟΥ": {
+      "coords": [38.0272, 23.7003],
+      "area_km2": 9.1,
+      "wildfire_risk_factor": 1.5
+    },
+    "Δ. ΑΓΚΙΣΤΡΙΟΥ": {
+      "coords": [37.6931, 23.3444],
+      "area_km2": 13.4,
+      "wildfire_risk_factor": 3.5
+    },
+    "Δ. ΑΘΗΝΑΙΩΝ": {
+      "coords": [37.9838, 23.7275],
+      "area_km2": 39.0,
+      "wildfire_risk_factor": 1.2
+    },
+    "Δ. ΑΙΓΑΛΕΩ": {
+      "coords": [37.9833, 23.6833],
+      "area_km2": 6.5,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΑΙΓΙΝΑΣ": {
+      "coords": [37.7467, 23.4283],
+      "area_km2": 87.4,
+      "wildfire_risk_factor": 3.0
+    },
+    "Δ. ΑΛΙΜΟΥ": {
+      "coords": [37.9100, 23.7167],
+      "area_km2": 7.5,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΑΜΑΡΟΥΣΙΟΥ": {
+      "coords": [38.0561, 23.8106],
+      "area_km2": 12.9,
+      "wildfire_risk_factor": 1.5
+    },
+    "Δ. ΑΣΠΡΟΠΥΡΓΟΥ": {
+      "coords": [38.0614, 23.5908],
+      "area_km2": 102.0,
+      "wildfire_risk_factor": 4.0
+    },
+    "Δ. ΑΧΑΡΝΩΝ": {
+      "coords": [38.0833, 23.7333],
+      "area_km2": 146.4,
+      "wildfire_risk_factor": 5.0
+    },
+    "Δ. ΒΑΡΗΣ - ΒΟΥΛΑΣ - ΒΟΥΛΙΑΓΜΕΝΗΣ": {
+      "coords": [37.8425, 23.7658],
+      "area_km2": 29.2,
+      "wildfire_risk_factor": 3.5
+    },
+    "Δ. ΒΡΙΛΗΣΣΙΩΝ": {
+      "coords": [38.0264, 23.8294],
+      "area_km2": 3.9,
+      "wildfire_risk_factor": 2.0
+    },
+    "Δ. ΒΥΡΩΝΟΣ": {
+      "coords": [37.9531, 23.7544],
+      "area_km2": 9.2,
+      "wildfire_risk_factor": 3.5
+    },
+    "Δ. ΓΑΛΑΤΣΙΟΥ": {
+      "coords": [38.0150, 23.7544],
+      "area_km2": 4.0,
+      "wildfire_risk_factor": 1.5
+    },
+    "Δ. ΓΛΥΦΑΔΑΣ": {
+      "coords": [37.8625, 23.7508],
+      "area_km2": 25.4,
+      "wildfire_risk_factor": 2.5
+    },
+    "Δ. ΔΑΦΝΗΣ - ΥΜΗΤΤΟΥ": {
+      "coords": [37.9494, 23.7383],
+      "area_km2": 2.4,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΔΙΟΝΥΣΟΥ": {
+      "coords": [38.0992, 23.8642],
+      "area_km2": 111.5,
+      "wildfire_risk_factor": 5.0
+    },
+    "Δ. ΕΛΕΥΣΙΝΑΣ": {
+      "coords": [38.0414, 23.5414],
+      "area_km2": 36.6,
+      "wildfire_risk_factor": 2.0
+    },
+    "Δ. ΕΛΛΗΝΙΚΟΥ - ΑΡΓΥΡΟΥΠΟΛΗΣ": {
+      "coords": [37.9000, 23.7500],
+      "area_km2": 15.4,
+      "wildfire_risk_factor": 2.5
+    },
+    "Δ. ΖΩΓΡΑΦΟΥ": {
+      "coords": [37.9736, 23.7719],
+      "area_km2": 8.5,
+      "wildfire_risk_factor": 2.0
+    },
+    "Δ. ΗΛΙΟΥΠΟΛΕΩΣ": {
+      "coords": [37.9333, 23.7667],
+      "area_km2": 12.7,
+      "wildfire_risk_factor": 3.0
+    },
+    "Δ. ΗΡΑΚΛΕΙΟΥ": {
+      "coords": [38.0500, 23.7667],
+      "area_km2": 4.6,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΙΛΙΟΥ": {
+      "coords": [38.0333, 23.7000],
+      "area_km2": 9.1,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΚΑΙΣΑΡΙΑΝΗΣ": {
+      "coords": [37.9681, 23.7594],
+      "area_km2": 7.8,
+      "wildfire_risk_factor": 3.5
+    },
+    "Δ. ΚΑΛΛΙΘΕΑΣ": {
+      "coords": [37.9500, 23.7000],
+      "area_km2": 4.8,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΚΕΡΑΤΣΙΝΙΟΥ - ΔΡΑΠΕΤΣΩΝΑΣ": {
+      "coords": [37.9622, 23.6164],
+      "area_km2": 9.3,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΚΗΦΙΣΙΑΣ": {
+      "coords": [38.0742, 23.8108],
+      "area_km2": 35.1,
+      "wildfire_risk_factor": 4.0
+    },
+    "Δ. ΚΟΡΥΔΑΛΛΟΥ": {
+      "coords": [37.9778, 23.6514],
+      "area_km2": 4.3,
+      "wildfire_risk_factor": 1.5
+    },
+    "Δ. ΚΡΩΠΙΑΣ": {
+      "coords": [37.8964, 23.8744],
+      "area_km2": 102.0,
+      "wildfire_risk_factor": 3.5
+    },
+    "Δ. ΚΥΘΗΡΩΝ": {
+      "coords": [36.1500, 23.0000],
+      "area_km2": 300.0,
+      "wildfire_risk_factor": 3.5
+    },
+    "Δ. ΛΑΥΡΕΩΤΙΚΗΣ": {
+      "coords": [37.7144, 24.0561],
+      "area_km2": 175.8,
+      "wildfire_risk_factor": 4.5
+    },
+    "Δ. ΛΥΚΟΒΡΥΣΗΣ - ΠΕΥΚΗΣ": {
+      "coords": [38.0619, 23.7844],
+      "area_km2": 4.1,
+      "wildfire_risk_factor": 1.5
+    },
+    "Δ. ΜΑΝΔΡΑΣ - ΕΙΔΥΛΛΙΑΣ": {
+      "coords": [38.0683, 23.5019],
+      "area_km2": 426.3,
+      "wildfire_risk_factor": 5.0
+    },
+    "Δ. ΜΑΡΑΘΩΝΟΣ": {
+      "coords": [38.1528, 23.9636],
+      "area_km2": 222.8,
+      "wildfire_risk_factor": 5.0
+    },
+    "Δ. ΜΑΡΚΟΠΟΥΛΟΥ ΜΕΣΟΓΑΙΑΣ": {
+      "coords": [37.8833, 23.9333],
+      "area_km2": 81.8,
+      "wildfire_risk_factor": 2.5
+    },
+    "Δ. ΜΕΓΑΡΕΩΝ": {
+      "coords": [37.9958, 23.3431],
+      "area_km2": 322.2,
+      "wildfire_risk_factor": 4.5
+    },
+    "Δ. ΜΕΤΑΜΟΡΦΩΣΕΩΣ": {
+      "coords": [38.0650, 23.7636],
+      "area_km2": 5.5,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΜΟΣΧΑΤΟΥ - ΤΑΥΡΟΥ": {
+      "coords": [37.9519, 23.6806],
+      "area_km2": 4.5,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΝΕΑΣ ΙΩΝΙΑΣ": {
+      "coords": [38.0375, 23.7583],
+      "area_km2": 4.4,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΝΕΑΣ ΣΜΥΡΝΗΣ": {
+      "coords": [37.9458, 23.7142],
+      "area_km2": 3.5,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΝΕΑΣ ΦΙΛΑΔΕΛΦΕΙΑΣ - ΝΕΑΣ ΧΑΛΚΗΔΟΝΑΣ": {
+      "coords": [38.0319, 23.7375],
+      "area_km2": 3.6,
+      "wildfire_risk_factor": 1.2
+    },
+    "Δ. ΝΙΚΑΙΑΣ - ΑΓΙΟΥ ΙΩΑΝΝΗ ΡΕΝΤΗ": {
+      "coords": [37.9667, 23.6333],
+      "area_km2": 11.2,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΠΑΙΑΝΙΑΣ": {
+      "coords": [37.9500, 23.8500],
+      "area_km2": 47.1,
+      "wildfire_risk_factor": 2.5
+    },
+    "Δ. ΠΑΛΑΙΟΥ ΦΑΛΗΡΟΥ": {
+      "coords": [37.9250, 23.6917],
+      "area_km2": 4.6,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΠΑΛΛΗΝΗΣ": {
+      "coords": [38.0039, 23.8814],
+      "area_km2": 29.4,
+      "wildfire_risk_factor": 2.5
+    },
+    "Δ. ΠΑΠΑΓΟΥ - ΧΟΛΑΡΓΟΥ": {
+      "coords": [37.9942, 23.7933],
+      "area_km2": 7.3,
+      "wildfire_risk_factor": 3.0
+    },
+    "Δ. ΠΕΙΡΑΙΩΣ": {
+      "coords": [37.9431, 23.6472],
+      "area_km2": 10.9,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΠΕΝΤΕΛΗΣ": {
+      "coords": [38.0506, 23.8631],
+      "area_km2": 36.1,
+      "wildfire_risk_factor": 4.5
+    },
+    "Δ. ΠΕΡΑΜΑΤΟΣ": {
+      "coords": [37.9619, 23.5714],
+      "area_km2": 14.7,
+      "wildfire_risk_factor": 1.5
+    },
+    "Δ. ΠΕΡΙΣΤΕΡΙΟΥ": {
+      "coords": [38.0167, 23.6833],
+      "area_km2": 10.1,
+      "wildfire_risk_factor": 1.0
+    },
+    "Δ. ΠΕΤΡΟΥΠΟΛΕΩΣ": {
+      "coords": [38.0400, 23.6800],
+      "area_km2": 6.8,
+      "wildfire_risk_factor": 2.0
+    },
+    "Δ. ΠΟΡΟΥ": {
+      "coords": [37.5008, 23.4536],
+      "area_km2": 49.5,
+      "wildfire_risk_factor": 3.5
+    },
+    "Δ. ΡΑΦΗΝΑΣ - ΠΙΚΕΡΜΙΟΥ": {
+      "coords": [38.0183, 23.9922],
+      "area_km2": 40.5,
+      "wildfire_risk_factor": 4.5
+    },
+    "Δ. ΣΑΛΑΜΙΝΑΣ": {
+      "coords": [37.9625, 23.4936],
+      "area_km2": 96.2,
+      "wildfire_risk_factor": 2.5
+    },
+    "Δ. ΣΑΡΩΝΙΚΟΥ": {
+      "coords": [37.7958, 23.9242],
+      "area_km2": 133.4,
+      "wildfire_risk_factor": 4.0
+    },
+    "Δ. ΣΠΑΤΩΝ - ΑΡΤΕΜΙΔΟΣ": {
+      "coords": [37.9642, 23.9161],
+      "area_km2": 73.7,
+      "wildfire_risk_factor": 2.5
+    },
+    "Δ. ΣΠΕΤΣΩΝ": {
+      "coords": [37.2617, 23.1367],
+      "area_km2": 27.1,
+      "wildfire_risk_factor": 3.5
+    },
+    "Δ. ΤΡΟΙΖΗΝΙΑΣ - ΜΕΘΑΝΩΝ": {
+      "coords": [37.5028, 23.3411],
+      "area_km2": 240.9,
+      "wildfire_risk_factor": 4.0
+    },
+    "Δ. ΥΔΡΑΣ": {
+      "coords": [37.3503, 23.4650],
+      "area_km2": 64.4,
+      "wildfire_risk_factor": 2.5
+    },
+    "Δ. ΦΙΛΟΘΕΗΣ - ΨΥΧΙΚΟΥ": {
+      "coords": [37.9972, 23.7778],
+      "area_km2": 6.2,
+      "wildfire_risk_factor": 1.5
+    },
+    "Δ. ΦΥΛΗΣ": {
+      "coords": [38.1028, 23.6669],
+      "area_km2": 109.1,
+      "wildfire_risk_factor": 5.0
+    },
+    "Δ. ΧΑΪΔΑΡΙΟΥ": {
+      "coords": [38.0111, 23.6453],
+      "area_km2": 22.7,
+      "wildfire_risk_factor": 3.5
+    },
+    "Δ. ΧΑΛΑΝΔΡΙΟΥ": {
+      "coords": [38.0222, 23.7967],
+      "area_km2": 10.8,
+      "wildfire_risk_factor": 1.2
+    },
+    "Δ. ΩΡΩΠΟΥ": {
+      "coords": [38.2981, 23.7919],
+      "area_km2": 538.1,
+      "wildfire_risk_factor": 5.0
+    }
+  }
+}

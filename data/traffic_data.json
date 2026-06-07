@@ -1,0 +1,667 @@
+{
+  "metadata": {
+    "description": "Traffic and routing network data for Emergency Response MILP optimization in Attica (66 Municipalities)",
+    "time_slots": {
+      "0": "00:00-06:00 (Fluid / Base Night)",
+      "1": "06:00-09:00 (Morning Rush Peak)",
+      "2": "09:00-14:00 (Midday / Inter-peak)",
+      "3": "14:00-17:00 (Afternoon School/Work Rush)",
+      "4": "17:00-21:00 (Evening Retail/Commute Rush)",
+      "5": "21:00-00:00 (Night / Smooth)"
+    }
+  },
+  "traffic_profiles": {
+    "KIFISOU_AXIS": [
+      1.0,
+      2.3,
+      1.5,
+      2.1,
+      1.8,
+      1.1
+    ],
+    "KIFISIAS_AXIS": [
+      1.0,
+      2.1,
+      1.4,
+      1.9,
+      1.7,
+      1.1
+    ],
+    "MESOGEION_AXIS": [
+      1.0,
+      1.8,
+      1.3,
+      1.7,
+      1.6,
+      1.1
+    ],
+    "ATHINON_AVENUE": [
+      1.0,
+      1.9,
+      1.4,
+      1.8,
+      1.7,
+      1.1
+    ],
+    "POSEIDONOS_AVEN": [
+      1.0,
+      1.4,
+      1.3,
+      1.5,
+      1.9,
+      1.3
+    ],
+    "ATTIKI_ODOS": [
+      1.0,
+      1.4,
+      1.1,
+      1.5,
+      1.3,
+      1.0
+    ],
+    "CENTER_URBAN": [
+      1.0,
+      2.2,
+      1.6,
+      2.0,
+      1.9,
+      1.2
+    ],
+    "RURAL_SUBURBAN": [
+      1.0,
+      1.2,
+      1.1,
+      1.2,
+      1.2,
+      1.0
+    ]
+  },
+  "nodes": [
+    {
+      "id": "D_AG_VARVARAS",
+      "name": "Δ. ΑΓΙΑΣ ΒΑΡΒΑΡΑΣ",
+      "coords": [
+        37.9903,
+        23.6606
+      ]
+    },
+    {
+      "id": "D_AG_PARASKEVIS",
+      "name": "Δ. ΑΓΙΑΣ ΠΑΡΑΣΚΕΥΗΣ",
+      "coords": [
+        38.01,
+        23.8214
+      ]
+    },
+    {
+      "id": "D_AG_DIMITRIOU",
+      "name": "Δ. ΑΓΙΟΥ ΔΗΜΗΤΡΙΟΥ",
+      "coords": [
+        37.9353,
+        23.7317
+      ]
+    },
+    {
+      "id": "D_AG_ANAR_KAMAT",
+      "name": "Δ. ΑΓΙΩΝ ΑΝΑΡΓΥΡΩΝ - ΚΑΜΑΤΕΡΟΥ",
+      "coords": [
+        38.0272,
+        23.7003
+      ]
+    },
+    {
+      "id": "D_AGKISTRIOU",
+      "name": "Δ. ΑΓΚΙΣΤΡΙΟΥ",
+      "coords": [
+        37.6931,
+        23.3444
+      ]
+    },
+    {
+      "id": "D_ATHINAION",
+      "name": "Δ. ΑΘΗΝΑΙΩΝ",
+      "coords": [
+        37.9838,
+        23.7275
+      ]
+    },
+    {
+      "id": "D_AIGALEO",
+      "name": "Δ. ΑΙΓΑΛΕΩ",
+      "coords": [
+        37.9833,
+        23.6833
+      ]
+    },
+    {
+      "id": "D_AIGINAS",
+      "name": "Δ. ΑΙΓΙΝΑΣ",
+      "coords": [
+        37.7467,
+        23.4283
+      ]
+    },
+    {
+      "id": "D_ALIMOU",
+      "name": "Δ. ΑΛΙΜΟΥ",
+      "coords": [
+        37.91,
+        23.7167
+      ]
+    },
+    {
+      "id": "D_AMAROUSIOU",
+      "name": "Δ. ΑΜΑΡΟΥΣΙΟΥ",
+      "coords": [
+        38.0561,
+        23.8106
+      ]
+    },
+    {
+      "id": "D_ASPROPYRGOU",
+      "name": "Δ. ΑΣΠΡΟΠΥΡΓΟΥ",
+      "coords": [
+        38.0614,
+        23.5908
+      ]
+    },
+    {
+      "id": "D_AXARNON",
+      "name": "Δ. ΑΧΑΡΝΩΝ",
+      "coords": [
+        38.0833,
+        23.7333
+      ]
+    },
+    {
+      "id": "D_VARIS_VOUL_VOUL",
+      "name": "Δ. ΒΑΡΗΣ - ΒΟΥΛΑΣ - ΒΟΥΛΙΑΓΜΕΝΗΣ",
+      "coords": [
+        37.8425,
+        23.7658
+      ]
+    },
+    {
+      "id": "D_VRILISSION",
+      "name": "Δ. ΒΡΙΛΗΣΣΙΩΝ",
+      "coords": [
+        38.0264,
+        23.8294
+      ]
+    },
+    {
+      "id": "D_VYRONOS",
+      "name": "Δ. ΒΥΡΩΝΟΣ",
+      "coords": [
+        37.9531,
+        23.7544
+      ]
+    },
+    {
+      "id": "D_GALATSIOU",
+      "name": "Δ. ΓΑΛΑΤΣΙΟΥ",
+      "coords": [
+        38.015,
+        23.7544
+      ]
+    },
+    {
+      "id": "D_GLYFADAS",
+      "name": "Δ. ΓΛΥΦΑΔΑΣ",
+      "coords": [
+        37.8625,
+        23.7508
+      ]
+    },
+    {
+      "id": "D_DAFNIS_YMITTOU",
+      "name": "Δ. ΔΑΦΝΗΣ - ΥΜΗΤΤΟΥ",
+      "coords": [
+        37.9494,
+        23.7383
+      ]
+    },
+    {
+      "id": "D_DIONYSOU",
+      "name": "Δ. ΔΙΟΝΥΣΟΥ",
+      "coords": [
+        38.0992,
+        23.8642
+      ]
+    },
+    {
+      "id": "D_ELEUSINAS",
+      "name": "Δ. ΕΛΕΥΣΙΝΑΣ",
+      "coords": [
+        38.0414,
+        23.5414
+      ]
+    },
+    {
+      "id": "D_ELLIN_ARGYR",
+      "name": "Δ. ΕΛΛΗΝΙΚΟΥ - ΑΡΓΥΡΟΥΠΟΛΗΣ",
+      "coords": [
+        37.9,
+        23.75
+      ]
+    },
+    {
+      "id": "D_ZOGRAFOU",
+      "name": "Δ. ΖΩΓΡΑΦΟΥ",
+      "coords": [
+        37.9736,
+        23.7719
+      ]
+    },
+    {
+      "id": "D_ILIOUPOLEOS",
+      "name": "Δ. ΗΛΙΟΥΠΟΛΕΩΣ",
+      "coords": [
+        37.9333,
+        23.7667
+      ]
+    },
+    {
+      "id": "D_IRAKLEIOU",
+      "name": "Δ. ΗΡΑΚΛΕΙΟΥ",
+      "coords": [
+        38.05,
+        23.7667
+      ]
+    },
+    {
+      "id": "D_ILIOU",
+      "name": "Δ. ΙΛΙΟΥ",
+      "coords": [
+        38.0333,
+        23.7
+      ]
+    },
+    {
+      "id": "D_KAISARIANIS",
+      "name": "Δ. ΚΑΙΣΑΡΙΑΝΗΣ",
+      "coords": [
+        37.9681,
+        23.7594
+      ]
+    },
+    {
+      "id": "D_KALLITHEAS",
+      "name": "Δ. ΚΑΛΛΙΘΕΑΣ",
+      "coords": [
+        37.95,
+        23.7
+      ]
+    },
+    {
+      "id": "D_KERATSIN_DRAP",
+      "name": "Δ. ΚΕΡΑΤΣΙΝΙΟΥ - ΔΡΑΠΕΤΣΩΝΑΣ",
+      "coords": [
+        37.9622,
+        23.6164
+      ]
+    },
+    {
+      "id": "D_KIFISIAS",
+      "name": "Δ. ΚΗΦΙΣΙΑΣ",
+      "coords": [
+        38.0742,
+        23.8108
+      ]
+    },
+    {
+      "id": "D_KORYDALLOU",
+      "name": "Δ. ΚΟΡΥΔΑΛΛΟΥ",
+      "coords": [
+        37.9778,
+        23.6514
+      ]
+    },
+    {
+      "id": "D_KROPIAS",
+      "name": "Δ. ΚΡΩΠΙΑΣ",
+      "coords": [
+        37.8964,
+        23.8744
+      ]
+    },
+    {
+      "id": "D_KYTHIRON",
+      "name": "Δ. ΚΥΘΗΡΩΝ",
+      "coords": [
+        36.15,
+        23.0
+      ]
+    },
+    {
+      "id": "D_LAVREOTIKIS",
+      "name": "Δ. ΛΑΥΡΕΩΤΙΚΗΣ",
+      "coords": [
+        37.7144,
+        24.0561
+      ]
+    },
+    {
+      "id": "D_LYKOV_PEFKIS",
+      "name": "Δ. ΛΥΚΟΒΡΥΣΗΣ - ΠΕΥΚΗΣ",
+      "coords": [
+        38.0619,
+        23.7844
+      ]
+    },
+    {
+      "id": "D_MANDRAS_EIDYL",
+      "name": "Δ. ΜΑΝΔΡΑΣ - ΕΙΔΥΛΛΙΑΣ",
+      "coords": [
+        38.0683,
+        23.5019
+      ]
+    },
+    {
+      "id": "D_MARATHONOS",
+      "name": "Δ. ΜΑΡΑΘΩΝΟΣ",
+      "coords": [
+        38.1528,
+        23.9636
+      ]
+    },
+    {
+      "id": "D_MARKOPOULOU",
+      "name": "Δ. ΜΑΡΚΟΠΟΥΛΟΥ ΜΕΣΟΓΑΙΑΣ",
+      "coords": [
+        37.8833,
+        23.9333
+      ]
+    },
+    {
+      "id": "D_MEGAREON",
+      "name": "Δ. ΜΕΓΑΡΕΩΝ",
+      "coords": [
+        37.9958,
+        23.3431
+      ]
+    },
+    {
+      "id": "D_METAMORF_PEFKIS",
+      "name": "Δ. ΜΕΤΑΜΟΡΦΩΣΕΩΣ",
+      "coords": [
+        38.065,
+        23.7636
+      ]
+    },
+    {
+      "id": "D_MOSXATOU_TAVR",
+      "name": "Δ. ΜΟΣΧΑΤΟΥ - ΤΑΥΡΟΥ",
+      "coords": [
+        37.9519,
+        23.6806
+      ]
+    },
+    {
+      "id": "D_NEAS_IONIAS",
+      "name": "Δ. ΝΕΑΣ ΙΩΝΙΑΣ",
+      "coords": [
+        38.0375,
+        23.7583
+      ]
+    },
+    {
+      "id": "D_NEAS_SMYRNIS",
+      "name": "Δ. ΝΕΑΣ ΣΜΥΡΝΗΣ",
+      "coords": [
+        37.9458,
+        23.7142
+      ]
+    },
+    {
+      "id": "D_N_FIL_N_XALK",
+      "name": "Δ. ΝΕΑΣ ΦΙΛΑΔΕΛΦΕΙΑΣ - ΝΕΑΣ ΧΑΛΚΗΔΟΝΑΣ",
+      "coords": [
+        38.0319,
+        23.7375
+      ]
+    },
+    {
+      "id": "D_NIKAIAS_RENTI",
+      "name": "Δ. ΝΙΚΑΙΑΣ - ΑΓΙΟΥ ΙΩΑΝΝΗ ΡΕΝΤΗ",
+      "coords": [
+        37.9667,
+        23.6333
+      ]
+    },
+    {
+      "id": "D_PAIANIAS",
+      "name": "Δ. ΠΑΙΑΝΙΑΣ",
+      "coords": [
+        37.95,
+        23.85
+      ]
+    },
+    {
+      "id": "D_P_FALIROU",
+      "name": "Δ. ΠΑΛΑΙΟΥ ΦΑΛΗΡΟΥ",
+      "coords": [
+        37.925,
+        23.6917
+      ]
+    },
+    {
+      "id": "D_PALLINIS",
+      "name": "Δ. ΠΑΛΛΗΝΗΣ",
+      "coords": [
+        38.0039,
+        23.8814
+      ]
+    },
+    {
+      "id": "D_PAP_XOLARGOU",
+      "name": "Δ. ΠΑΠΑΓΟΥ - ΧΟΛΑΡΓΟΥ",
+      "coords": [
+        37.9942,
+        23.7933
+      ]
+    },
+    {
+      "id": "D_PEIRAIEOS",
+      "name": "Δ. ΠΕΙΡΑΙΩΣ",
+      "coords": [
+        37.9431,
+        23.6472
+      ]
+    },
+    {
+      "id": "D_PENTELIS",
+      "name": "Δ. ΠΕΝΤΕΛΗΣ",
+      "coords": [
+        38.0506,
+        23.8631
+      ]
+    },
+    {
+      "id": "D_PERAMATOS",
+      "name": "Δ. ΠΕΡΑΜΑΤΟΣ",
+      "coords": [
+        37.9619,
+        23.5714
+      ]
+    },
+    {
+      "id": "D_PERISTERIOU",
+      "name": "Δ. ΠΕΡΙΣΤΕΡΙΟΥ",
+      "coords": [
+        38.0167,
+        23.6833
+      ]
+    },
+    {
+      "id": "D_PETROUPOLEOS",
+      "name": "Δ. ΠΕΤΡΟΥΠΟΛΕΩΣ",
+      "coords": [
+        38.04,
+        23.68
+      ]
+    },
+    {
+      "id": "D_POROU",
+      "name": "Δ. ΠΟΡΟΥ",
+      "coords": [
+        37.5008,
+        23.4536
+      ]
+    },
+    {
+      "id": "D_RAFINAS_PIK",
+      "name": "Δ. ΡΑΦΗΝΑΣ - ΠΙΚΕΡΜΙΟΥ",
+      "coords": [
+        38.0183,
+        23.9922
+      ]
+    },
+    {
+      "id": "D_SALAMINAS",
+      "name": "Δ. ΣΑΛΑΜΙΝΑΣ",
+      "coords": [
+        37.9625,
+        23.4936
+      ]
+    },
+    {
+      "id": "D_SARONIKOU",
+      "name": "Δ. ΣΑΡΩΝΙΚΟΥ",
+      "coords": [
+        37.7958,
+        23.9242
+      ]
+    },
+    {
+      "id": "D_SPATON_ARTEM",
+      "name": "Δ. ΣΠΑΤΩΝ - ΑΡΤΕΜΙΔΟΣ",
+      "coords": [
+        37.9642,
+        23.9161
+      ]
+    },
+    {
+      "id": "D_SPETSON",
+      "name": "Δ. ΣΠΕΤΣΩΝ",
+      "coords": [
+        37.2617,
+        23.1367
+      ]
+    },
+    {
+      "id": "D_TROIZIN_METH",
+      "name": "Δ. ΤΡΟΙΖΗΝΙΑΣ - ΜΕΘΑΝΩΝ",
+      "coords": [
+        37.5028,
+        23.3411
+      ]
+    },
+    {
+      "id": "D_YDRAS",
+      "name": "Δ. ΎΔΡΑΣ",
+      "coords": [
+        37.3503,
+        23.465
+      ]
+    },
+    {
+      "id": "D_FILOTHEIS_PSYCH",
+      "name": "Δ. ΦΙΛΟΘΕΗΣ - ΨΥΧΙΚΟΥ",
+      "coords": [
+        37.9972,
+        23.7778
+      ]
+    },
+    {
+      "id": "D_FYLIS",
+      "name": "Δ. ΦΥΛΗΣ",
+      "coords": [
+        38.1028,
+        23.6669
+      ]
+    },
+    {
+      "id": "D_XAIDARIOU",
+      "name": "Δ. ΧΑΪΔΑΡΙΟΥ",
+      "coords": [
+        38.0111,
+        23.6453
+      ]
+    },
+    {
+      "id": "D_XALANDRIOU",
+      "name": "Δ. ΧΑΛΑΝΔΡΙΟΥ",
+      "coords": [
+        38.0222,
+        23.7967
+      ]
+    },
+    {
+      "id": "D_OROPOU",
+      "name": "Δ. ΩΡΩΠΟΥ",
+      "coords": [
+        38.2981,
+        23.7919
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "D_ATHINAION",
+      "to": "D_KIFISIAS",
+      "base_time_mins": 18.5,
+      "distance_km": 14.2,
+      "profile": "KIFISIAS_AXIS"
+    },
+    {
+      "from": "D_ATHINAION",
+      "to": "D_AXARNON",
+      "base_time_mins": 16.0,
+      "distance_km": 12.5,
+      "profile": "KIFISOU_AXIS"
+    },
+    {
+      "from": "D_AMAROUSIOU",
+      "to": "D_XALANDRIOU",
+      "base_time_mins": 7.5,
+      "distance_km": 4.1,
+      "profile": "KIFISIAS_AXIS"
+    },
+    {
+      "from": "D_AG_PARASKEVIS",
+      "to": "D_PALLINIS",
+      "base_time_mins": 9.0,
+      "distance_km": 6.2,
+      "profile": "MESOGEION_AXIS"
+    },
+    {
+      "from": "D_AIGALEO",
+      "to": "D_XAIDARIOU",
+      "base_time_mins": 6.0,
+      "distance_km": 3.4,
+      "profile": "ATHINON_AVENUE"
+    },
+    {
+      "from": "D_ALIMOU",
+      "to": "D_GLYFADAS",
+      "base_time_mins": 11.0,
+      "distance_km": 7.8,
+      "profile": "POSEIDONOS_AVEN"
+    },
+    {
+      "from": "D_METAMORF_PEFKIS",
+      "to": "D_PALLINIS",
+      "base_time_mins": 12.0,
+      "distance_km": 15.1,
+      "profile": "ATTΙΚI_ODOS"
+    },
+    {
+      "from": "D_MARATHONOS",
+      "to": "D_OROPOU",
+      "base_time_mins": 35.0,
+      "distance_km": 38.6,
+      "profile": "RURAL_SUBURBAN"
+    }
+  ]
+}
