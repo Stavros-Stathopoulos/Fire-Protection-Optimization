@@ -98,9 +98,17 @@ def _build_stations_layer(
             )
             status_str = (
                 f"<span style='color:#2e7d32;font-weight:bold;'>OPEN</span>"
-                f" — {s.apparatus_count} firetrucks deployed"
+                f" — {s.apparatus_count} firetruck{'s' if s.apparatus_count != 1 else ''} deployed"
             )
+            region_detail = ""
+            if s.region_allocations:
+                region_lines = "".join(
+                    f"<br>&nbsp;&nbsp;• {rid}: {cnt} truck{'s' if cnt != 1 else ''}"
+                    for rid, cnt in sorted(s.region_allocations)
+                )
+                region_detail = f"ΔΙΠΥ allocation:{region_lines}<br>"
             extra = (
+                f"{region_detail}"
                 f"Avg response: <b>{avg_rt:.1f} min</b><br>"
                 f"Districts covered ({len(covered)}):{district_rows}"
             )
@@ -327,13 +335,98 @@ class MilpResultVisualizer:
         return m
 
     @classmethod
+    def from_json(
+        cls,
+        path: "Path | str",
+        **kwargs: object,
+    ) -> "MilpResultVisualizer":
+        """Build a visualizer directly from a JSON file saved by
+        ``OptimizationResult.to_full_json()``.
+
+        This is the intended entry point when you want to render a map from a
+        previously saved result without re-solving or reloading the problem data.
+
+        Parameters
+        ----------
+        path:
+            Path to the JSON file produced by ``OptimizationResult.to_full_json()``.
+            Files written by ``to_json()`` (lean format) are rejected with a
+            clear error — they lack the station/district metadata the visualizer
+            needs.
+        **kwargs:
+            Forwarded to ``MilpResultVisualizer.__init__`` (e.g. ``center``,
+            ``zoom_start``).
+
+        Raises
+        ------
+        ValueError
+            If the JSON was written by ``to_json()`` instead of ``to_full_json()``
+            and therefore lacks the required ``"stations"`` / ``"districts"`` keys.
+        """
+        import json as _json
+
+        with open(Path(path), encoding="utf-8") as fh:
+            data: dict = _json.load(fh)
+
+        if "stations" not in data or "districts" not in data:
+            raise ValueError(
+                f"{path!r} was saved with OptimizationResult.to_json() (lean format) "
+                "which does not include station/district metadata. "
+                "Re-save with OptimizationResult.to_full_json(result, problem, response_times) "
+                "to produce a visualization-ready file."
+            )
+
+        station_statuses = [
+            MilpStationStatus(
+                station_id=s["id"],
+                station_name=s["name"],
+                lat=float(s["lat"]),
+                lon=float(s["lon"]),
+                is_active=bool(s["is_active"]),
+                apparatus_count=int(s["total_trucks"]),
+                capacity=int(s["capacity"]),
+                annual_cost=float(s["annual_cost"]),
+                region_allocations=tuple(
+                    sorted(s.get("region_allocations", {}).items())
+                ),
+            )
+            for s in data["stations"]
+        ]
+
+        district_assignments = [
+            MilpDistrictAssignment(
+                district_id=d["id"],
+                district_name=d["name"],
+                lat=float(d["lat"]),
+                lon=float(d["lon"]),
+                assigned_station_id=str(d["assigned_station_id"]),
+                response_time_min=float(d["response_time_min"]),
+                demand=float(d["demand"]),
+                area_km2=float(d["area_km2"]),
+                wildfire_risk=float(d["wildfire_risk"]),
+            )
+            for d in data["districts"]
+        ]
+
+        viz_data = MilpVisualizationInput(
+            station_statuses=station_statuses,
+            district_assignments=district_assignments,
+            solver_status=str(data.get("status", "Unknown")),
+            objective_value=float(data.get("objective_value", 0.0)),
+            total_operational_cost=float(data.get("total_operational_cost", 0.0)),
+            avg_response_time_min=float(data.get("avg_response_time_min", 0.0)),
+        )
+
+        return cls(viz_data, **kwargs)  # type: ignore[arg-type]
+
+    @classmethod
     def from_optimization_result(
         cls,
         result: object,
         problem: object,
         response_times: dict[tuple[str, str], float],
         **kwargs: object,
-    ) -> MilpResultVisualizer:
+    ) -> "MilpResultVisualizer":
         """Convenience factory that bridges ``OptimizationResult`` to the visualizer.
 
         This method imports from ``domain`` / ``optimization`` types but the
@@ -343,9 +436,9 @@ class MilpResultVisualizer:
         Parameters
         ----------
         result:
-            An ``optimization.result.OptimizationResult``.
+            An ``optimization.result.OptimizationResult`` (multi-region).
         problem:
-            A ``domain.problem.FireProtectionProblem``.
+            A ``domain.problem.FireProtectionProblem`` (multi-region).
         response_times:
             Pre-computed ``{(district_id, station_id): minutes}`` matrix.
         **kwargs:
@@ -358,19 +451,31 @@ class MilpResultVisualizer:
         prob: FireProtectionProblem = problem  # type: ignore[assignment]
         res: OptimizationResult = result  # type: ignore[assignment]
 
-        station_statuses = [
-            MilpStationStatus(
-                station_id=s.id,
-                station_name=s.name,
-                lat=s.lat,
-                lon=s.lon,
-                is_active=s.id in res.open_stations,
-                apparatus_count=res.firetruck_allocations.get(s.id, 0),
-                capacity=s.capacity,
-                annual_cost=s.cost,
+        # Build per-station total trucks and per-region breakdown
+        station_trucks = res.station_total_trucks
+
+        station_statuses = []
+        for s in prob.stations:
+            # Build region allocation tuples for this station
+            region_allocs: list[tuple[str, int]] = []
+            for r in prob.regions:
+                count = res.firetruck_allocations.get((r.id, s.id), 0)
+                if count > 0:
+                    region_allocs.append((r.id, count))
+
+            station_statuses.append(
+                MilpStationStatus(
+                    station_id=s.id,
+                    station_name=s.name,
+                    lat=s.lat,
+                    lon=s.lon,
+                    is_active=s.id in res.open_stations,
+                    apparatus_count=station_trucks.get(s.id, 0),
+                    capacity=s.capacity,
+                    annual_cost=s.cost,
+                    region_allocations=tuple(region_allocs),
+                )
             )
-            for s in prob.stations
-        ]
 
         district_assignments = [
             MilpDistrictAssignment(

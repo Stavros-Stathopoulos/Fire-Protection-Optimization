@@ -3,15 +3,25 @@
 All tunable knobs live here so callers never hard-code numeric constants.
 """
 
+from typing import Any
+
 # --- Solver ---
 SOLVER_TIME_LIMIT_SECONDS = 300
 SOLVER_MIP_GAP = 0.01  # 1 % optimality gap is acceptable for planning
 
-# --- Fire region (Attica) ---
-REGION_ID = "attica"
-REGION_NAME = "Attica Fire Region"
-#REGION_TOTAL_FIRETRUCKS = 200  # pi: total firetrucks available in the region
-REGION_TOTAL_FIRETRUCKS = 250000  # no limit on firetrucks (for testing only)
+# --- Fire regions (4 ΔΙΠΥ — Regional Directorates of the Fire Service) ---
+# Each dict must contain: id (str), name (str), total_firetrucks (int).
+REGIONS: list[dict[str, Any]] = [
+    {"id": "dipy_athens",  "name": "ΔΙΠΥ ΑΘΗΝΩΝ",             "total_firetrucks": 120},
+    {"id": "dipy_piraeus", "name": "ΔΙΠΥ ΠΕΙΡΑΙΩΣ",           "total_firetrucks": 40},
+    {"id": "dipy_west",    "name": "ΔΙΠΥ ΔΥΤΙΚΗΣ ΑΤΤΙΚΗΣ",    "total_firetrucks": 45},
+    {"id": "dipy_east",    "name": "ΔΙΠΥ ΑΝΑΤΟΛΙΚΗΣ ΑΤΤΙΚΗΣ", "total_firetrucks": 45},
+]
+
+# --- Backward-compatibility aliases (used by legacy callers) ---
+REGION_ID = REGIONS[0]["id"]
+REGION_NAME = str(REGIONS[0]["name"])
+REGION_TOTAL_FIRETRUCKS: int = sum(int(r["total_firetrucks"]) for r in REGIONS)
 
 # --- Fire station defaults (overridden per-station in fire_stations.json) ---
 STATION_DEFAULT_CAPACITY = 15    # sj: firetruck slots per station
@@ -48,7 +58,7 @@ WILDFIRE_RISK_WEIGHT = True
 # Maximum total annual operational cost (EUR) — budget constraint (Σ fj·yj ≤ MAX_BUDGET).
 # Set to None to remove the budget limit and let the solver decide freely.
 # Higher budget → more stations open → lower average response times.
-MAX_BUDGET = 8_000_000.0  # EUR — allows roughly 18 stations
+MAX_BUDGET: float | None = 8_000_000.0  # EUR — allows roughly 18 stations
 # MAX_BUDGET = None  # no budget limit
 
 # --- Dynamic coverage time bounds (hard response-time constraints) ---
@@ -56,7 +66,7 @@ MAX_BUDGET = 8_000_000.0  # EUR — allows roughly 18 stations
 # Enforced as:  Σ_j  c_kj · z_kj  ≤  max_t_k   for every district k.
 # If no candidate station can reach a district within its limit the problem is Infeasible
 # and the solver will report it — see OptimizationResult.status and solver logs.
-RISK_COVERAGE_MAX_TIMES: dict = {
+RISK_COVERAGE_MAX_TIMES: dict[float, float] = {
     5.0: 15.0,
     4.5: 18.0,
     4.0: 20.0,
@@ -72,7 +82,7 @@ RISK_COVERAGE_MAX_TIMES: dict = {
 # These y[i] variables are pinned to 1 before the solver runs.
 # Use for strategically critical locations that must always be staffed
 # regardless of budget optimisation heuristics.
-FORCED_OPEN_STATIONS: list = [
+FORCED_OPEN_STATIONS: list[str] = [
     # "ps_marathon",
     # "ps_lavrio",
     # "ps_megara",

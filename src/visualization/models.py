@@ -70,9 +70,15 @@ class MilpStationStatus:
     lat: float
     lon: float
     is_active: bool
-    apparatus_count: int  # firetrucks deployed (v_ij value)
+    apparatus_count: int  # total firetrucks deployed (sum of all v_ij)
     capacity: int
     annual_cost: float
+    region_allocations: tuple[tuple[str, int], ...] = ()  # (region_id, truck_count) pairs
+
+    @property
+    def region_allocations_dict(self) -> dict[str, int]:
+        """Return region_allocations as a plain ``{region_id: truck_count}`` dict."""
+        return dict(self.region_allocations)
 
 
 @dataclass(frozen=True)

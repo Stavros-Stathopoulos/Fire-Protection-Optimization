@@ -1,4 +1,10 @@
-"""Assembles the MILP parameter matrices from domain entities."""
+"""Assembles the MILP parameter matrices from domain entities.
+
+Multi-region formulation: accepts a list of ``FireRegion`` objects
+(one per ΔΙΠΥ directorate).  The response-time matrix ``ckj`` is
+region-independent (geography doesn't change), but the transport-cost
+matrix ``tij`` is now properly indexed ``(region_id, station_id)``.
+"""
 
 import math
 from dataclasses import dataclass
@@ -21,14 +27,36 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 @dataclass
 class FireProtectionProblem:
-    region: FireRegion
+    """Multi-region fire protection problem definition.
+
+    Parameters
+    ----------
+    regions:
+        One ``FireRegion`` per ΔΙΠΥ directorate.  Each carries its own
+        fleet size (``total_firetrucks``).
+    stations:
+        Candidate fire stations (shared across all regions).
+    districts:
+        Incident districts (demand nodes).
+    """
+
+    regions: List[FireRegion]
     stations: List[FireStation]
     districts: List[IncidentDistrict]
+
+    # -- Aggregate accessors -------------------------------------------------
+
+    @property
+    def total_fleet(self) -> int:
+        """Sum of all regional fleet sizes (Σ pi)."""
+        return sum(r.total_firetrucks for r in self.regions)
 
     @property
     def total_demand(self) -> float:
         """d(K): aggregate demand across all districts."""
         return sum(d.demand for d in self.districts)
+
+    # -- Matrix builders -----------------------------------------------------
 
     def response_time_matrix(self, speed_kmh: float) -> Dict[Tuple[str, str], float]:
         """ckj: traffic-adjusted response time (minutes) for every (district, station) pair.
@@ -44,7 +72,7 @@ class FireProtectionProblem:
         (sqrt(area/π)) and ensures that even a co-located station reports a
         meaningful response time.
         """
-        result = {}
+        result: Dict[Tuple[str, str], float] = {}
         for d in self.districts:
             effective_radius_km = math.sqrt(d.area_km2 / math.pi)
             intra_time = effective_radius_km / speed_kmh * 60 * INTRA_DISTRICT_FACTOR
@@ -56,9 +84,13 @@ class FireProtectionProblem:
         return result
 
     def transport_cost_matrix(self) -> Dict[Tuple[str, str], float]:
-        """tij: firetruck deployment cost from region to station.
+        """tij: firetruck deployment cost from region i to station j.
 
-        Zero for all pairs: Attica is treated as a single region with no
-        inter-depot transport cost in this one-region formulation.
+        Zero for all pairs: Attica regions are co-located with no
+        inter-depot transport cost in this formulation.
         """
-        return {(self.region.id, s.id): 0.0 for s in self.stations}
+        return {
+            (r.id, s.id): 0.0
+            for r in self.regions
+            for s in self.stations
+        }

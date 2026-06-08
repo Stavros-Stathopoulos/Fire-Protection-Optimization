@@ -1,4 +1,10 @@
-"""Runs the CBC solver on the built MILP and extracts a structured result."""
+"""Runs the CBC solver on the built MILP and extracts a structured result.
+
+Multi-region formulation: ``v`` variables are keyed ``(region_id, station_id)``,
+and the solver extracts the per-region firetruck allocation matrix.
+"""
+
+from typing import Optional
 
 import pulp
 
@@ -39,14 +45,26 @@ def _infeasible_result(status: str) -> OptimizationResult:
     )
 
 
-def solve(problem: FireProtectionProblem) -> OptimizationResult:
+def solve(
+    problem: FireProtectionProblem,
+    *,
+    max_budget: Optional[float] = None,
+) -> OptimizationResult:
     """Solve the fire-protection MILP and return a populated OptimizationResult.
+
+    Parameters
+    ----------
+    problem:
+        Multi-region ``FireProtectionProblem``.
+    max_budget:
+        If provided, overrides ``config.milp_config.MAX_BUDGET``.
+        Pass ``None`` to use the config default.
 
     If the model is Infeasible (e.g., a high-risk district cannot be reached within
     its hard time bound by any candidate station), a sentinel result is returned
     and a CRITICAL warning is logged — no exception is raised.
     """
-    mdl, y, z, v = build_model(problem)
+    mdl, y, z, v = build_model(problem, max_budget=max_budget)
 
     solver = pulp.PULP_CBC_CMD(
         timeLimit=SOLVER_TIME_LIMIT_SECONDS,
@@ -76,13 +94,17 @@ def solve(problem: FireProtectionProblem) -> OptimizationResult:
 
     open_stations = {sid for sid, var in y.items() if _safe_value(var) > 0.5}
 
-    assignments = {
+    assignments: dict[str, str] = {
         did: sid
         for (did, sid), var in z.items()
         if _safe_value(var) > 0.5
     }
 
-    allocations = {sid: int(round(_safe_value(var))) for sid, var in v.items()}
+    # Multi-region allocation: v is keyed (region_id, station_id)
+    allocations: dict[tuple[str, str], int] = {
+        (rid, sid): int(round(_safe_value(var)))
+        for (rid, sid), var in v.items()
+    }
 
     c = problem.response_time_matrix(AVERAGE_SPEED_KMH)
     avg_rt_min = (

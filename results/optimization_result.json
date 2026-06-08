@@ -1,0 +1,1575 @@
+{
+  "status": "Optimal",
+  "objective_value": 35057.9823,
+  "avg_response_time_min": 11.08,
+  "total_operational_cost": 9700000.0,
+  "open_stations": [
+    "ps_acharnes",
+    "ps_aspropyrgos",
+    "ps_athens_1",
+    "ps_keratea_sub",
+    "ps_keratsini",
+    "ps_kifisia",
+    "ps_koropi",
+    "ps_lavrio",
+    "ps_mandra_junction",
+    "ps_marathon",
+    "ps_megara",
+    "ps_oropos_sub",
+    "ps_penteli_sub",
+    "ps_rafina",
+    "ps_stefani_sub",
+    "ps_voula"
+  ],
+  "district_assignments": {
+    "dist_0": "ps_athens_1",
+    "dist_1": "ps_penteli_sub",
+    "dist_10": "ps_voula",
+    "dist_11": "ps_penteli_sub",
+    "dist_12": "ps_athens_1",
+    "dist_13": "ps_athens_1",
+    "dist_14": "ps_voula",
+    "dist_15": "ps_athens_1",
+    "dist_16": "ps_stefani_sub",
+    "dist_17": "ps_mandra_junction",
+    "dist_18": "ps_voula",
+    "dist_19": "ps_athens_1",
+    "dist_2": "ps_athens_1",
+    "dist_20": "ps_athens_1",
+    "dist_21": "ps_acharnes",
+    "dist_22": "ps_acharnes",
+    "dist_23": "ps_athens_1",
+    "dist_24": "ps_athens_1",
+    "dist_25": "ps_keratsini",
+    "dist_26": "ps_kifisia",
+    "dist_27": "ps_keratsini",
+    "dist_28": "ps_koropi",
+    "dist_29": "ps_lavrio",
+    "dist_3": "ps_acharnes",
+    "dist_30": "ps_acharnes",
+    "dist_31": "ps_mandra_junction",
+    "dist_32": "ps_marathon",
+    "dist_33": "ps_koropi",
+    "dist_34": "ps_megara",
+    "dist_35": "ps_acharnes",
+    "dist_36": "ps_keratsini",
+    "dist_37": "ps_acharnes",
+    "dist_38": "ps_athens_1",
+    "dist_39": "ps_keratsini",
+    "dist_4": "ps_athens_1",
+    "dist_40": "ps_koropi",
+    "dist_41": "ps_keratsini",
+    "dist_42": "ps_penteli_sub",
+    "dist_43": "ps_athens_1",
+    "dist_44": "ps_keratsini",
+    "dist_45": "ps_penteli_sub",
+    "dist_46": "ps_keratsini",
+    "dist_47": "ps_athens_1",
+    "dist_48": "ps_acharnes",
+    "dist_49": "ps_rafina",
+    "dist_5": "ps_athens_1",
+    "dist_50": "ps_keratea_sub",
+    "dist_51": "ps_rafina",
+    "dist_52": "ps_athens_1",
+    "dist_53": "ps_acharnes",
+    "dist_54": "ps_acharnes",
+    "dist_55": "ps_keratsini",
+    "dist_56": "ps_oropos_sub",
+    "dist_6": "ps_keratsini",
+    "dist_7": "ps_kifisia",
+    "dist_8": "ps_aspropyrgos",
+    "dist_9": "ps_acharnes"
+  },
+  "region_allocations": {
+    "dipy_athens": {
+      "ps_acharnes": 12,
+      "ps_aspropyrgos": 2,
+      "ps_athens_1": 15,
+      "ps_keratea_sub": 2,
+      "ps_keratsini": 12,
+      "ps_kifisia": 2,
+      "ps_koropi": 8,
+      "ps_lavrio": 4,
+      "ps_mandra_junction": 4,
+      "ps_marathon": 3,
+      "ps_megara": 2,
+      "ps_oropos_sub": 3,
+      "ps_penteli_sub": 5,
+      "ps_rafina": 3,
+      "ps_stefani_sub": 2,
+      "ps_voula": 3
+    }
+  },
+  "station_totals": {
+    "ps_acharnes": 12,
+    "ps_aegaleo": 0,
+    "ps_alepoch_sub": 0,
+    "ps_aspropyrgos": 2,
+    "ps_athens_1": 15,
+    "ps_athens_2": 0,
+    "ps_athens_3": 0,
+    "ps_avlonas_sub": 0,
+    "ps_chalandri": 0,
+    "ps_elefsina": 0,
+    "ps_glyfada": 0,
+    "ps_ilion": 0,
+    "ps_kallithea": 0,
+    "ps_keratea_sub": 2,
+    "ps_keratsini": 12,
+    "ps_kifisia": 2,
+    "ps_koropi": 8,
+    "ps_lavrio": 4,
+    "ps_mandra_junction": 4,
+    "ps_marathon": 3,
+    "ps_marousi": 0,
+    "ps_megara": 2,
+    "ps_nea_ionia": 0,
+    "ps_nikaia": 0,
+    "ps_oropos_sub": 3,
+    "ps_penteli_sub": 5,
+    "ps_peristeri": 0,
+    "ps_piraeus": 0,
+    "ps_rafina": 3,
+    "ps_spata": 0,
+    "ps_stefani_sub": 2,
+    "ps_vilia_sub": 0,
+    "ps_voula": 3
+  },
+  "stations_detail": {
+    "ps_acharnes": {
+      "is_active": true,
+      "total_trucks": 12,
+      "region_breakdown": {
+        "dipy_athens": 12
+      },
+      "assigned_districts": [
+        "dist_21",
+        "dist_22",
+        "dist_3",
+        "dist_30",
+        "dist_35",
+        "dist_37",
+        "dist_48",
+        "dist_53",
+        "dist_54",
+        "dist_9"
+      ]
+    },
+    "ps_aegaleo": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_alepoch_sub": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_aspropyrgos": {
+      "is_active": true,
+      "total_trucks": 2,
+      "region_breakdown": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_8"
+      ]
+    },
+    "ps_athens_1": {
+      "is_active": true,
+      "total_trucks": 15,
+      "region_breakdown": {
+        "dipy_athens": 15
+      },
+      "assigned_districts": [
+        "dist_0",
+        "dist_12",
+        "dist_13",
+        "dist_15",
+        "dist_19",
+        "dist_2",
+        "dist_20",
+        "dist_23",
+        "dist_24",
+        "dist_38",
+        "dist_4",
+        "dist_43",
+        "dist_47",
+        "dist_5",
+        "dist_52"
+      ]
+    },
+    "ps_athens_2": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_athens_3": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_avlonas_sub": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_chalandri": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_elefsina": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_glyfada": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_ilion": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_kallithea": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_keratea_sub": {
+      "is_active": true,
+      "total_trucks": 2,
+      "region_breakdown": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_50"
+      ]
+    },
+    "ps_keratsini": {
+      "is_active": true,
+      "total_trucks": 12,
+      "region_breakdown": {
+        "dipy_athens": 12
+      },
+      "assigned_districts": [
+        "dist_25",
+        "dist_27",
+        "dist_36",
+        "dist_39",
+        "dist_41",
+        "dist_44",
+        "dist_46",
+        "dist_55",
+        "dist_6"
+      ]
+    },
+    "ps_kifisia": {
+      "is_active": true,
+      "total_trucks": 2,
+      "region_breakdown": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_26",
+        "dist_7"
+      ]
+    },
+    "ps_koropi": {
+      "is_active": true,
+      "total_trucks": 8,
+      "region_breakdown": {
+        "dipy_athens": 8
+      },
+      "assigned_districts": [
+        "dist_28",
+        "dist_33",
+        "dist_40"
+      ]
+    },
+    "ps_lavrio": {
+      "is_active": true,
+      "total_trucks": 4,
+      "region_breakdown": {
+        "dipy_athens": 4
+      },
+      "assigned_districts": [
+        "dist_29"
+      ]
+    },
+    "ps_mandra_junction": {
+      "is_active": true,
+      "total_trucks": 4,
+      "region_breakdown": {
+        "dipy_athens": 4
+      },
+      "assigned_districts": [
+        "dist_17",
+        "dist_31"
+      ]
+    },
+    "ps_marathon": {
+      "is_active": true,
+      "total_trucks": 3,
+      "region_breakdown": {
+        "dipy_athens": 3
+      },
+      "assigned_districts": [
+        "dist_32"
+      ]
+    },
+    "ps_marousi": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_megara": {
+      "is_active": true,
+      "total_trucks": 2,
+      "region_breakdown": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_34"
+      ]
+    },
+    "ps_nea_ionia": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_nikaia": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_oropos_sub": {
+      "is_active": true,
+      "total_trucks": 3,
+      "region_breakdown": {
+        "dipy_athens": 3
+      },
+      "assigned_districts": [
+        "dist_56"
+      ]
+    },
+    "ps_penteli_sub": {
+      "is_active": true,
+      "total_trucks": 5,
+      "region_breakdown": {
+        "dipy_athens": 5
+      },
+      "assigned_districts": [
+        "dist_1",
+        "dist_11",
+        "dist_42",
+        "dist_45"
+      ]
+    },
+    "ps_peristeri": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_piraeus": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_rafina": {
+      "is_active": true,
+      "total_trucks": 3,
+      "region_breakdown": {
+        "dipy_athens": 3
+      },
+      "assigned_districts": [
+        "dist_49",
+        "dist_51"
+      ]
+    },
+    "ps_spata": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_stefani_sub": {
+      "is_active": true,
+      "total_trucks": 2,
+      "region_breakdown": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_16"
+      ]
+    },
+    "ps_vilia_sub": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_voula": {
+      "is_active": true,
+      "total_trucks": 3,
+      "region_breakdown": {
+        "dipy_athens": 3
+      },
+      "assigned_districts": [
+        "dist_10",
+        "dist_14",
+        "dist_18"
+      ]
+    }
+  },
+  "stations": [
+    {
+      "id": "ps_athens_1",
+      "name": "1ος ΠΣ Αθηνών (Κολωνάκι)",
+      "lat": 37.98,
+      "lon": 23.744,
+      "capacity": 15,
+      "annual_cost": 900000.0,
+      "is_active": true,
+      "total_trucks": 15,
+      "region_allocations": {
+        "dipy_athens": 15
+      },
+      "assigned_districts": [
+        "dist_0",
+        "dist_12",
+        "dist_13",
+        "dist_15",
+        "dist_19",
+        "dist_2",
+        "dist_20",
+        "dist_23",
+        "dist_24",
+        "dist_38",
+        "dist_4",
+        "dist_43",
+        "dist_47",
+        "dist_5",
+        "dist_52"
+      ]
+    },
+    {
+      "id": "ps_athens_2",
+      "name": "2ος ΠΣ Αθηνών (Ν. Κόσμος)",
+      "lat": 37.9503,
+      "lon": 23.729,
+      "capacity": 15,
+      "annual_cost": 900000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_athens_3",
+      "name": "3ος ΠΣ Αθηνών (Αγ. Βαρβάρα)",
+      "lat": 37.993,
+      "lon": 23.667,
+      "capacity": 15,
+      "annual_cost": 900000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_kallithea",
+      "name": "ΠΣ Καλλιθέας",
+      "lat": 37.956,
+      "lon": 23.703,
+      "capacity": 12,
+      "annual_cost": 800000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_piraeus",
+      "name": "ΠΣ Πειραιά",
+      "lat": 37.945,
+      "lon": 23.646,
+      "capacity": 15,
+      "annual_cost": 850000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_nikaia",
+      "name": "ΠΣ Νίκαιας",
+      "lat": 37.967,
+      "lon": 23.664,
+      "capacity": 12,
+      "annual_cost": 780000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_keratsini",
+      "name": "ΠΣ Κερατσινίου",
+      "lat": 37.962,
+      "lon": 23.625,
+      "capacity": 12,
+      "annual_cost": 780000.0,
+      "is_active": true,
+      "total_trucks": 12,
+      "region_allocations": {
+        "dipy_athens": 12
+      },
+      "assigned_districts": [
+        "dist_25",
+        "dist_27",
+        "dist_36",
+        "dist_39",
+        "dist_41",
+        "dist_44",
+        "dist_46",
+        "dist_55",
+        "dist_6"
+      ]
+    },
+    {
+      "id": "ps_peristeri",
+      "name": "ΠΣ Περιστερίου",
+      "lat": 38.013,
+      "lon": 23.689,
+      "capacity": 15,
+      "annual_cost": 850000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_aegaleo",
+      "name": "ΠΣ Αιγάλεω",
+      "lat": 37.995,
+      "lon": 23.682,
+      "capacity": 12,
+      "annual_cost": 780000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_ilion",
+      "name": "ΠΣ Ιλίου",
+      "lat": 38.022,
+      "lon": 23.701,
+      "capacity": 12,
+      "annual_cost": 780000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_nea_ionia",
+      "name": "ΠΣ Νέας Ιωνίας",
+      "lat": 38.028,
+      "lon": 23.762,
+      "capacity": 12,
+      "annual_cost": 780000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_marousi",
+      "name": "ΠΣ Μαρουσίου",
+      "lat": 38.056,
+      "lon": 23.801,
+      "capacity": 12,
+      "annual_cost": 780000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_kifisia",
+      "name": "ΠΣ Κηφισιάς",
+      "lat": 38.07,
+      "lon": 23.814,
+      "capacity": 12,
+      "annual_cost": 780000.0,
+      "is_active": true,
+      "total_trucks": 2,
+      "region_allocations": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_26",
+        "dist_7"
+      ]
+    },
+    {
+      "id": "ps_chalandri",
+      "name": "ΠΣ Χαλανδρίου",
+      "lat": 38.013,
+      "lon": 23.798,
+      "capacity": 12,
+      "annual_cost": 780000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_acharnes",
+      "name": "ΠΣ Αχαρνών",
+      "lat": 38.078,
+      "lon": 23.739,
+      "capacity": 12,
+      "annual_cost": 780000.0,
+      "is_active": true,
+      "total_trucks": 12,
+      "region_allocations": {
+        "dipy_athens": 12
+      },
+      "assigned_districts": [
+        "dist_21",
+        "dist_22",
+        "dist_3",
+        "dist_30",
+        "dist_35",
+        "dist_37",
+        "dist_48",
+        "dist_53",
+        "dist_54",
+        "dist_9"
+      ]
+    },
+    {
+      "id": "ps_glyfada",
+      "name": "ΠΣ Γλυφάδας",
+      "lat": 37.876,
+      "lon": 23.752,
+      "capacity": 12,
+      "annual_cost": 780000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_voula",
+      "name": "ΠΣ Βούλας",
+      "lat": 37.849,
+      "lon": 23.779,
+      "capacity": 10,
+      "annual_cost": 720000.0,
+      "is_active": true,
+      "total_trucks": 3,
+      "region_allocations": {
+        "dipy_athens": 3
+      },
+      "assigned_districts": [
+        "dist_10",
+        "dist_14",
+        "dist_18"
+      ]
+    },
+    {
+      "id": "ps_elefsina",
+      "name": "ΠΣ Ελευσίνας",
+      "lat": 38.065,
+      "lon": 23.541,
+      "capacity": 12,
+      "annual_cost": 780000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_aspropyrgos",
+      "name": "ΠΣ Ασπροπύργου",
+      "lat": 38.063,
+      "lon": 23.597,
+      "capacity": 10,
+      "annual_cost": 720000.0,
+      "is_active": true,
+      "total_trucks": 2,
+      "region_allocations": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_8"
+      ]
+    },
+    {
+      "id": "ps_megara",
+      "name": "ΠΣ Μεγάρων",
+      "lat": 37.996,
+      "lon": 23.341,
+      "capacity": 10,
+      "annual_cost": 720000.0,
+      "is_active": true,
+      "total_trucks": 2,
+      "region_allocations": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_34"
+      ]
+    },
+    {
+      "id": "ps_koropi",
+      "name": "ΠΣ Κορωπίου",
+      "lat": 37.892,
+      "lon": 23.877,
+      "capacity": 10,
+      "annual_cost": 720000.0,
+      "is_active": true,
+      "total_trucks": 8,
+      "region_allocations": {
+        "dipy_athens": 8
+      },
+      "assigned_districts": [
+        "dist_28",
+        "dist_33",
+        "dist_40"
+      ]
+    },
+    {
+      "id": "ps_spata",
+      "name": "ΠΣ Σπάτων",
+      "lat": 37.964,
+      "lon": 23.916,
+      "capacity": 10,
+      "annual_cost": 720000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_rafina",
+      "name": "ΠΣ Ραφήνας",
+      "lat": 38.019,
+      "lon": 24.002,
+      "capacity": 10,
+      "annual_cost": 720000.0,
+      "is_active": true,
+      "total_trucks": 3,
+      "region_allocations": {
+        "dipy_athens": 3
+      },
+      "assigned_districts": [
+        "dist_49",
+        "dist_51"
+      ]
+    },
+    {
+      "id": "ps_marathon",
+      "name": "ΠΣ Μαραθώνα",
+      "lat": 38.157,
+      "lon": 23.963,
+      "capacity": 10,
+      "annual_cost": 720000.0,
+      "is_active": true,
+      "total_trucks": 3,
+      "region_allocations": {
+        "dipy_athens": 3
+      },
+      "assigned_districts": [
+        "dist_32"
+      ]
+    },
+    {
+      "id": "ps_lavrio",
+      "name": "ΠΣ Λαυρίου",
+      "lat": 37.716,
+      "lon": 24.053,
+      "capacity": 10,
+      "annual_cost": 720000.0,
+      "is_active": true,
+      "total_trucks": 4,
+      "region_allocations": {
+        "dipy_athens": 4
+      },
+      "assigned_districts": [
+        "dist_29"
+      ]
+    },
+    {
+      "id": "ps_oropos_sub",
+      "name": "Εποχικό Κλιμάκιο Καπανδριτίου (Ωρωπός)",
+      "lat": 38.3015,
+      "lon": 23.791,
+      "capacity": 10,
+      "annual_cost": 300000.0,
+      "is_active": true,
+      "total_trucks": 3,
+      "region_allocations": {
+        "dipy_athens": 3
+      },
+      "assigned_districts": [
+        "dist_56"
+      ]
+    },
+    {
+      "id": "ps_avlonas_sub",
+      "name": "Εποχικό Κλιμάκιο Αυλώνα (Βόρεια Πάρνηθα)",
+      "lat": 38.2454,
+      "lon": 23.6948,
+      "capacity": 10,
+      "annual_cost": 280000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_vilia_sub",
+      "name": "Εποχικό Κλιμάκιο Βιλίων (Κιθαιρώνας)",
+      "lat": 38.1664,
+      "lon": 23.3352,
+      "capacity": 10,
+      "annual_cost": 320000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_stefani_sub",
+      "name": "Εποχικό Κλιμάκιο Αγ. Στεφάνου (Διόνυσος)",
+      "lat": 38.125,
+      "lon": 23.865,
+      "capacity": 10,
+      "annual_cost": 280000.0,
+      "is_active": true,
+      "total_trucks": 2,
+      "region_allocations": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_16"
+      ]
+    },
+    {
+      "id": "ps_penteli_sub",
+      "name": "Εποχικό Κλιμάκιο Παλαιάς Πεντέλης",
+      "lat": 38.0494,
+      "lon": 23.8612,
+      "capacity": 10,
+      "annual_cost": 250000.0,
+      "is_active": true,
+      "total_trucks": 5,
+      "region_allocations": {
+        "dipy_athens": 5
+      },
+      "assigned_districts": [
+        "dist_1",
+        "dist_11",
+        "dist_42",
+        "dist_45"
+      ]
+    },
+    {
+      "id": "ps_keratea_sub",
+      "name": "Εποχικό Κλιμάκιο Κερατέας (Λαυρεωτική)",
+      "lat": 37.8042,
+      "lon": 23.9774,
+      "capacity": 10,
+      "annual_cost": 290000.0,
+      "is_active": true,
+      "total_trucks": 2,
+      "region_allocations": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_50"
+      ]
+    },
+    {
+      "id": "ps_alepoch_sub",
+      "name": "Εποχικό Κλιμάκιο Αλεποχωρίου (Μέγαρα)",
+      "lat": 38.0811,
+      "lon": 23.1843,
+      "capacity": 10,
+      "annual_cost": 250000.0,
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
+    },
+    {
+      "id": "ps_mandra_junction",
+      "name": "Κλιμάκιο Κόμβου Μάνδρας",
+      "lat": 38.075,
+      "lon": 23.515,
+      "capacity": 6,
+      "annual_cost": 300000.0,
+      "is_active": true,
+      "total_trucks": 4,
+      "region_allocations": {
+        "dipy_athens": 4
+      },
+      "assigned_districts": [
+        "dist_17",
+        "dist_31"
+      ]
+    }
+  ],
+  "districts": [
+    {
+      "id": "dist_0",
+      "name": "Δ. ΑΓΙΑΣ ΒΑΡΒΑΡΑΣ",
+      "lat": 37.9903,
+      "lon": 23.6606,
+      "demand": 1.0,
+      "area_km2": 2.4,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 21.36
+    },
+    {
+      "id": "dist_1",
+      "name": "Δ. ΑΓΙΑΣ ΠΑΡΑΣΚΕΥΗΣ",
+      "lat": 38.01,
+      "lon": 23.8214,
+      "demand": 1.0,
+      "area_km2": 7.9,
+      "wildfire_risk": 3.0,
+      "assigned_station_id": "ps_penteli_sub",
+      "response_time_min": 12.33
+    },
+    {
+      "id": "dist_2",
+      "name": "Δ. ΑΓΙΟΥ ΔΗΜΗΤΡΙΟΥ",
+      "lat": 37.9353,
+      "lon": 23.7317,
+      "demand": 1.0,
+      "area_km2": 5.0,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 15.48
+    },
+    {
+      "id": "dist_3",
+      "name": "Δ. ΑΓΙΩΝ ΑΝΑΡΓΥΡΩΝ - ΚΑΜΑΤΕΡΟΥ",
+      "lat": 38.0272,
+      "lon": 23.7003,
+      "demand": 1.0,
+      "area_km2": 9.1,
+      "wildfire_risk": 1.5,
+      "assigned_station_id": "ps_acharnes",
+      "response_time_min": 11.81
+    },
+    {
+      "id": "dist_4",
+      "name": "Δ. ΑΘΗΝΑΙΩΝ",
+      "lat": 37.9838,
+      "lon": 23.7275,
+      "demand": 1.0,
+      "area_km2": 39.0,
+      "wildfire_risk": 1.2,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 7.39
+    },
+    {
+      "id": "dist_5",
+      "name": "Δ. ΑΙΓΑΛΕΩ",
+      "lat": 37.9833,
+      "lon": 23.6833,
+      "demand": 1.0,
+      "area_km2": 6.5,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 16.24
+    },
+    {
+      "id": "dist_6",
+      "name": "Δ. ΑΛΙΜΟΥ",
+      "lat": 37.91,
+      "lon": 23.7167,
+      "demand": 1.0,
+      "area_km2": 7.5,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_keratsini",
+      "response_time_min": 16.49
+    },
+    {
+      "id": "dist_7",
+      "name": "Δ. ΑΜΑΡΟΥΣΙΟΥ",
+      "lat": 38.0561,
+      "lon": 23.8106,
+      "demand": 1.0,
+      "area_km2": 12.9,
+      "wildfire_risk": 1.5,
+      "assigned_station_id": "ps_kifisia",
+      "response_time_min": 6.48
+    },
+    {
+      "id": "dist_8",
+      "name": "Δ. ΑΣΠΡΟΠΥΡΓΟΥ",
+      "lat": 38.0614,
+      "lon": 23.5908,
+      "demand": 2.0,
+      "area_km2": 102.0,
+      "wildfire_risk": 4.0,
+      "assigned_station_id": "ps_aspropyrgos",
+      "response_time_min": 6.02
+    },
+    {
+      "id": "dist_9",
+      "name": "Δ. ΑΧΑΡΝΩΝ",
+      "lat": 38.0833,
+      "lon": 23.7333,
+      "demand": 2.0,
+      "area_km2": 146.4,
+      "wildfire_risk": 5.0,
+      "assigned_station_id": "ps_acharnes",
+      "response_time_min": 6.51
+    },
+    {
+      "id": "dist_10",
+      "name": "Δ. ΒΑΡΗΣ - ΒΟΥΛΑΣ - ΒΟΥΛΙΑΓΜΕΝΗΣ",
+      "lat": 37.8425,
+      "lon": 23.7658,
+      "demand": 1.0,
+      "area_km2": 29.2,
+      "wildfire_risk": 3.5,
+      "assigned_station_id": "ps_voula",
+      "response_time_min": 6.24
+    },
+    {
+      "id": "dist_11",
+      "name": "Δ. ΒΡΙΛΗΣΣΙΩΝ",
+      "lat": 38.0264,
+      "lon": 23.8294,
+      "demand": 1.0,
+      "area_km2": 3.9,
+      "wildfire_risk": 2.0,
+      "assigned_station_id": "ps_penteli_sub",
+      "response_time_min": 8.77
+    },
+    {
+      "id": "dist_12",
+      "name": "Δ. ΒΥΡΩΝΟΣ",
+      "lat": 37.9531,
+      "lon": 23.7544,
+      "demand": 1.0,
+      "area_km2": 9.2,
+      "wildfire_risk": 3.5,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 10.58
+    },
+    {
+      "id": "dist_13",
+      "name": "Δ. ΓΑΛΑΤΣΙΟΥ",
+      "lat": 38.015,
+      "lon": 23.7544,
+      "demand": 1.0,
+      "area_km2": 4.0,
+      "wildfire_risk": 1.5,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 12.53
+    },
+    {
+      "id": "dist_14",
+      "name": "Δ. ΓΛΥΦΑΔΑΣ",
+      "lat": 37.8625,
+      "lon": 23.7508,
+      "demand": 1.0,
+      "area_km2": 25.4,
+      "wildfire_risk": 2.5,
+      "assigned_station_id": "ps_voula",
+      "response_time_min": 9.61
+    },
+    {
+      "id": "dist_15",
+      "name": "Δ. ΔΑΦΝΗΣ - ΥΜΗΤΤΟΥ",
+      "lat": 37.9494,
+      "lon": 23.7383,
+      "demand": 1.0,
+      "area_km2": 2.4,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 10.9
+    },
+    {
+      "id": "dist_16",
+      "name": "Δ. ΔΙΟΝΥΣΟΥ",
+      "lat": 38.0992,
+      "lon": 23.8642,
+      "demand": 2.0,
+      "area_km2": 111.5,
+      "wildfire_risk": 5.0,
+      "assigned_station_id": "ps_stefani_sub",
+      "response_time_min": 12.11
+    },
+    {
+      "id": "dist_17",
+      "name": "Δ. ΕΛΕΥΣΙΝΑΣ",
+      "lat": 38.0414,
+      "lon": 23.5414,
+      "demand": 2.0,
+      "area_km2": 36.6,
+      "wildfire_risk": 2.0,
+      "assigned_station_id": "ps_mandra_junction",
+      "response_time_min": 13.36
+    },
+    {
+      "id": "dist_18",
+      "name": "Δ. ΕΛΛΗΝΙΚΟΥ - ΑΡΓΥΡΟΥΠΟΛΗΣ",
+      "lat": 37.9,
+      "lon": 23.75,
+      "demand": 1.0,
+      "area_km2": 15.4,
+      "wildfire_risk": 2.5,
+      "assigned_station_id": "ps_voula",
+      "response_time_min": 16.8
+    },
+    {
+      "id": "dist_19",
+      "name": "Δ. ΖΩΓΡΑΦΟΥ",
+      "lat": 37.9736,
+      "lon": 23.7719,
+      "demand": 1.0,
+      "area_km2": 8.5,
+      "wildfire_risk": 2.0,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 9.01
+    },
+    {
+      "id": "dist_20",
+      "name": "Δ. ΗΛΙΟΥΠΟΛΕΩΣ",
+      "lat": 37.9333,
+      "lon": 23.7667,
+      "demand": 1.0,
+      "area_km2": 12.7,
+      "wildfire_risk": 3.0,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 17.19
+    },
+    {
+      "id": "dist_21",
+      "name": "Δ. ΗΡΑΚΛΕΙΟΥ",
+      "lat": 38.05,
+      "lon": 23.7667,
+      "demand": 1.0,
+      "area_km2": 4.6,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_acharnes",
+      "response_time_min": 7.71
+    },
+    {
+      "id": "dist_22",
+      "name": "Δ. ΙΛΙΟΥ",
+      "lat": 38.0333,
+      "lon": 23.7,
+      "demand": 1.0,
+      "area_km2": 9.1,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_acharnes",
+      "response_time_min": 11.0
+    },
+    {
+      "id": "dist_23",
+      "name": "Δ. ΚΑΙΣΑΡΙΑΝΗΣ",
+      "lat": 37.9681,
+      "lon": 23.7594,
+      "demand": 1.0,
+      "area_km2": 7.8,
+      "wildfire_risk": 3.5,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 7.24
+    },
+    {
+      "id": "dist_24",
+      "name": "Δ. ΚΑΛΛΙΘΕΑΣ",
+      "lat": 37.95,
+      "lon": 23.7,
+      "demand": 1.0,
+      "area_km2": 4.8,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 15.5
+    },
+    {
+      "id": "dist_25",
+      "name": "Δ. ΚΕΡΑΤΣΙΝΙΟΥ - ΔΡΑΠΕΤΣΩΝΑΣ",
+      "lat": 37.9622,
+      "lon": 23.6164,
+      "demand": 1.0,
+      "area_km2": 9.3,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_keratsini",
+      "response_time_min": 3.42
+    },
+    {
+      "id": "dist_26",
+      "name": "Δ. ΚΗΦΙΣΙΑΣ",
+      "lat": 38.0742,
+      "lon": 23.8108,
+      "demand": 1.0,
+      "area_km2": 35.1,
+      "wildfire_risk": 4.0,
+      "assigned_station_id": "ps_kifisia",
+      "response_time_min": 4.68
+    },
+    {
+      "id": "dist_27",
+      "name": "Δ. ΚΟΡΥΔΑΛΛΟΥ",
+      "lat": 37.9778,
+      "lon": 23.6514,
+      "demand": 2.0,
+      "area_km2": 4.3,
+      "wildfire_risk": 1.5,
+      "assigned_station_id": "ps_keratsini",
+      "response_time_min": 6.19
+    },
+    {
+      "id": "dist_28",
+      "name": "Δ. ΚΡΩΠΙΑΣ",
+      "lat": 37.8964,
+      "lon": 23.8744,
+      "demand": 3.0,
+      "area_km2": 102.0,
+      "wildfire_risk": 3.5,
+      "assigned_station_id": "ps_koropi",
+      "response_time_min": 5.88
+    },
+    {
+      "id": "dist_29",
+      "name": "Δ. ΛΑΥΡΕΩΤΙΚΗΣ",
+      "lat": 37.7144,
+      "lon": 24.0561,
+      "demand": 4.0,
+      "area_km2": 175.8,
+      "wildfire_risk": 4.5,
+      "assigned_station_id": "ps_lavrio",
+      "response_time_min": 6.49
+    },
+    {
+      "id": "dist_30",
+      "name": "Δ. ΛΥΚΟΒΡΥΣΗΣ - ΠΕΥΚΗΣ",
+      "lat": 38.0619,
+      "lon": 23.7844,
+      "demand": 1.0,
+      "area_km2": 4.1,
+      "wildfire_risk": 1.5,
+      "assigned_station_id": "ps_acharnes",
+      "response_time_min": 8.26
+    },
+    {
+      "id": "dist_31",
+      "name": "Δ. ΜΑΝΔΡΑΣ - ΕΙΔΥΛΛΙΑΣ",
+      "lat": 38.0683,
+      "lon": 23.5019,
+      "demand": 2.0,
+      "area_km2": 426.3,
+      "wildfire_risk": 5.0,
+      "assigned_station_id": "ps_mandra_junction",
+      "response_time_min": 11.41
+    },
+    {
+      "id": "dist_32",
+      "name": "Δ. ΜΑΡΑΘΩΝΟΣ",
+      "lat": 38.1528,
+      "lon": 23.9636,
+      "demand": 3.0,
+      "area_km2": 222.8,
+      "wildfire_risk": 5.0,
+      "assigned_station_id": "ps_marathon",
+      "response_time_min": 7.37
+    },
+    {
+      "id": "dist_33",
+      "name": "Δ. ΜΑΡΚΟΠΟΥΛΟΥ ΜΕΣΟΓΑΙΑΣ",
+      "lat": 37.8833,
+      "lon": 23.9333,
+      "demand": 3.0,
+      "area_km2": 81.8,
+      "wildfire_risk": 2.5,
+      "assigned_station_id": "ps_koropi",
+      "response_time_min": 15.24
+    },
+    {
+      "id": "dist_34",
+      "name": "Δ. ΜΕΓΑΡΕΩΝ",
+      "lat": 37.9958,
+      "lon": 23.3431,
+      "demand": 2.0,
+      "area_km2": 322.2,
+      "wildfire_risk": 4.5,
+      "assigned_station_id": "ps_megara",
+      "response_time_min": 7.8
+    },
+    {
+      "id": "dist_35",
+      "name": "Δ. ΜΕΤΑΜΟΡΦΩΣΕΩΣ",
+      "lat": 38.065,
+      "lon": 23.7636,
+      "demand": 1.0,
+      "area_km2": 5.5,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_acharnes",
+      "response_time_min": 5.83
+    },
+    {
+      "id": "dist_36",
+      "name": "Δ. ΜΟΣΧΑΤΟΥ - ΤΑΥΡΟΥ",
+      "lat": 37.9519,
+      "lon": 23.6806,
+      "demand": 1.0,
+      "area_km2": 4.5,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_keratsini",
+      "response_time_min": 9.22
+    },
+    {
+      "id": "dist_37",
+      "name": "Δ. ΝΕΑΣ ΙΩΝΙΑΣ",
+      "lat": 38.0375,
+      "lon": 23.7583,
+      "demand": 1.0,
+      "area_km2": 4.4,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_acharnes",
+      "response_time_min": 8.94
+    },
+    {
+      "id": "dist_38",
+      "name": "Δ. ΝΕΑΣ ΣΜΥΡΝΗΣ",
+      "lat": 37.9458,
+      "lon": 23.7142,
+      "demand": 1.0,
+      "area_km2": 3.5,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 14.11
+    },
+    {
+      "id": "dist_39",
+      "name": "Δ. ΝΙΚΑΙΑΣ - ΑΓΙΟΥ ΙΩΑΝΝΗ ΡΕΝΤΗ",
+      "lat": 37.9667,
+      "lon": 23.6333,
+      "demand": 1.0,
+      "area_km2": 11.2,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_keratsini",
+      "response_time_min": 3.72
+    },
+    {
+      "id": "dist_40",
+      "name": "Δ. ΠΑΙΑΝΙΑΣ",
+      "lat": 37.95,
+      "lon": 23.85,
+      "demand": 2.0,
+      "area_km2": 47.1,
+      "wildfire_risk": 2.5,
+      "assigned_station_id": "ps_koropi",
+      "response_time_min": 18.46
+    },
+    {
+      "id": "dist_41",
+      "name": "Δ. ΠΑΛΑΙΟΥ ΦΑΛΗΡΟΥ",
+      "lat": 37.925,
+      "lon": 23.6917,
+      "demand": 1.0,
+      "area_km2": 4.6,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_keratsini",
+      "response_time_min": 12.32
+    },
+    {
+      "id": "dist_42",
+      "name": "Δ. ΠΑΛΛΗΝΗΣ",
+      "lat": 38.0039,
+      "lon": 23.8814,
+      "demand": 2.0,
+      "area_km2": 29.4,
+      "wildfire_risk": 2.5,
+      "assigned_station_id": "ps_penteli_sub",
+      "response_time_min": 12.78
+    },
+    {
+      "id": "dist_43",
+      "name": "Δ. ΠΑΠΑΓΟΥ - ΧΟΛΑΡΓΟΥ",
+      "lat": 37.9942,
+      "lon": 23.7933,
+      "demand": 1.0,
+      "area_km2": 7.3,
+      "wildfire_risk": 3.0,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 14.36
+    },
+    {
+      "id": "dist_44",
+      "name": "Δ. ΠΕΙΡΑΙΩΣ",
+      "lat": 37.9431,
+      "lon": 23.6472,
+      "demand": 1.0,
+      "area_km2": 10.9,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_keratsini",
+      "response_time_min": 6.54
+    },
+    {
+      "id": "dist_45",
+      "name": "Δ. ΠΕΝΤΕΛΗΣ",
+      "lat": 38.0506,
+      "lon": 23.8631,
+      "demand": 1.0,
+      "area_km2": 36.1,
+      "wildfire_risk": 4.5,
+      "assigned_station_id": "ps_penteli_sub",
+      "response_time_min": 3.87
+    },
+    {
+      "id": "dist_46",
+      "name": "Δ. ΠΕΡΑΜΑΤΟΣ",
+      "lat": 37.9619,
+      "lon": 23.5714,
+      "demand": 3.0,
+      "area_km2": 14.7,
+      "wildfire_risk": 1.5,
+      "assigned_station_id": "ps_keratsini",
+      "response_time_min": 13.31
+    },
+    {
+      "id": "dist_47",
+      "name": "Δ. ΠΕΡΙΣΤΕΡΙΟΥ",
+      "lat": 38.0167,
+      "lon": 23.6833,
+      "demand": 1.0,
+      "area_km2": 10.1,
+      "wildfire_risk": 1.0,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 20.07
+    },
+    {
+      "id": "dist_48",
+      "name": "Δ. ΠΕΤΡΟΥΠΟΛΕΩΣ",
+      "lat": 38.04,
+      "lon": 23.68,
+      "demand": 2.0,
+      "area_km2": 6.8,
+      "wildfire_risk": 2.0,
+      "assigned_station_id": "ps_acharnes",
+      "response_time_min": 11.79
+    },
+    {
+      "id": "dist_49",
+      "name": "Δ. ΡΑΦΗΝΑΣ - ΠΙΚΕΡΜΙΟΥ",
+      "lat": 38.0183,
+      "lon": 23.9922,
+      "demand": 2.0,
+      "area_km2": 40.5,
+      "wildfire_risk": 4.5,
+      "assigned_station_id": "ps_rafina",
+      "response_time_min": 5.01
+    },
+    {
+      "id": "dist_50",
+      "name": "Δ. ΣΑΡΩΝΙΚΟΥ",
+      "lat": 37.7958,
+      "lon": 23.9242,
+      "demand": 2.0,
+      "area_km2": 133.4,
+      "wildfire_risk": 4.0,
+      "assigned_station_id": "ps_keratea_sub",
+      "response_time_min": 15.51
+    },
+    {
+      "id": "dist_51",
+      "name": "Δ. ΣΠΑΤΩΝ - ΑΡΤΕΜΙΔΟΣ",
+      "lat": 37.9642,
+      "lon": 23.9161,
+      "demand": 1.0,
+      "area_km2": 73.7,
+      "wildfire_risk": 2.5,
+      "assigned_station_id": "ps_rafina",
+      "response_time_min": 21.64
+    },
+    {
+      "id": "dist_52",
+      "name": "Δ. ΦΙΛΟΘΕΗΣ - ΨΥΧΙΚΟΥ",
+      "lat": 37.9972,
+      "lon": 23.7778,
+      "demand": 1.0,
+      "area_km2": 6.2,
+      "wildfire_risk": 1.5,
+      "assigned_station_id": "ps_athens_1",
+      "response_time_min": 11.45
+    },
+    {
+      "id": "dist_53",
+      "name": "Δ. ΦΥΛΗΣ",
+      "lat": 38.1028,
+      "lon": 23.6669,
+      "demand": 1.0,
+      "area_km2": 109.1,
+      "wildfire_risk": 5.0,
+      "assigned_station_id": "ps_acharnes",
+      "response_time_min": 14.75
+    },
+    {
+      "id": "dist_54",
+      "name": "Δ. ΧΑΛΑΝΔΡΙΟΥ",
+      "lat": 38.0222,
+      "lon": 23.7967,
+      "demand": 1.0,
+      "area_km2": 10.8,
+      "wildfire_risk": 1.2,
+      "assigned_station_id": "ps_acharnes",
+      "response_time_min": 13.93
+    },
+    {
+      "id": "dist_55",
+      "name": "Δ. ΧΑΪΔΑΡΙΟΥ",
+      "lat": 38.0111,
+      "lon": 23.6453,
+      "demand": 1.0,
+      "area_km2": 22.7,
+      "wildfire_risk": 3.5,
+      "assigned_station_id": "ps_keratsini",
+      "response_time_min": 18.76
+    },
+    {
+      "id": "dist_56",
+      "name": "Δ. ΩΡΩΠΟΥ",
+      "lat": 38.2981,
+      "lon": 23.7919,
+      "demand": 3.0,
+      "area_km2": 538.1,
+      "wildfire_risk": 5.0,
+      "assigned_station_id": "ps_oropos_sub",
+      "response_time_min": 9.71
+    }
+  ]
+}

@@ -1,14 +1,13 @@
 """Builds the PuLP MILP model for fire station placement in Attica.
 
-Implements the two-stage capacitated facility location formulation
-(Klose, 1999) with the following mapping:
+Multi-region capacitated facility location formulation (extended Klose, 1999):
 
   Paper            → Fire protection
   ─────────────────────────────────────────────────────────────────
-  Plants (I)       → Fire region (Attica) — single source of trucks
+  Plants (I)       → ΔΙΠΥ regional directorates — multiple sources of trucks
   Depot sites (J)  → Candidate fire stations
   Customers (K)    → Incident districts (aggregated municipalities)
-  pi               → Total firetrucks in Attica
+  pi               → Fleet size of ΔΙΠΥ region i
   sj               → Firetruck capacity of station j
   dk               → Fire-coverage demand of district k
   ckj              → Estimated response time from station j to district k (minutes)
@@ -20,13 +19,20 @@ Implements the two-stage capacitated facility location formulation
 Objective (1):  min Σ wk · ckj · zkj
   wk = dk · risk_k² · ln(area_k)       (WUI-priority composite weight)
 
-Structural constraints added beyond the Klose baseline:
+Structural constraints:
   Budget:           Σ fj·yj  ≤  MAX_BUDGET
   Coverage bound:   Σ_j ckj·zkj  ≤  max_time(risk_k)    ∀k   [hard upper bound]
   Force-open:       yj  = 1                               ∀j ∈ FORCED_OPEN_STATIONS
+
+Multi-region constraints:
+  (6) Supply:       Σ_j vij  ≤  pi                        ∀i ∈ I
+  (7) Flow:         Σ_i vij  == Σ_k dk·zkj                ∀j ∈ J
+  (8) VUB:          vij  ≤  pi · yj                       ∀i,j
+  (9) Min-truck:    Σ_i vij  ≥  1 · yj                    ∀j ∈ J
 """
 
 import math
+from typing import Optional
 
 import pulp
 
@@ -43,27 +49,46 @@ from domain.problem import FireProtectionProblem
 
 def build_model(
     problem: FireProtectionProblem,
+    *,
+    max_budget: Optional[float] = None,
 ) -> tuple[pulp.LpProblem, dict, dict, dict]:
-    """Return (model, y_vars, z_vars, v_vars) ready for solving."""
+    """Return (model, y_vars, z_vars, v_vars) ready for solving.
+
+    Parameters
+    ----------
+    problem:
+        Multi-region ``FireProtectionProblem``.
+    max_budget:
+        If provided, overrides ``config.milp_config.MAX_BUDGET``.
+        Pass ``None`` to use the config default.
+    """
     mdl = pulp.LpProblem("FireProtectionOptimization", pulp.LpMinimize)
 
-    r = problem.region
-    J = problem.stations
-    K = problem.districts
+    I = problem.regions     # ΔΙΠΥ directorates
+    J = problem.stations    # Candidate stations
+    K = problem.districts   # Demand districts
 
     c = problem.response_time_matrix(AVERAGE_SPEED_KMH)  # ckj: traffic-adjusted minutes
 
     # --- Decision variables ---
-    y = {s.id: pulp.LpVariable(f"y_{s.id}", cat="Binary") for s in J}
 
-    z = {
+    # yj ∈ {0,1}: station j is operational
+    y: dict[str, pulp.LpVariable] = {
+        s.id: pulp.LpVariable(f"y_{s.id}", cat="Binary")
+        for s in J
+    }
+
+    # zkj ∈ {0,1}: district k assigned to station j
+    z: dict[tuple[str, str], pulp.LpVariable] = {
         (d.id, s.id): pulp.LpVariable(f"z_{d.id}__{s.id}", cat="Binary")
         for d in K
         for s in J
     }
 
-    v = {
-        s.id: pulp.LpVariable(f"v_{r.id}__{s.id}", lowBound=0, cat="Integer")
+    # vij ∈ ℤ≥0: firetrucks deployed from region i to station j
+    v: dict[tuple[str, str], pulp.LpVariable] = {
+        (r.id, s.id): pulp.LpVariable(f"v_{r.id}__{s.id}", lowBound=0, cat="Integer")
+        for r in I
         for s in J
     }
 
@@ -76,9 +101,9 @@ def build_model(
     #   a forest fire in 500 km² needs faster mobilisation than in 4 km².
     # Together they encode Wildland-Urban Interface (WUI) planning priority.
     def _weight(d: object) -> float:
-        base = d.demand if DEMAND_WEIGHTED_RESPONSE else 1.0
+        base = d.demand if DEMAND_WEIGHTED_RESPONSE else 1.0  # type: ignore[union-attr]
         if WILDFIRE_RISK_WEIGHT:
-            return base * (d.wildfire_risk ** 2) * math.log(max(d.area_km2, 1.0))
+            return base * (d.wildfire_risk ** 2) * math.log(max(d.area_km2, 1.0))  # type: ignore[union-attr]
         return base
 
     mdl += (
@@ -88,15 +113,15 @@ def build_model(
 
     # --- Structural constraints ---
 
-    # Budget: cap total operational cost (Σ fj·yj ≤ MAX_BUDGET)
-    if MAX_BUDGET is not None:
+    # Budget: cap total operational cost (Σ fj·yj ≤ budget)
+    effective_budget = max_budget if max_budget is not None else MAX_BUDGET
+    if effective_budget is not None:
         mdl += (
-            pulp.lpSum(s.cost * y[s.id] for s in J) <= MAX_BUDGET,
+            pulp.lpSum(s.cost * y[s.id] for s in J) <= effective_budget,
             "budget",
         )
 
     # Force-open critical perimeter stations: pin y[j] = 1 before the solver runs.
-    # These stations are always staffed regardless of budget optimisation heuristics.
     forced = set(FORCED_OPEN_STATIONS)
     for s in J:
         if s.id in forced:
@@ -123,10 +148,6 @@ def build_model(
 
     # (4a) Dynamic coverage time bound (hard upper constraint per district):
     #      Σ_j  c_kj · z_kj  ≤  max_time(risk_k)
-    #
-    # Because exactly one z_kj = 1 (from constraint 2), this reduces to:
-    # "the station assigned to district k must have response time ≤ max_t_k".
-    # Using the lpSum form keeps it a valid linear constraint in PuLP.
     for d in K:
         max_t = RISK_COVERAGE_MAX_TIMES.get(d.wildfire_risk)
         if max_t is not None:
@@ -141,21 +162,41 @@ def build_model(
         "agg_capacity",
     )
 
-    # (6) Supply: total firetrucks deployed ≤ regional fleet size
-    mdl += (
-        pulp.lpSum(v[s.id] for s in J) <= r.total_firetrucks,
-        "supply",
-    )
+    # === Multi-region constraints ===
 
-    # (7) Flow conservation: firetrucks at station j = demand it covers
+    # (6) Supply: total firetrucks deployed from region i ≤ that region's fleet
+    #     Σ_j v_{ij} ≤ pi   ∀i ∈ I
+    for r in I:
+        mdl += (
+            pulp.lpSum(v[(r.id, s.id)] for s in J) <= r.total_firetrucks,
+            f"supply_{r.id}",
+        )
+
+    # (7) Flow conservation: trucks arriving at station j from ALL regions
+    #     must equal the aggregate demand of districts assigned to j
+    #     Σ_i v_{ij} == Σ_k dk · z_{kj}   ∀j ∈ J
     for s in J:
         mdl += (
-            v[s.id] == pulp.lpSum(d.demand * z[(d.id, s.id)] for d in K),
+            pulp.lpSum(v[(r.id, s.id)] for r in I)
+            == pulp.lpSum(d.demand * z[(d.id, s.id)] for d in K),
             f"flow_{s.id}",
         )
 
-    # (8) Variable upper bound: v_ij ≤ pi · yj
+    # (8) Variable upper bound: v_{ij} ≤ pi · yj   ∀i,j
+    for r in I:
+        for s in J:
+            mdl += (
+                v[(r.id, s.id)] - r.total_firetrucks * y[s.id] <= 0,
+                f"vub_{r.id}__{s.id}",
+            )
+
+    # (9) Minimum-truck operational threshold: if a station is open,
+    #     it must have at least 1 firetruck assigned to it.
+    #     Σ_i v_{ij} ≥ 1 · yj   ∀j ∈ J
     for s in J:
-        mdl += v[s.id] - r.total_firetrucks * y[s.id] <= 0, f"vub_{s.id}"
+        mdl += (
+            pulp.lpSum(v[(r.id, s.id)] for r in I) >= 1 * y[s.id],
+            f"min_truck_{s.id}",
+        )
 
     return mdl, y, z, v
