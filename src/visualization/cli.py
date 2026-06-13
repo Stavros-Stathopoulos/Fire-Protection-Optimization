@@ -22,7 +22,7 @@ from .parser import StationDataParser
 # Default paths relative to project root
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 _DEFAULT_STATIONS_FILE = _PROJECT_ROOT / "data" / "real_world_fire_stations.json"
-_DEFAULT_OUTPUT = _PROJECT_ROOT / "attica_fire_stations_map.html"
+_DEFAULT_OUTPUT = _PROJECT_ROOT / "public" / "attica_fire_stations_map.html"
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:

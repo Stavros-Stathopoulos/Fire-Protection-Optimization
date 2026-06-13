@@ -7,7 +7,7 @@ Usage:
     python main.py --budget 10000000
     python main.py --budget 10000000 --output results/solution.json
     python main.py --no-map
-    python main.py --map-output results/milp_map.html
+    python main.py --map-output public/milp_map.html
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 _DEFAULT_JSON_OUTPUT = Path("results") / "optimization_result.json"
-_DEFAULT_MAP_OUTPUT = Path("results") / "milp_map.html"
+_DEFAULT_MAP_OUTPUT  = Path("public") / "milp_map.html"
 
 
 def _build_regions() -> list[FireRegion]:
@@ -138,6 +138,19 @@ def _parse_args() -> argparse.Namespace:
         dest="no_map",
         help="Skip rendering the interactive HTML map.",
     )
+    parser.add_argument(
+        "--report-output",
+        type=Path,
+        default=Path("public") / "milp_report.html",
+        dest="report_output",
+        help="Output path for the HTML executive dashboard (default: public/milp_report.html).",
+    )
+    parser.add_argument(
+        "--no-report",
+        action="store_true",
+        dest="no_report",
+        help="Skip generating the HTML executive dashboard.",
+    )
     return parser.parse_args()
 
 
@@ -187,6 +200,11 @@ def main() -> None:
         from src.visualization.milp_visualizer import MilpResultVisualizer
         MilpResultVisualizer.from_json(args.output).render(args.map_output)
         logger.info(f"Interactive map saved to {args.map_output}")
+
+    if not args.no_report:
+        from src.visualization.html_reporter import MilpHtmlReporter
+        MilpHtmlReporter(result, problem, response_times).generate_report(args.report_output)
+        logger.info(f"Executive dashboard saved to {args.report_output}")
 
 
 if __name__ == "__main__":

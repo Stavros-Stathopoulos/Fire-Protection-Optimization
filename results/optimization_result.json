@@ -1,9 +1,10 @@
 {
   "status": "Optimal",
-  "objective_value": 33437.167,
-  "avg_response_time_min": 8.91,
-  "total_operational_cost": 3680000.0,
+  "objective_value": 32477.9063,
+  "avg_response_time_min": 8.53,
+  "total_operational_cost": 3930000.0,
   "open_stations": [
+    "ps_athens_001",
     "ps_athens_002",
     "ps_athens_004",
     "ps_athens_005",
@@ -18,6 +19,7 @@
     "ps_athens_020",
     "ps_athens_021",
     "ps_athens_025",
+    "ps_athens_030",
     "ps_athens_031",
     "ps_athens_032",
     "ps_athens_033",
@@ -29,9 +31,9 @@
     "ps_athens_041",
     "ps_athens_042",
     "ps_athens_043",
-    "ps_athens_044",
-    "ps_athens_052",
-    "ps_athens_053"
+    "ps_athens_049",
+    "ps_athens_053",
+    "ps_athens_054"
   ],
   "district_assignments": {
     "dist_0": "ps_athens_008",
@@ -39,7 +41,7 @@
     "dist_10": "ps_athens_032",
     "dist_11": "ps_athens_012",
     "dist_12": "ps_athens_017",
-    "dist_13": "ps_athens_017",
+    "dist_13": "ps_athens_001",
     "dist_14": "ps_athens_032",
     "dist_15": "ps_athens_017",
     "dist_16": "ps_athens_002",
@@ -62,52 +64,55 @@
     "dist_31": "ps_athens_041",
     "dist_32": "ps_athens_037",
     "dist_33": "ps_athens_007",
-    "dist_34": "ps_athens_044",
+    "dist_34": "ps_athens_054",
     "dist_35": "ps_athens_053",
     "dist_36": "ps_athens_008",
     "dist_37": "ps_athens_053",
-    "dist_38": "ps_athens_008",
+    "dist_38": "ps_athens_016",
     "dist_39": "ps_athens_008",
-    "dist_4": "ps_athens_017",
+    "dist_4": "ps_athens_001",
     "dist_40": "ps_athens_025",
     "dist_41": "ps_athens_016",
     "dist_42": "ps_athens_025",
     "dist_43": "ps_athens_012",
     "dist_44": "ps_athens_008",
     "dist_45": "ps_athens_031",
-    "dist_46": "ps_athens_015",
+    "dist_46": "ps_athens_030",
     "dist_47": "ps_athens_035",
     "dist_48": "ps_athens_035",
     "dist_49": "ps_athens_033",
     "dist_5": "ps_athens_015",
-    "dist_50": "ps_athens_052",
+    "dist_50": "ps_athens_049",
     "dist_51": "ps_athens_025",
-    "dist_52": "ps_athens_012",
-    "dist_53": "ps_athens_039",
-    "dist_54": "ps_athens_012",
-    "dist_55": "ps_athens_038",
-    "dist_56": "ps_athens_042",
-    "dist_6": "ps_athens_020",
+    "dist_52": "ps_athens_053",
+    "dist_53": "ps_athens_012",
+    "dist_54": "ps_athens_039",
+    "dist_55": "ps_athens_012",
+    "dist_56": "ps_athens_038",
+    "dist_57": "ps_athens_042",
+    "dist_6": "ps_athens_016",
     "dist_7": "ps_athens_021",
     "dist_8": "ps_athens_014",
     "dist_9": "ps_athens_053"
   },
   "region_allocations": {
     "dipy_athens": {
+      "ps_athens_001": 2,
       "ps_athens_002": 2,
       "ps_athens_004": 1,
       "ps_athens_005": 3,
       "ps_athens_007": 3,
-      "ps_athens_008": 8,
+      "ps_athens_008": 7,
       "ps_athens_009": 1,
       "ps_athens_012": 5,
       "ps_athens_014": 2,
-      "ps_athens_015": 4,
-      "ps_athens_016": 1,
-      "ps_athens_017": 6,
-      "ps_athens_020": 2,
+      "ps_athens_015": 1,
+      "ps_athens_016": 3,
+      "ps_athens_017": 4,
+      "ps_athens_020": 1,
       "ps_athens_021": 3,
       "ps_athens_025": 5,
+      "ps_athens_030": 3,
       "ps_athens_031": 1,
       "ps_athens_032": 2,
       "ps_athens_033": 2,
@@ -119,32 +124,32 @@
       "ps_athens_041": 4,
       "ps_athens_042": 3,
       "ps_athens_043": 4,
-      "ps_athens_044": 2,
-      "ps_athens_052": 2,
-      "ps_athens_053": 5
+      "ps_athens_049": 2,
+      "ps_athens_053": 6,
+      "ps_athens_054": 2
     }
   },
   "station_totals": {
-    "ps_athens_001": 0,
+    "ps_athens_001": 2,
     "ps_athens_002": 2,
     "ps_athens_003": 0,
     "ps_athens_004": 1,
     "ps_athens_005": 3,
     "ps_athens_006": 0,
     "ps_athens_007": 3,
-    "ps_athens_008": 8,
+    "ps_athens_008": 7,
     "ps_athens_009": 1,
     "ps_athens_010": 0,
     "ps_athens_011": 0,
     "ps_athens_012": 5,
     "ps_athens_013": 0,
     "ps_athens_014": 2,
-    "ps_athens_015": 4,
-    "ps_athens_016": 1,
-    "ps_athens_017": 6,
+    "ps_athens_015": 1,
+    "ps_athens_016": 3,
+    "ps_athens_017": 4,
     "ps_athens_018": 0,
     "ps_athens_019": 0,
-    "ps_athens_020": 2,
+    "ps_athens_020": 1,
     "ps_athens_021": 3,
     "ps_athens_022": 0,
     "ps_athens_023": 0,
@@ -154,7 +159,7 @@
     "ps_athens_027": 0,
     "ps_athens_028": 0,
     "ps_athens_029": 0,
-    "ps_athens_030": 0,
+    "ps_athens_030": 3,
     "ps_athens_031": 1,
     "ps_athens_032": 2,
     "ps_athens_033": 2,
@@ -168,23 +173,29 @@
     "ps_athens_041": 4,
     "ps_athens_042": 3,
     "ps_athens_043": 4,
-    "ps_athens_044": 2,
+    "ps_athens_044": 0,
     "ps_athens_045": 0,
     "ps_athens_046": 0,
     "ps_athens_047": 0,
     "ps_athens_048": 0,
-    "ps_athens_049": 0,
+    "ps_athens_049": 2,
     "ps_athens_050": 0,
     "ps_athens_051": 0,
-    "ps_athens_052": 2,
-    "ps_athens_053": 5
+    "ps_athens_052": 0,
+    "ps_athens_053": 6,
+    "ps_athens_054": 2
   },
   "stations_detail": {
     "ps_athens_001": {
-      "is_active": false,
-      "total_trucks": 0,
-      "region_breakdown": {},
-      "assigned_districts": []
+      "is_active": true,
+      "total_trucks": 2,
+      "region_breakdown": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_13",
+        "dist_4"
+      ]
     },
     "ps_athens_002": {
       "is_active": true,
@@ -240,16 +251,15 @@
     },
     "ps_athens_008": {
       "is_active": true,
-      "total_trucks": 8,
+      "total_trucks": 7,
       "region_breakdown": {
-        "dipy_athens": 8
+        "dipy_athens": 7
       },
       "assigned_districts": [
         "dist_0",
         "dist_24",
         "dist_27",
         "dist_36",
-        "dist_38",
         "dist_39",
         "dist_44"
       ]
@@ -286,8 +296,8 @@
         "dist_1",
         "dist_11",
         "dist_43",
-        "dist_52",
-        "dist_54"
+        "dist_53",
+        "dist_55"
       ]
     },
     "ps_athens_013": {
@@ -308,38 +318,37 @@
     },
     "ps_athens_015": {
       "is_active": true,
-      "total_trucks": 4,
-      "region_breakdown": {
-        "dipy_athens": 4
-      },
-      "assigned_districts": [
-        "dist_46",
-        "dist_5"
-      ]
-    },
-    "ps_athens_016": {
-      "is_active": true,
       "total_trucks": 1,
       "region_breakdown": {
         "dipy_athens": 1
       },
       "assigned_districts": [
-        "dist_41"
+        "dist_5"
+      ]
+    },
+    "ps_athens_016": {
+      "is_active": true,
+      "total_trucks": 3,
+      "region_breakdown": {
+        "dipy_athens": 3
+      },
+      "assigned_districts": [
+        "dist_38",
+        "dist_41",
+        "dist_6"
       ]
     },
     "ps_athens_017": {
       "is_active": true,
-      "total_trucks": 6,
+      "total_trucks": 4,
       "region_breakdown": {
-        "dipy_athens": 6
+        "dipy_athens": 4
       },
       "assigned_districts": [
         "dist_12",
-        "dist_13",
         "dist_15",
         "dist_19",
-        "dist_23",
-        "dist_4"
+        "dist_23"
       ]
     },
     "ps_athens_018": {
@@ -356,13 +365,12 @@
     },
     "ps_athens_020": {
       "is_active": true,
-      "total_trucks": 2,
+      "total_trucks": 1,
       "region_breakdown": {
-        "dipy_athens": 2
+        "dipy_athens": 1
       },
       "assigned_districts": [
-        "dist_2",
-        "dist_6"
+        "dist_2"
       ]
     },
     "ps_athens_021": {
@@ -432,10 +440,14 @@
       "assigned_districts": []
     },
     "ps_athens_030": {
-      "is_active": false,
-      "total_trucks": 0,
-      "region_breakdown": {},
-      "assigned_districts": []
+      "is_active": true,
+      "total_trucks": 3,
+      "region_breakdown": {
+        "dipy_athens": 3
+      },
+      "assigned_districts": [
+        "dist_46"
+      ]
     },
     "ps_athens_031": {
       "is_active": true,
@@ -514,7 +526,7 @@
         "dipy_athens": 1
       },
       "assigned_districts": [
-        "dist_55"
+        "dist_56"
       ]
     },
     "ps_athens_039": {
@@ -524,7 +536,7 @@
         "dipy_athens": 1
       },
       "assigned_districts": [
-        "dist_53"
+        "dist_54"
       ]
     },
     "ps_athens_040": {
@@ -551,7 +563,7 @@
         "dipy_athens": 3
       },
       "assigned_districts": [
-        "dist_56"
+        "dist_57"
       ]
     },
     "ps_athens_043": {
@@ -565,14 +577,10 @@
       ]
     },
     "ps_athens_044": {
-      "is_active": true,
-      "total_trucks": 2,
-      "region_breakdown": {
-        "dipy_athens": 2
-      },
-      "assigned_districts": [
-        "dist_34"
-      ]
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
     },
     "ps_athens_045": {
       "is_active": false,
@@ -599,10 +607,14 @@
       "assigned_districts": []
     },
     "ps_athens_049": {
-      "is_active": false,
-      "total_trucks": 0,
-      "region_breakdown": {},
-      "assigned_districts": []
+      "is_active": true,
+      "total_trucks": 2,
+      "region_breakdown": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_50"
+      ]
     },
     "ps_athens_050": {
       "is_active": false,
@@ -617,26 +629,33 @@
       "assigned_districts": []
     },
     "ps_athens_052": {
+      "is_active": false,
+      "total_trucks": 0,
+      "region_breakdown": {},
+      "assigned_districts": []
+    },
+    "ps_athens_053": {
+      "is_active": true,
+      "total_trucks": 6,
+      "region_breakdown": {
+        "dipy_athens": 6
+      },
+      "assigned_districts": [
+        "dist_21",
+        "dist_35",
+        "dist_37",
+        "dist_52",
+        "dist_9"
+      ]
+    },
+    "ps_athens_054": {
       "is_active": true,
       "total_trucks": 2,
       "region_breakdown": {
         "dipy_athens": 2
       },
       "assigned_districts": [
-        "dist_50"
-      ]
-    },
-    "ps_athens_053": {
-      "is_active": true,
-      "total_trucks": 5,
-      "region_breakdown": {
-        "dipy_athens": 5
-      },
-      "assigned_districts": [
-        "dist_21",
-        "dist_35",
-        "dist_37",
-        "dist_9"
+        "dist_34"
       ]
     }
   },
@@ -644,14 +663,19 @@
     {
       "id": "ps_athens_001",
       "name": "1ος ΠΣ Αθηνών",
-      "lat": 37.868,
-      "lon": 23.6955,
+      "lat": 37.984325440462875,
+      "lon": 23.727929297290274,
       "capacity": 10,
       "annual_cost": 130000.0,
-      "is_active": false,
-      "total_trucks": 0,
-      "region_allocations": {},
-      "assigned_districts": []
+      "is_active": true,
+      "total_trucks": 2,
+      "region_allocations": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_13",
+        "dist_4"
+      ]
     },
     {
       "id": "ps_athens_002",
@@ -749,16 +773,15 @@
       "capacity": 10,
       "annual_cost": 130000.0,
       "is_active": true,
-      "total_trucks": 8,
+      "total_trucks": 7,
       "region_allocations": {
-        "dipy_athens": 8
+        "dipy_athens": 7
       },
       "assigned_districts": [
         "dist_0",
         "dist_24",
         "dist_27",
         "dist_36",
-        "dist_38",
         "dist_39",
         "dist_44"
       ]
@@ -819,8 +842,8 @@
         "dist_1",
         "dist_11",
         "dist_43",
-        "dist_52",
-        "dist_54"
+        "dist_53",
+        "dist_55"
       ]
     },
     {
@@ -859,29 +882,30 @@
       "capacity": 8,
       "annual_cost": 120000.0,
       "is_active": true,
-      "total_trucks": 4,
+      "total_trucks": 1,
       "region_allocations": {
-        "dipy_athens": 4
+        "dipy_athens": 1
       },
       "assigned_districts": [
-        "dist_46",
         "dist_5"
       ]
     },
     {
       "id": "ps_athens_016",
       "name": "16ος ΠΣ Αθηνών",
-      "lat": 37.8923,
-      "lon": 23.6967,
+      "lat": 37.918446157684144,
+      "lon": 23.702461085280934,
       "capacity": 8,
       "annual_cost": 120000.0,
       "is_active": true,
-      "total_trucks": 1,
+      "total_trucks": 3,
       "region_allocations": {
-        "dipy_athens": 1
+        "dipy_athens": 3
       },
       "assigned_districts": [
-        "dist_41"
+        "dist_38",
+        "dist_41",
+        "dist_6"
       ]
     },
     {
@@ -892,17 +916,15 @@
       "capacity": 10,
       "annual_cost": 130000.0,
       "is_active": true,
-      "total_trucks": 6,
+      "total_trucks": 4,
       "region_allocations": {
-        "dipy_athens": 6
+        "dipy_athens": 4
       },
       "assigned_districts": [
         "dist_12",
-        "dist_13",
         "dist_15",
         "dist_19",
-        "dist_23",
-        "dist_4"
+        "dist_23"
       ]
     },
     {
@@ -937,13 +959,12 @@
       "capacity": 15,
       "annual_cost": 140000.0,
       "is_active": true,
-      "total_trucks": 2,
+      "total_trucks": 1,
       "region_allocations": {
-        "dipy_athens": 2
+        "dipy_athens": 1
       },
       "assigned_districts": [
-        "dist_2",
-        "dist_6"
+        "dist_2"
       ]
     },
     {
@@ -979,8 +1000,8 @@
     {
       "id": "ps_athens_023",
       "name": "23ος ΠΣ Αθηνών",
-      "lat": 37.8703,
-      "lon": 23.7125,
+      "lat": 37.892,
+      "lon": 23.721,
       "capacity": 8,
       "annual_cost": 120000.0,
       "is_active": false,
@@ -1069,14 +1090,18 @@
     {
       "id": "ps_athens_030",
       "name": "30ος ΠΣ Αθηνών",
-      "lat": 37.8891,
-      "lon": 23.5998,
+      "lat": 37.962983294352604,
+      "lon": 23.58188019493081,
       "capacity": 10,
       "annual_cost": 130000.0,
-      "is_active": false,
-      "total_trucks": 0,
-      "region_allocations": {},
-      "assigned_districts": []
+      "is_active": true,
+      "total_trucks": 3,
+      "region_allocations": {
+        "dipy_athens": 3
+      },
+      "assigned_districts": [
+        "dist_46"
+      ]
     },
     {
       "id": "ps_athens_031",
@@ -1176,7 +1201,7 @@
     },
     {
       "id": "ps_athens_037",
-      "name": "37ος ΠΣ Αθηνών",
+      "name": "37652",
       "lat": 38.1652,
       "lon": 23.9479,
       "capacity": 10,
@@ -1203,7 +1228,7 @@
         "dipy_athens": 1
       },
       "assigned_districts": [
-        "dist_55"
+        "dist_56"
       ]
     },
     {
@@ -1219,7 +1244,7 @@
         "dipy_athens": 1
       },
       "assigned_districts": [
-        "dist_53"
+        "dist_54"
       ]
     },
     {
@@ -1264,7 +1289,7 @@
         "dipy_athens": 3
       },
       "assigned_districts": [
-        "dist_56"
+        "dist_57"
       ]
     },
     {
@@ -1286,24 +1311,20 @@
     {
       "id": "ps_athens_044",
       "name": "44ος ΠΣ Αθηνών",
-      "lat": 37.9958,
-      "lon": 23.3431,
+      "lat": 37.995,
+      "lon": 23.405,
       "capacity": 10,
       "annual_cost": 130000.0,
-      "is_active": true,
-      "total_trucks": 2,
-      "region_allocations": {
-        "dipy_athens": 2
-      },
-      "assigned_districts": [
-        "dist_34"
-      ]
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
     },
     {
       "id": "ps_athens_045",
       "name": "45ος ΠΣ Αθηνών",
-      "lat": 37.5028,
-      "lon": 23.3411,
+      "lat": 37.981,
+      "lon": 25.511,
       "capacity": 10,
       "annual_cost": 130000.0,
       "is_active": false,
@@ -1314,8 +1335,8 @@
     {
       "id": "ps_athens_046",
       "name": "46ος ΠΣ Αθηνών",
-      "lat": 37.6931,
-      "lon": 23.3444,
+      "lat": 38.041,
+      "lon": 23.422,
       "capacity": 8,
       "annual_cost": 120000.0,
       "is_active": false,
@@ -1326,8 +1347,8 @@
     {
       "id": "ps_athens_047",
       "name": "47ος ΠΣ Αθηνών",
-      "lat": 36.15,
-      "lon": 23.0,
+      "lat": 38.164,
+      "lon": 23.612,
       "capacity": 8,
       "annual_cost": 120000.0,
       "is_active": false,
@@ -1338,8 +1359,8 @@
     {
       "id": "ps_athens_048",
       "name": "48ος ΠΣ Αθηνών",
-      "lat": 37.5008,
-      "lon": 23.4536,
+      "lat": 38.245,
+      "lon": 23.748,
       "capacity": 8,
       "annual_cost": 120000.0,
       "is_active": false,
@@ -1350,20 +1371,24 @@
     {
       "id": "ps_athens_049",
       "name": "49ος ΠΣ Αθηνών",
-      "lat": 37.2617,
-      "lon": 23.1367,
+      "lat": 37.795,
+      "lon": 23.951,
       "capacity": 8,
       "annual_cost": 120000.0,
-      "is_active": false,
-      "total_trucks": 0,
-      "region_allocations": {},
-      "assigned_districts": []
+      "is_active": true,
+      "total_trucks": 2,
+      "region_allocations": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_50"
+      ]
     },
     {
       "id": "ps_athens_050",
       "name": "50ος ΠΣ Αθηνών",
-      "lat": 37.7467,
-      "lon": 23.4283,
+      "lat": 37.721,
+      "lon": 24.012,
       "capacity": 8,
       "annual_cost": 120000.0,
       "is_active": false,
@@ -1374,8 +1399,8 @@
     {
       "id": "ps_athens_051",
       "name": "51ος ΠΣ Αθηνών",
-      "lat": 37.3503,
-      "lon": 23.465,
+      "lat": 38.112,
+      "lon": 23.978,
       "capacity": 8,
       "annual_cost": 120000.0,
       "is_active": false,
@@ -1390,14 +1415,10 @@
       "lon": 23.926,
       "capacity": 15,
       "annual_cost": 150000.0,
-      "is_active": true,
-      "total_trucks": 2,
-      "region_allocations": {
-        "dipy_athens": 2
-      },
-      "assigned_districts": [
-        "dist_50"
-      ]
+      "is_active": false,
+      "total_trucks": 0,
+      "region_allocations": {},
+      "assigned_districts": []
     },
     {
       "id": "ps_athens_053",
@@ -1407,15 +1428,32 @@
       "capacity": 15,
       "annual_cost": 150000.0,
       "is_active": true,
-      "total_trucks": 5,
+      "total_trucks": 6,
       "region_allocations": {
-        "dipy_athens": 5
+        "dipy_athens": 6
       },
       "assigned_districts": [
         "dist_21",
         "dist_35",
         "dist_37",
+        "dist_52",
         "dist_9"
+      ]
+    },
+    {
+      "id": "ps_athens_054",
+      "name": "54ος ΠΣ Αθηνών",
+      "lat": 37.9958,
+      "lon": 23.3431,
+      "capacity": 15,
+      "annual_cost": 150000.0,
+      "is_active": true,
+      "total_trucks": 2,
+      "region_allocations": {
+        "dipy_athens": 2
+      },
+      "assigned_districts": [
+        "dist_34"
       ]
     }
   ],
@@ -1472,8 +1510,8 @@
       "demand": 1.0,
       "area_km2": 39.0,
       "wildfire_risk": 1.2,
-      "assigned_station_id": "ps_athens_017",
-      "response_time_min": 6.2
+      "assigned_station_id": "ps_athens_001",
+      "response_time_min": 3.6
     },
     {
       "id": "dist_5",
@@ -1494,8 +1532,8 @@
       "demand": 1.0,
       "area_km2": 7.5,
       "wildfire_risk": 1.0,
-      "assigned_station_id": "ps_athens_020",
-      "response_time_min": 6.8
+      "assigned_station_id": "ps_athens_016",
+      "response_time_min": 5.79
     },
     {
       "id": "dist_7",
@@ -1571,8 +1609,8 @@
       "demand": 1.0,
       "area_km2": 4.0,
       "wildfire_risk": 1.5,
-      "assigned_station_id": "ps_athens_017",
-      "response_time_min": 14.04
+      "assigned_station_id": "ps_athens_001",
+      "response_time_min": 12.87
     },
     {
       "id": "dist_14",
@@ -1802,7 +1840,7 @@
       "demand": 2.0,
       "area_km2": 322.2,
       "wildfire_risk": 4.5,
-      "assigned_station_id": "ps_athens_044",
+      "assigned_station_id": "ps_athens_054",
       "response_time_min": 7.38
     },
     {
@@ -1846,8 +1884,8 @@
       "demand": 1.0,
       "area_km2": 3.5,
       "wildfire_risk": 1.0,
-      "assigned_station_id": "ps_athens_008",
-      "response_time_min": 11.39
+      "assigned_station_id": "ps_athens_016",
+      "response_time_min": 10.41
     },
     {
       "id": "dist_39",
@@ -1880,7 +1918,7 @@
       "area_km2": 4.6,
       "wildfire_risk": 1.0,
       "assigned_station_id": "ps_athens_016",
-      "response_time_min": 10.38
+      "response_time_min": 4.74
     },
     {
       "id": "dist_42",
@@ -1934,8 +1972,8 @@
       "demand": 3.0,
       "area_km2": 14.7,
       "wildfire_risk": 1.5,
-      "assigned_station_id": "ps_athens_015",
-      "response_time_min": 11.34
+      "assigned_station_id": "ps_athens_030",
+      "response_time_min": 4.71
     },
     {
       "id": "dist_47",
@@ -1978,8 +2016,8 @@
       "demand": 2.0,
       "area_km2": 133.4,
       "wildfire_risk": 4.0,
-      "assigned_station_id": "ps_athens_052",
-      "response_time_min": 15.59
+      "assigned_station_id": "ps_athens_049",
+      "response_time_min": 10.3
     },
     {
       "id": "dist_51",
@@ -1994,6 +2032,17 @@
     },
     {
       "id": "dist_52",
+      "name": "Δ. ΦΙΛΑΔΕΛΦΕΙΑΣ - ΧΑΛΚΗΔΟΝΟΣ",
+      "lat": 38.0319,
+      "lon": 23.7375,
+      "demand": 1.0,
+      "area_km2": 3.6,
+      "wildfire_risk": 1.2,
+      "assigned_station_id": "ps_athens_053",
+      "response_time_min": 10.19
+    },
+    {
+      "id": "dist_53",
       "name": "Δ. ΦΙΛΟΘΕΗΣ - ΨΥΧΙΚΟΥ",
       "lat": 37.9972,
       "lon": 23.7778,
@@ -2004,7 +2053,7 @@
       "response_time_min": 11.34
     },
     {
-      "id": "dist_53",
+      "id": "dist_54",
       "name": "Δ. ΦΥΛΗΣ",
       "lat": 38.1028,
       "lon": 23.6669,
@@ -2015,7 +2064,7 @@
       "response_time_min": 12.34
     },
     {
-      "id": "dist_54",
+      "id": "dist_55",
       "name": "Δ. ΧΑΛΑΝΔΡΙΟΥ",
       "lat": 38.0222,
       "lon": 23.7967,
@@ -2026,7 +2075,7 @@
       "response_time_min": 10.98
     },
     {
-      "id": "dist_55",
+      "id": "dist_56",
       "name": "Δ. ΧΑΪΔΑΡΙΟΥ",
       "lat": 38.0111,
       "lon": 23.6453,
@@ -2037,7 +2086,7 @@
       "response_time_min": 6.56
     },
     {
-      "id": "dist_56",
+      "id": "dist_57",
       "name": "Δ. ΩΡΩΠΟΥ",
       "lat": 38.2981,
       "lon": 23.7919,
