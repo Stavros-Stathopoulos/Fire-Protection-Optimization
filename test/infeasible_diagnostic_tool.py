@@ -1,21 +1,31 @@
 """Diagnostic script: identifies districts that are geometrically infeasible
 under the current RISK_COVERAGE_MAX_TIMES bounds.
 
-Run with:  python test.py
+Safe to execute from anywhere:
+    python test/infeasible_diagnostic_tool.py
+    python -m test.infeasible_diagnostic_tool
 """
 
 import io
 import math
 import sys
+from pathlib import Path
 
-# Force UTF-8 so Greek names print correctly on Windows consoles
+# ---------------------------------------------------------------------------
+# Path Bootstrap: Resolve project root and inject into sys.path
+# ---------------------------------------------------------------------------
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
+# Force UTF-8 so Greek names print correctly on Windows/Linux consoles
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
+# Now these top-level imports resolve cleanly regardless of execution context
+from config import FILE_NAME_ASTIKA
 from config.milp_config import (
     AVERAGE_SPEED_KMH,
-    REGION_ID,
-    REGION_NAME,
-    REGION_TOTAL_FIRETRUCKS,
+    REGIONS,
     RISK_COVERAGE_MAX_TIMES,
 )
 from domain.entities import FireRegion
@@ -23,15 +33,20 @@ from domain.problem import FireProtectionProblem
 from utils.dataHandlers.preprocessor import load_districts
 from utils.dataHandlers.station_loader import load_stations
 
-# --- Build the same problem object the solver uses ---
-region = FireRegion(
-    id=REGION_ID,
-    name=REGION_NAME,
-    total_firetrucks=REGION_TOTAL_FIRETRUCKS,
-)
-districts = load_districts()
+# --- Build the multi-region list matching main.py implementation ---
+regions = [
+    FireRegion(
+        id=str(r["id"]),
+        name=str(r["name"]),
+        total_firetrucks=int(r["total_firetrucks"]),
+    )
+    for r in REGIONS
+]
+
+districts = load_districts(FILE_NAME_ASTIKA)
 stations = load_stations()
-problem = FireProtectionProblem(region=region, stations=stations, districts=districts)
+
+problem = FireProtectionProblem(regions=regions, stations=stations, districts=districts)
 
 # Compute the full response-time matrix (identical to what build_model receives)
 c = problem.response_time_matrix(AVERAGE_SPEED_KMH)

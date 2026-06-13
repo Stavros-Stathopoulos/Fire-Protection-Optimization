@@ -4,13 +4,12 @@ Ingests standardized ``MilpVisualizationInput`` (plain dicts / dataclasses)
 — **NOT** solver objects (PuLP variables, Gurobi models, etc.).
 
 Visual outputs:
-  1. Active vs. Inactive Stations — green fire icons (open) / grey × icons (closed).
-  2. Demand-to-Station Allocation — dashed polylines from district centroids to
-     assigned stations; choropleth fill coloured by assigned station.
-  3. Capacity / Unmet Demand — circle radius proportional to demand; unserved
-     districts highlighted in red.
-  4. Response-Time Heatmap — optional layer showing response time as a gradient
-     (green < 10 min → red > 25 min).
+  1. Municipality Coverage Polygons — choropleth fill colored by assigned station.
+  2. Active vs. Inactive Stations — green fire icons (open) / grey × icons (closed).
+  3. Demand-to-Station Allocation — dashed polylines from district centroids to
+     assigned stations.
+  4. Capacity / Unmet Demand — circle radius proportional to demand.
+  5. Response-Time Heatmap — optional layer showing response time as a gradient.
 """
 
 from __future__ import annotations
@@ -18,7 +17,7 @@ from __future__ import annotations
 import colorsys
 import math
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import folium
 
@@ -27,6 +26,9 @@ from .models import (
     MilpStationStatus,
     MilpVisualizationInput,
 )
+
+if TYPE_CHECKING:
+    import geopandas as gpd
 
 
 # ---------------------------------------------------------------------------
@@ -69,15 +71,93 @@ def _demand_radius(demand: float) -> float:
 # Layer builders
 # ---------------------------------------------------------------------------
 
+def _build_municipality_polygons_layer(
+    assignments: list[MilpDistrictAssignment],
+    boundaries: gpd.GeoDataFrame,
+    palette: dict[str, str],
+    station_name_map: dict[str, str],
+) -> folium.FeatureGroup:
+    """Layer: Choropleth polygons of municipalities colored by assigned MILP station."""
+    from .normalization import normalize_name
+
+    fg = folium.FeatureGroup(name="🗺️ Municipality Coverage (MILP)", show=True)
+
+    # O(N) lookup index: normalized_name -> MilpDistrictAssignment
+    assignment_map = {normalize_name(a.district_name): a for a in assignments}
+
+    def highlight_fn(_):
+        return {
+            "weight": 2.5,
+            "color": "#222222",
+            "fillOpacity": 0.75,
+        }
+
+    for _, row in boundaries.iterrows():
+        osm_name = str(row["name"])
+        norm_name = normalize_name(osm_name)
+
+        # Main exact/aliased lookup
+        assignment = assignment_map.get(norm_name)
+
+        # Fallback substring evaluation to guarantee mapping robustness
+        if not assignment:
+            for key, assoc in assignment_map.items():
+                if key in norm_name or norm_name in key:
+                    assignment = assoc
+                    break
+
+        if assignment:
+            color = palette.get(assignment.assigned_station_id, "#b0b0b0")
+            station_label = station_name_map.get(assignment.assigned_station_id, "Unassigned")
+
+            popup_html = (
+                f"<div style=\"font-family:'Segoe UI',sans-serif; font-size:12px; min-width:220px;\">"
+                f"<h4 style=\"margin:0; padding:6px; background:{color}; color:white; border-radius:4px 4px 0 0;\">"
+                f"Δήμος {assignment.district_name}</h4>"
+                f"<div style=\"padding:8px; border:1px solid #ddd; border-top:none; background:white;\">"
+                f"<b>Assigned Structure:</b> <span style=\"color:{color}; font-weight:bold;\">{station_label}</span><br>"
+                f"<b>Optimized Response:</b> {assignment.response_time_min:.1f} min<br>"
+                f"<b>Demand Weight:</b> {assignment.demand:.1f}<br>"
+                f"<b>Wildfire Risk:</b> {assignment.wildfire_risk:.1f}"
+                f"</div></div>"
+            )
+
+            folium.GeoJson(
+                data=row["geometry"].__geo_interface__,
+                style_function=lambda _, c=color: {
+                    "fillColor": c,
+                    "color": "white",
+                    "weight": 1.2,
+                    "fillOpacity": 0.50,
+                },
+                highlight_function=highlight_fn,
+                tooltip=folium.Tooltip(f"<b>{assignment.district_name}</b> → {station_label} ({assignment.response_time_min:.1f} min)"),
+                popup=folium.Popup(popup_html, max_width=320),
+            ).add_to(fg)
+        else:
+            # Map unassigned boundaries cleanly in a muted tone
+            folium.GeoJson(
+                data=row["geometry"].__geo_interface__,
+                style_function=lambda _: {
+                    "fillColor": "#8c8c8c",
+                    "color": "#d0d0d0",
+                    "weight": 1.0,
+                    "fillOpacity": 0.15,
+                },
+                tooltip=folium.Tooltip(f"<b>{osm_name}</b> (No Active MILP Assignment)"),
+            ).add_to(fg)
+
+    return fg
+
+
 def _build_stations_layer(
     statuses: list[MilpStationStatus],
     palette: dict[str, str],
     district_assignments: list[MilpDistrictAssignment],
 ) -> folium.FeatureGroup:
-    """Layer 1: Active vs. Inactive station markers."""
+    """Layer: Active vs. Inactive station markers."""
     fg = folium.FeatureGroup(name="🏢 Stations (MILP Result)", show=True)
 
-    # Precompute coverage per station
     coverage_map: dict[str, list[MilpDistrictAssignment]] = {}
     for da in district_assignments:
         coverage_map.setdefault(da.assigned_station_id, []).append(da)
@@ -140,7 +220,7 @@ def _build_district_zones_layer(
     station_name_map: dict[str, str],
 ) -> folium.FeatureGroup:
     """Layer 2: District demand nodes coloured by assigned station."""
-    fg = folium.FeatureGroup(name="📍 District Assignments", show=True)
+    fg = folium.FeatureGroup(name="📍 Demand Centroids", show=False)
 
     for d in assignments:
         colour = palette.get(d.assigned_station_id, "#b0b0b0")
@@ -152,7 +232,7 @@ def _build_district_zones_layer(
             f"Risk: <b>{d.wildfire_risk:.1f}</b>  |  Area: {d.area_km2:.0f} km²<br>"
             f"Demand: {d.demand:.1f}<br>"
             f"Assigned to: <b>{station_label}</b><br>"
-            f"Response time: <b>{d.response_time_min:.1f} min</b>"
+            f"Response time: <b>{d.response_time_min:.1f} min</b>"  # <- ΕΔΩ: Το ' min' βγήκε έξω από το }
             f"</div>"
         )
 
@@ -176,7 +256,7 @@ def _build_allocation_routes_layer(
     station_coords: dict[str, tuple[float, float]],
     palette: dict[str, str],
 ) -> folium.FeatureGroup:
-    """Layer 3: Dashed polylines from district to assigned station."""
+    """Layer: Dashed polylines from district to assigned station."""
     fg = folium.FeatureGroup(name="🔗 Allocation Routes", show=True)
 
     for d in assignments:
@@ -200,7 +280,7 @@ def _build_allocation_routes_layer(
 def _build_response_heatmap_layer(
     assignments: list[MilpDistrictAssignment],
 ) -> folium.FeatureGroup:
-    """Layer 4: Response-time colour gradient (green → red)."""
+    """Layer: Response-time colour gradient (green → red)."""
     fg = folium.FeatureGroup(name="⏱️ Response Time Heatmap", show=False)
 
     for d in assignments:
@@ -250,15 +330,6 @@ class MilpResultVisualizer:
     """Decoupled MILP optimization output renderer.
 
     Ingests standardized dicts / dataclasses — **NOT** solver objects.
-
-    Parameters
-    ----------
-    data:
-        Complete ``MilpVisualizationInput`` bundle.
-    center:
-        Map centre ``(lat, lon)``.
-    zoom_start:
-        Initial zoom level.
     """
 
     def __init__(
@@ -272,24 +343,39 @@ class MilpResultVisualizer:
         self._center = list(center)
         self._zoom = zoom_start
 
-    def render(self, output_path: Path | str) -> folium.Map:
+    def render(
+        self, 
+        output_path: Path | str, 
+        boundaries: Optional[gpd.GeoDataFrame] = None
+    ) -> folium.Map:
         """Build and save the MILP results map.
 
         Parameters
         ----------
         output_path:
             File path for the saved HTML.
-
-        Returns
-        -------
-        folium.Map
-            The constructed map (also persisted to *output_path*).
+        boundaries:
+            Optional GeoDataFrame containing municipality polygons. If None,
+            the method attempts lazy fetching via osm_fetcher.
         """
         m = folium.Map(
             location=self._center,
             zoom_start=self._zoom,
             tiles="CartoDB positron",
         )
+
+        # Self-healing configuration fallback for JSON deserialization
+        if boundaries is None and self._data.boundaries is not None:
+            boundaries = self._data.boundaries  # type: ignore[assignment]
+
+        if boundaries is None:
+            print("🌍 Boundaries missing from context. Lazily fetching Attica admin_level=7 from OSM...")
+            try:
+                from .osm_fetcher import fetch_admin_layer, fetch_attica_hull
+                attica_hull = fetch_attica_hull()
+                boundaries = fetch_admin_layer("7", attica_hull)
+            except Exception as err:
+                print(f"⚠️ Failed to dynamically load admin boundaries: {err}. Rendering without polygons.")
 
         # Build palette from active stations
         active_ids = [s.station_id for s in self._data.station_statuses if s.is_active]
@@ -302,12 +388,15 @@ class MilpResultVisualizer:
             s.station_id: (s.lat, s.lon) for s in self._data.station_statuses
         }
 
-        # Add layers
-        m.add_child(
-            _build_district_zones_layer(
-                self._data.district_assignments, palette, station_name_map,
+        # Step 1: Add the requested Choropleth Boundary Layer FIRST so it forms the background
+        if boundaries is not None:
+            m.add_child(
+                _build_municipality_polygons_layer(
+                    self._data.district_assignments, boundaries, palette, station_name_map
+                )
             )
-        )
+
+        # Step 2: Overlay point markers, vectors, and analytics layers on top
         m.add_child(
             _build_stations_layer(
                 self._data.station_statuses, palette, self._data.district_assignments,
@@ -319,6 +408,11 @@ class MilpResultVisualizer:
             )
         )
         m.add_child(
+            _build_district_zones_layer(
+                self._data.district_assignments, palette, station_name_map,
+            )
+        )
+        m.add_child(
             _build_response_heatmap_layer(self._data.district_assignments)
         )
 
@@ -326,7 +420,7 @@ class MilpResultVisualizer:
         m.get_root().html.add_child(_build_summary_overlay(self._data))
         folium.LayerControl(collapsed=False).add_to(m)
 
-        # Save
+        # Persist to disk
         output = Path(output_path)
         output.parent.mkdir(parents=True, exist_ok=True)
         m.save(str(output))
@@ -340,29 +434,7 @@ class MilpResultVisualizer:
         path: "Path | str",
         **kwargs: object,
     ) -> "MilpResultVisualizer":
-        """Build a visualizer directly from a JSON file saved by
-        ``OptimizationResult.to_full_json()``.
-
-        This is the intended entry point when you want to render a map from a
-        previously saved result without re-solving or reloading the problem data.
-
-        Parameters
-        ----------
-        path:
-            Path to the JSON file produced by ``OptimizationResult.to_full_json()``.
-            Files written by ``to_json()`` (lean format) are rejected with a
-            clear error — they lack the station/district metadata the visualizer
-            needs.
-        **kwargs:
-            Forwarded to ``MilpResultVisualizer.__init__`` (e.g. ``center``,
-            ``zoom_start``).
-
-        Raises
-        ------
-        ValueError
-            If the JSON was written by ``to_json()`` instead of ``to_full_json()``
-            and therefore lacks the required ``"stations"`` / ``"districts"`` keys.
-        """
+        """Build a visualizer directly from a full format JSON file."""
         import json as _json
 
         with open(Path(path), encoding="utf-8") as fh:
@@ -370,10 +442,7 @@ class MilpResultVisualizer:
 
         if "stations" not in data or "districts" not in data:
             raise ValueError(
-                f"{path!r} was saved with OptimizationResult.to_json() (lean format) "
-                "which does not include station/district metadata. "
-                "Re-save with OptimizationResult.to_full_json(result, problem, response_times) "
-                "to produce a visualization-ready file."
+                f"{path!r} lacks required station/district metadata."
             )
 
         station_statuses = [
@@ -427,36 +496,17 @@ class MilpResultVisualizer:
         response_times: dict[tuple[str, str], float],
         **kwargs: object,
     ) -> "MilpResultVisualizer":
-        """Convenience factory that bridges ``OptimizationResult`` to the visualizer.
-
-        This method imports from ``domain`` / ``optimization`` types but the
-        *visualizer itself* remains solver-agnostic.  The conversion happens
-        here at the boundary, not inside the renderer.
-
-        Parameters
-        ----------
-        result:
-            An ``optimization.result.OptimizationResult`` (multi-region).
-        problem:
-            A ``domain.problem.FireProtectionProblem`` (multi-region).
-        response_times:
-            Pre-computed ``{(district_id, station_id): minutes}`` matrix.
-        **kwargs:
-            Forwarded to ``MilpResultVisualizer.__init__``.
-        """
-        # Import lazily to keep the visualizer decoupled at module level.
+        """Convenience factory that bridges OptimizationResult to the visualizer."""
         from domain.problem import FireProtectionProblem
         from optimization.result import OptimizationResult
 
         prob: FireProtectionProblem = problem  # type: ignore[assignment]
         res: OptimizationResult = result  # type: ignore[assignment]
 
-        # Build per-station total trucks and per-region breakdown
         station_trucks = res.station_total_trucks
 
         station_statuses = []
         for s in prob.stations:
-            # Build region allocation tuples for this station
             region_allocs: list[tuple[str, int]] = []
             for r in prob.regions:
                 count = res.firetruck_allocations.get((r.id, s.id), 0)
