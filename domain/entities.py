@@ -11,6 +11,8 @@ class FireRegion:
     id: str
     name: str
     total_firetrucks: int   # pi: fleet size available to the region
+    lat: float = 0.0        # HQ latitude  — used for proximity-weighted allocation
+    lon: float = 0.0        # HQ longitude — used for proximity-weighted allocation
 
 
 @dataclass(frozen=True)

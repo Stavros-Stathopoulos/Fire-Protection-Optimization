@@ -16,8 +16,12 @@ Multi-region capacitated facility location formulation (extended Klose, 1999):
   zkj ∈ {0,1}      → District k assigned to station j
   vij ∈ ℤ≥0        → Firetrucks deployed from region i to station j
 
-Objective (1):  min Σ wk · ckj · zkj
-  wk = dk · risk_k² · ln(area_k)       (WUI-priority composite weight)
+Objective:
+  Primary (1):  min Σ wk · ckj · zkj
+    wk = dk · risk_k² · ln(area_k)          (WUI-priority composite weight)
+  Secondary:    + α · Σ_{i,j} (dist_ij/max_dist) · (v_ij/total_fleet)
+    Tie-breaks degeneracy in v-allocation without distorting station selection.
+    Bounded in [0, α] ≪ primary objective O(10⁴).
 
 Structural constraints:
   Budget:           Σ fj·yj  ≤  MAX_BUDGET
@@ -26,7 +30,9 @@ Structural constraints:
 
 Multi-region constraints:
   (6) Supply:       Σ_j vij  ≤  pi                        ∀i ∈ I
-  (7) Flow:         Σ_i vij  == Σ_k dk·zkj                ∀j ∈ J
+  (7) Flow:         Σ_i vij  ≥  Σ_k dk·zkj               ∀j ∈ J
+      [≥ not ==: dk is float, v is integer — equality is infeasible when demand
+       sums are non-integer. ≥ forces sufficient integer coverage (rounds up).]
   (8) VUB:          vij  ≤  pi · yj                       ∀i,j
   (9) Min-truck:    Σ_i vij  ≥  1 · yj                    ∀j ∈ J
 """
@@ -41,6 +47,7 @@ from config.milp_config import (
     DEMAND_WEIGHTED_RESPONSE,
     FORCED_OPEN_STATIONS,
     MAX_BUDGET,
+    PROXIMITY_ALPHA,
     RISK_COVERAGE_MAX_TIMES,
     WILDFIRE_RISK_WEIGHT,
 )
@@ -69,6 +76,11 @@ def build_model(
     K = problem.districts   # Demand districts
 
     c = problem.response_time_matrix(AVERAGE_SPEED_KMH)  # ckj: traffic-adjusted minutes
+    region_station_dists = problem.region_station_distance_matrix()  # km from ΔΙΠΥ HQ to station
+
+    # Normalisation factors for the proximity penalty (computed once, used in objective)
+    _max_dist: float = max(region_station_dists.values(), default=1.0)
+    _total_fleet: float = float(problem.total_fleet) or 1.0
 
     # --- Decision variables ---
 
@@ -107,7 +119,13 @@ def build_model(
         return base
 
     mdl += (
-        pulp.lpSum(_weight(d) * c[(d.id, s.id)] * z[(d.id, s.id)] for d in K for s in J),
+        pulp.lpSum(_weight(d) * c[(d.id, s.id)] * z[(d.id, s.id)] for d in K for s in J)
+        + PROXIMITY_ALPHA * pulp.lpSum(
+            (region_station_dists[(r.id, s.id)] / _max_dist)
+            * (v[(r.id, s.id)] / _total_fleet)
+            for r in I
+            for s in J
+        ),
         "objective",
     )
 
@@ -172,13 +190,18 @@ def build_model(
             f"supply_{r.id}",
         )
 
-    # (7) Flow conservation: trucks arriving at station j from ALL regions
-    #     must equal the aggregate demand of districts assigned to j
-    #     Σ_i v_{ij} == Σ_k dk · z_{kj}   ∀j ∈ J
+    # (7) Flow sufficiency: trucks at station j must cover aggregate demand of assigned districts.
+    #     Σ_i v_{ij} ≥ Σ_k dk · z_{kj}   ∀j ∈ J
+    #
+    #     Uses ≥ instead of == because dk (mean_vehicles) is a float and v is Integer:
+    #     an equality constraint would be infeasible whenever demand sums are non-integer.
+    #     With ≥, v naturally rounds up to ceiling(demand_sum), which is physically correct
+    #     (you cannot deploy half a firetruck). The proximity penalty in the objective prevents
+    #     the solver from over-allocating trucks beyond what constraints already bound.
     for s in J:
         mdl += (
             pulp.lpSum(v[(r.id, s.id)] for r in I)
-            == pulp.lpSum(d.demand * z[(d.id, s.id)] for d in K),
+            >= pulp.lpSum(d.demand * z[(d.id, s.id)] for d in K),
             f"flow_{s.id}",
         )
 

@@ -38,6 +38,8 @@ def _build_regions() -> list[FireRegion]:
             id=str(r["id"]),
             name=str(r["name"]),
             total_firetrucks=int(r["total_firetrucks"]),
+            lat=float(r["lat"]),
+            lon=float(r["lon"]),
         )
         for r in REGIONS
     ]

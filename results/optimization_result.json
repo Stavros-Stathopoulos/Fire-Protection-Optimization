@@ -1,6 +1,6 @@
 {
   "status": "Optimal",
-  "objective_value": 32477.9063,
+  "objective_value": 32478.1058,
   "avg_response_time_min": 8.53,
   "total_operational_cost": 3930000.0,
   "open_stations": [
@@ -98,34 +98,40 @@
   "region_allocations": {
     "dipy_athens": {
       "ps_athens_001": 2,
-      "ps_athens_002": 2,
       "ps_athens_004": 1,
-      "ps_athens_005": 3,
-      "ps_athens_007": 3,
-      "ps_athens_008": 7,
-      "ps_athens_009": 1,
-      "ps_athens_012": 5,
-      "ps_athens_014": 2,
-      "ps_athens_015": 1,
-      "ps_athens_016": 3,
       "ps_athens_017": 4,
       "ps_athens_020": 1,
-      "ps_athens_021": 3,
-      "ps_athens_025": 5,
-      "ps_athens_030": 3,
-      "ps_athens_031": 1,
-      "ps_athens_032": 2,
-      "ps_athens_033": 2,
       "ps_athens_035": 5,
       "ps_athens_036": 1,
-      "ps_athens_037": 3,
       "ps_athens_038": 1,
       "ps_athens_039": 1,
-      "ps_athens_041": 4,
+      "ps_athens_053": 6
+    },
+    "dipy_east": {
+      "ps_athens_002": 2,
+      "ps_athens_005": 3,
+      "ps_athens_007": 3,
+      "ps_athens_012": 5,
+      "ps_athens_021": 3,
+      "ps_athens_025": 5,
+      "ps_athens_031": 1,
+      "ps_athens_033": 2,
+      "ps_athens_037": 3,
       "ps_athens_042": 3,
       "ps_athens_043": 4,
-      "ps_athens_049": 2,
-      "ps_athens_053": 6,
+      "ps_athens_049": 2
+    },
+    "dipy_piraeus": {
+      "ps_athens_008": 7,
+      "ps_athens_009": 1,
+      "ps_athens_015": 1,
+      "ps_athens_016": 3,
+      "ps_athens_030": 3,
+      "ps_athens_032": 2
+    },
+    "dipy_west": {
+      "ps_athens_014": 2,
+      "ps_athens_041": 4,
       "ps_athens_054": 2
     }
   },
@@ -201,7 +207,7 @@
       "is_active": true,
       "total_trucks": 2,
       "region_breakdown": {
-        "dipy_athens": 2
+        "dipy_east": 2
       },
       "assigned_districts": [
         "dist_16"
@@ -227,7 +233,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_breakdown": {
-        "dipy_athens": 3
+        "dipy_east": 3
       },
       "assigned_districts": [
         "dist_28"
@@ -243,7 +249,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_breakdown": {
-        "dipy_athens": 3
+        "dipy_east": 3
       },
       "assigned_districts": [
         "dist_33"
@@ -253,7 +259,7 @@
       "is_active": true,
       "total_trucks": 7,
       "region_breakdown": {
-        "dipy_athens": 7
+        "dipy_piraeus": 7
       },
       "assigned_districts": [
         "dist_0",
@@ -268,7 +274,7 @@
       "is_active": true,
       "total_trucks": 1,
       "region_breakdown": {
-        "dipy_athens": 1
+        "dipy_piraeus": 1
       },
       "assigned_districts": [
         "dist_25"
@@ -290,7 +296,7 @@
       "is_active": true,
       "total_trucks": 5,
       "region_breakdown": {
-        "dipy_athens": 5
+        "dipy_east": 5
       },
       "assigned_districts": [
         "dist_1",
@@ -310,7 +316,7 @@
       "is_active": true,
       "total_trucks": 2,
       "region_breakdown": {
-        "dipy_athens": 2
+        "dipy_west": 2
       },
       "assigned_districts": [
         "dist_8"
@@ -320,7 +326,7 @@
       "is_active": true,
       "total_trucks": 1,
       "region_breakdown": {
-        "dipy_athens": 1
+        "dipy_piraeus": 1
       },
       "assigned_districts": [
         "dist_5"
@@ -330,7 +336,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_breakdown": {
-        "dipy_athens": 3
+        "dipy_piraeus": 3
       },
       "assigned_districts": [
         "dist_38",
@@ -377,7 +383,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_breakdown": {
-        "dipy_athens": 3
+        "dipy_east": 3
       },
       "assigned_districts": [
         "dist_26",
@@ -407,7 +413,7 @@
       "is_active": true,
       "total_trucks": 5,
       "region_breakdown": {
-        "dipy_athens": 5
+        "dipy_east": 5
       },
       "assigned_districts": [
         "dist_40",
@@ -443,7 +449,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_breakdown": {
-        "dipy_athens": 3
+        "dipy_piraeus": 3
       },
       "assigned_districts": [
         "dist_46"
@@ -453,7 +459,7 @@
       "is_active": true,
       "total_trucks": 1,
       "region_breakdown": {
-        "dipy_athens": 1
+        "dipy_east": 1
       },
       "assigned_districts": [
         "dist_45"
@@ -463,7 +469,7 @@
       "is_active": true,
       "total_trucks": 2,
       "region_breakdown": {
-        "dipy_athens": 2
+        "dipy_piraeus": 2
       },
       "assigned_districts": [
         "dist_10",
@@ -474,7 +480,7 @@
       "is_active": true,
       "total_trucks": 2,
       "region_breakdown": {
-        "dipy_athens": 2
+        "dipy_east": 2
       },
       "assigned_districts": [
         "dist_49"
@@ -513,7 +519,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_breakdown": {
-        "dipy_athens": 3
+        "dipy_east": 3
       },
       "assigned_districts": [
         "dist_32"
@@ -549,7 +555,7 @@
       "is_active": true,
       "total_trucks": 4,
       "region_breakdown": {
-        "dipy_athens": 4
+        "dipy_west": 4
       },
       "assigned_districts": [
         "dist_17",
@@ -560,7 +566,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_breakdown": {
-        "dipy_athens": 3
+        "dipy_east": 3
       },
       "assigned_districts": [
         "dist_57"
@@ -570,7 +576,7 @@
       "is_active": true,
       "total_trucks": 4,
       "region_breakdown": {
-        "dipy_athens": 4
+        "dipy_east": 4
       },
       "assigned_districts": [
         "dist_29"
@@ -610,7 +616,7 @@
       "is_active": true,
       "total_trucks": 2,
       "region_breakdown": {
-        "dipy_athens": 2
+        "dipy_east": 2
       },
       "assigned_districts": [
         "dist_50"
@@ -652,7 +658,7 @@
       "is_active": true,
       "total_trucks": 2,
       "region_breakdown": {
-        "dipy_athens": 2
+        "dipy_west": 2
       },
       "assigned_districts": [
         "dist_34"
@@ -687,7 +693,7 @@
       "is_active": true,
       "total_trucks": 2,
       "region_allocations": {
-        "dipy_athens": 2
+        "dipy_east": 2
       },
       "assigned_districts": [
         "dist_16"
@@ -731,7 +737,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_allocations": {
-        "dipy_athens": 3
+        "dipy_east": 3
       },
       "assigned_districts": [
         "dist_28"
@@ -759,7 +765,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_allocations": {
-        "dipy_athens": 3
+        "dipy_east": 3
       },
       "assigned_districts": [
         "dist_33"
@@ -775,7 +781,7 @@
       "is_active": true,
       "total_trucks": 7,
       "region_allocations": {
-        "dipy_athens": 7
+        "dipy_piraeus": 7
       },
       "assigned_districts": [
         "dist_0",
@@ -796,7 +802,7 @@
       "is_active": true,
       "total_trucks": 1,
       "region_allocations": {
-        "dipy_athens": 1
+        "dipy_piraeus": 1
       },
       "assigned_districts": [
         "dist_25"
@@ -836,7 +842,7 @@
       "is_active": true,
       "total_trucks": 5,
       "region_allocations": {
-        "dipy_athens": 5
+        "dipy_east": 5
       },
       "assigned_districts": [
         "dist_1",
@@ -868,7 +874,7 @@
       "is_active": true,
       "total_trucks": 2,
       "region_allocations": {
-        "dipy_athens": 2
+        "dipy_west": 2
       },
       "assigned_districts": [
         "dist_8"
@@ -884,7 +890,7 @@
       "is_active": true,
       "total_trucks": 1,
       "region_allocations": {
-        "dipy_athens": 1
+        "dipy_piraeus": 1
       },
       "assigned_districts": [
         "dist_5"
@@ -900,7 +906,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_allocations": {
-        "dipy_athens": 3
+        "dipy_piraeus": 3
       },
       "assigned_districts": [
         "dist_38",
@@ -977,7 +983,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_allocations": {
-        "dipy_athens": 3
+        "dipy_east": 3
       },
       "assigned_districts": [
         "dist_26",
@@ -1031,7 +1037,7 @@
       "is_active": true,
       "total_trucks": 5,
       "region_allocations": {
-        "dipy_athens": 5
+        "dipy_east": 5
       },
       "assigned_districts": [
         "dist_40",
@@ -1097,7 +1103,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_allocations": {
-        "dipy_athens": 3
+        "dipy_piraeus": 3
       },
       "assigned_districts": [
         "dist_46"
@@ -1113,7 +1119,7 @@
       "is_active": true,
       "total_trucks": 1,
       "region_allocations": {
-        "dipy_athens": 1
+        "dipy_east": 1
       },
       "assigned_districts": [
         "dist_45"
@@ -1129,7 +1135,7 @@
       "is_active": true,
       "total_trucks": 2,
       "region_allocations": {
-        "dipy_athens": 2
+        "dipy_piraeus": 2
       },
       "assigned_districts": [
         "dist_10",
@@ -1146,7 +1152,7 @@
       "is_active": true,
       "total_trucks": 2,
       "region_allocations": {
-        "dipy_athens": 2
+        "dipy_east": 2
       },
       "assigned_districts": [
         "dist_49"
@@ -1209,7 +1215,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_allocations": {
-        "dipy_athens": 3
+        "dipy_east": 3
       },
       "assigned_districts": [
         "dist_32"
@@ -1269,7 +1275,7 @@
       "is_active": true,
       "total_trucks": 4,
       "region_allocations": {
-        "dipy_athens": 4
+        "dipy_west": 4
       },
       "assigned_districts": [
         "dist_17",
@@ -1286,7 +1292,7 @@
       "is_active": true,
       "total_trucks": 3,
       "region_allocations": {
-        "dipy_athens": 3
+        "dipy_east": 3
       },
       "assigned_districts": [
         "dist_57"
@@ -1302,7 +1308,7 @@
       "is_active": true,
       "total_trucks": 4,
       "region_allocations": {
-        "dipy_athens": 4
+        "dipy_east": 4
       },
       "assigned_districts": [
         "dist_29"
@@ -1378,7 +1384,7 @@
       "is_active": true,
       "total_trucks": 2,
       "region_allocations": {
-        "dipy_athens": 2
+        "dipy_east": 2
       },
       "assigned_districts": [
         "dist_50"
@@ -1450,7 +1456,7 @@
       "is_active": true,
       "total_trucks": 2,
       "region_allocations": {
-        "dipy_athens": 2
+        "dipy_west": 2
       },
       "assigned_districts": [
         "dist_34"

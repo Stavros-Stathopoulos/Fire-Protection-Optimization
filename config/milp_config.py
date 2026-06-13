@@ -10,12 +10,13 @@ SOLVER_TIME_LIMIT_SECONDS = 300
 SOLVER_MIP_GAP = 0.01  # 1 % optimality gap is acceptable for planning
 
 # --- Fire regions (4 ΔΙΠΥ — Regional Directorates of the Fire Service) ---
-# Each dict must contain: id (str), name (str), total_firetrucks (int).
+# Each dict must contain: id (str), name (str), total_firetrucks (int),
+# lat (float), lon (float) — HQ coordinates used for geographic proximity scoring.
 REGIONS: list[dict[str, Any]] = [
-    {"id": "dipy_athens",  "name": "ΔΙΠΥ ΑΘΗΝΩΝ",             "total_firetrucks": 120},
-    {"id": "dipy_piraeus", "name": "ΔΙΠΥ ΠΕΙΡΑΙΩΣ",           "total_firetrucks": 40},
-    {"id": "dipy_west",    "name": "ΔΙΠΥ ΔΥΤΙΚΗΣ ΑΤΤΙΚΗΣ",    "total_firetrucks": 45},
-    {"id": "dipy_east",    "name": "ΔΙΠΥ ΑΝΑΤΟΛΙΚΗΣ ΑΤΤΙΚΗΣ", "total_firetrucks": 45},
+    {"id": "dipy_athens",  "name": "ΔΙΠΥ ΑΘΗΝΩΝ",             "total_firetrucks": 120, "lat": 37.9838, "lon": 23.7275},
+    {"id": "dipy_piraeus", "name": "ΔΙΠΥ ΠΕΙΡΑΙΩΣ",           "total_firetrucks": 120,  "lat": 37.9430, "lon": 23.6460},
+    {"id": "dipy_west",    "name": "ΔΙΠΥ ΔΥΤΙΚΗΣ ΑΤΤΙΚΗΣ",    "total_firetrucks": 120,  "lat": 38.0410, "lon": 23.5320},
+    {"id": "dipy_east",    "name": "ΔΙΠΥ ΑΝΑΤΟΛΙΚΗΣ ΑΤΤΙΚΗΣ", "total_firetrucks": 120,  "lat": 38.0040, "lon": 23.8910},
 ]
 
 # --- Backward-compatibility aliases (used by legacy callers) ---
@@ -88,6 +89,13 @@ FORCED_OPEN_STATIONS: list[str] = [
     # "ps_megara",
     # "ps_acharnes",
 ]
+
+# --- Geographic proximity penalty for truck allocation ---
+# Secondary objective coefficient that breaks solver degeneracy in v-allocation:
+#   α · Σ_{i,j} (dist_ij / max_dist) · (v_ij / total_fleet)
+# Bounded in [0, PROXIMITY_ALPHA], so it never distorts station selection (primary
+# objective is O(10⁴)) but always prefers assigning trucks from the nearest ΔΙΠΥ.
+PROXIMITY_ALPHA: float = 10.0
 
 # --- Demand metric: how dk is computed from incident history ---
 # "mean_vehicles"  → average firetrucks deployed per incident in the district

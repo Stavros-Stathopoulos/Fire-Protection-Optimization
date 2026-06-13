@@ -94,3 +94,15 @@ class FireProtectionProblem:
             for r in self.regions
             for s in self.stations
         }
+
+    def region_station_distance_matrix(self) -> Dict[Tuple[str, str], float]:
+        """Haversine km from each ΔΙΠΥ HQ to each candidate station.
+
+        Used to compute the geographic proximity penalty in the MILP objective
+        so truck allocation is geographically meaningful across ΔΙΠΥ regions.
+        """
+        return {
+            (r.id, s.id): _haversine_km(r.lat, r.lon, s.lat, s.lon)
+            for r in self.regions
+            for s in self.stations
+        }
