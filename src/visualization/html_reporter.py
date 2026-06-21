@@ -28,16 +28,53 @@ if TYPE_CHECKING:
 # ---------------------------------------------------------------------------
 
 def _e(value: object) -> str:
-    """HTML-escape *value* (coerced to str). Safe for all Greek/Unicode text."""
+    """HTML-escape *value* cast to ``str``.
+
+    Parameters
+    ----------
+    value : object
+        Any Python object.
+
+    Returns
+    -------
+    str
+        HTML-escaped string, safe for insertion into HTML attribute values
+        and text content.  Handles Greek and all Unicode characters.
+    """
     return _html.escape(str(value))
 
 
 def _fmt_eur(value: float) -> str:
+    """Format a float as a human-readable EUR string.
+
+    Parameters
+    ----------
+    value : float
+        Monetary value in EUR.
+
+    Returns
+    -------
+    str
+        String of the form ``"1,200,000 EUR"``.
+    """
     return f"{value:,.0f} EUR"
 
 
 def _rt_classes(minutes: float) -> tuple[str, str]:
-    """Return (bg_class, text_class) Tailwind pair for a response-time value."""
+    """Return a Tailwind CSS colour pair for a response-time value.
+
+    Parameters
+    ----------
+    minutes : float
+        Response time in minutes.
+
+    Returns
+    -------
+    tuple[str, str]
+        ``(bg_class, text_class)`` Tailwind CSS classes encoding urgency:
+        emerald (≤ 10) → green (≤ 15) → amber (≤ 20) → orange (≤ 25) →
+        rose (> 25).
+    """
     if minutes <= 10.0:
         return "bg-emerald-900", "text-emerald-300"
     if minutes <= 15.0:
@@ -50,7 +87,19 @@ def _rt_classes(minutes: float) -> tuple[str, str]:
 
 
 def _risk_classes(risk: float) -> tuple[str, str]:
-    """Return (bg_class, text_class) Tailwind pair for a wildfire-risk value."""
+    """Return a Tailwind CSS colour pair for a wildfire-risk value.
+
+    Parameters
+    ----------
+    risk : float
+        Wildfire risk factor (``1.0`` – ``5.0``).
+
+    Returns
+    -------
+    tuple[str, str]
+        ``(bg_class, text_class)`` Tailwind CSS classes: emerald (≤ 1.5)
+        → amber (≤ 2.5) → orange (≤ 3.5) → rose (> 3.5).
+    """
     if risk <= 1.5:
         return "bg-emerald-900", "text-emerald-300"
     if risk <= 2.5:
@@ -61,6 +110,22 @@ def _risk_classes(risk: float) -> tuple[str, str]:
 
 
 def _badge(label: str, bg: str, text: str) -> str:
+    """Render a small Tailwind pill badge.
+
+    Parameters
+    ----------
+    label : str
+        Badge text content.
+    bg : str
+        Tailwind background colour class (e.g. ``"bg-emerald-900"``).
+    text : str
+        Tailwind text colour class (e.g. ``"text-emerald-300"``).
+
+    Returns
+    -------
+    str
+        HTML ``<span>`` string for a coloured pill badge.
+    """
     return (
         f'<span class="inline-flex items-center px-2 py-0.5 rounded text-xs '
         f'font-semibold {bg} {text}">{label}</span>'
@@ -68,11 +133,35 @@ def _badge(label: str, bg: str, text: str) -> str:
 
 
 def _rt_badge(minutes: float) -> str:
+    """Render a response-time pill badge with automatic colour coding.
+
+    Parameters
+    ----------
+    minutes : float
+        Response time in minutes.
+
+    Returns
+    -------
+    str
+        HTML ``<span>`` badge string.
+    """
     bg, txt = _rt_classes(minutes)
     return _badge(f"{minutes:.1f} min", bg, txt)
 
 
 def _risk_badge(risk: float) -> str:
+    """Render a wildfire-risk pill badge with automatic colour coding.
+
+    Parameters
+    ----------
+    risk : float
+        Wildfire risk factor (``1.0`` – ``5.0``).
+
+    Returns
+    -------
+    str
+        HTML ``<span>`` badge string.
+    """
     bg, txt = _risk_classes(risk)
     return _badge(f"{risk:.1f}", bg, txt)
 
@@ -113,13 +202,32 @@ class MilpHtmlReporter:
     # ------------------------------------------------------------------ public
 
     def generate_report(self, output_path: Path) -> None:
-        """Render and write the HTML dashboard to *output_path*."""
+        """Render and write the HTML dashboard to *output_path*.
+
+        Parameters
+        ----------
+        output_path : Path
+            Destination file path.  Parent directories are created
+            automatically.
+
+        Returns
+        -------
+        None
+        """
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(self._render_html(), encoding="utf-8")
 
     # ----------------------------------------------------------------- helpers
 
     def _risk_weighted_avg(self) -> float:
+        """Compute the demand-and-risk weighted average response time.
+
+        Returns
+        -------
+        float
+            Weighted average response time (minutes), or ``0.0`` if there
+            are no assignments.
+        """
         assignments = self._result.district_assignments
         d_meta = self._district_map
         total_weight = sum(
@@ -136,6 +244,19 @@ class MilpHtmlReporter:
         ) / total_weight
 
     def _station_avg_rt(self, sid: str) -> float:
+        """Compute the average response time for all districts assigned to *sid*.
+
+        Parameters
+        ----------
+        sid : str
+            Station identifier.
+
+        Returns
+        -------
+        float
+            Arithmetic mean response time in minutes, or ``0.0`` if no
+            districts are assigned to the station.
+        """
         covered = [
             did for did, asid in self._result.district_assignments.items()
             if asid == sid

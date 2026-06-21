@@ -1,8 +1,8 @@
 """Greek administrative-text normalization for fire-station coverage matching.
 
 Provides accent stripping, case folding, stop-word removal, and an alias
-table that maps OSM nominative-case municipality names to the genitive
-forms used in official ΠΣ coverage documents and our JSON data files.
+table that maps OSM nominative-case municipality names to the genitive forms
+used in official ΠΣ coverage documents and the project's JSON data files.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ import unicodedata
 # arrays use the genitive form (standard in official administrative texts).
 # This table maps raw OSM names → pre-normalised genitive keys.
 # ``strip_political_terms()`` is applied AFTER the lookup, so values must
-# already be UPPERCASE, accent-free, and ``-`` replaced by `` ``.
+# already be UPPERCASE, accent-free, and ``-`` replaced by space.
 
 ALIASES: dict[str, str] = {
     # Αθήνα
@@ -35,16 +35,16 @@ ALIASES: dict[str, str] = {
     "Βριλήσσια":                            "ΒΡΙΛΗΣΣΙΩΝ",
     # Κεντρικός / Νότιος Τομέας
     "Βύρωνας":                              "ΒΥΡΩΝΟΣ",
-    "Δήμος Βύρωνα":                         "ΒΥΡΩΝΟΣ",  # GeoPackage uses modern genitive vs archaic -ΩΣ in ODS
+    "Δήμος Βύρωνα":                         "ΒΥΡΩΝΟΣ",
     "Ηλιούπολη":                            "ΗΛΙΟΥΠΟΛΕΩΣ",
-    "Δήμος Ηλιούπολης":                     "ΗΛΙΟΥΠΟΛΕΩΣ",  # GeoPackage uses "Δήμος X" form
+    "Δήμος Ηλιούπολης":                     "ΗΛΙΟΥΠΟΛΕΩΣ",
     "Άλιμος":                               "ΑΛΙΜΟΥ",
     "Αλιμος":                               "ΑΛΙΜΟΥ",
     "Αγ. Δημήτριος":                        "ΑΓΙΟΥ ΔΗΜΗΤΡΙΟΥ",
     "Άγιος Δημήτριος":                      "ΑΓΙΟΥ ΔΗΜΗΤΡΙΟΥ",
     # Δυτικός Τομέας
-    "Πετρούπολη":                           "ΠΕΤΡΟΥΠΟΛΕΩΣ",  # modern genitive vs formal genitive in ODS
-    "Δήμος Πετρούπολης":                    "ΠΕΤΡΟΥΠΟΛΕΩΣ",  # GeoPackage uses "Δήμος X" form
+    "Πετρούπολη":                           "ΠΕΤΡΟΥΠΟΛΕΩΣ",
+    "Δήμος Πετρούπολης":                    "ΠΕΤΡΟΥΠΟΛΕΩΣ",
     "Ίλιον":                                "ΙΛΙΟΥ",
     "Χαϊδάρι":                              "ΧΑΙΔΑΡΙΟΥ",
     "Χαΐδάρι":                              "ΧΑΙΔΑΡΙΟΥ",
@@ -67,10 +67,10 @@ ALIASES: dict[str, str] = {
     "Βάρη-Βούλα-Βουλιαγμένη":             "ΒΑΡΗΣ ΒΟΥΛΑΣ ΒΟΥΛΙΑΓΜΕΝΗΣ",
     "Βάρη - Βούλα - Βουλιαγμένη":         "ΒΑΡΗΣ ΒΟΥΛΑΣ ΒΟΥΛΙΑΓΜΕΝΗΣ",
     # Νέα + compounds (ΝΕΑ → ΝΕΑΣ mismatch)
-    "Νέα Ιωνία":                                        "ΝΕΑΣ ΙΩΝΙΑΣ",
-    "Νέα Σμύρνη":                                       "ΝΕΑΣ ΣΜΥΡΝΗΣ",
-    # municipalities.json key is "Δ. ΦΙΛΑΔΕΛΦΕΙΑΣ - ΧΑΛΚΗΔΟΝΟΣ" (matches ODS short form);
-    # OSM GeoPackage boundary is "Δήμος Νέας Φιλαδέλφειας - Νέας Χαλκηδόνας" → map to same normalized key
+    "Νέα Ιωνία":                            "ΝΕΑΣ ΙΩΝΙΑΣ",
+    "Νέα Σμύρνη":                           "ΝΕΑΣ ΣΜΥΡΝΗΣ",
+    # OSM GeoPackage boundary is "Δήμος Νέας Φιλαδέλφειας - Νέας Χαλκηδόνας";
+    # municipalities.json uses the short form "Δ. ΦΙΛΑΔΕΛΦΕΙΑΣ - ΧΑΛΚΗΔΟΝΟΣ".
     "Νέα Φιλαδέλφεια-Νέα Χαλκηδόνα":                  "ΦΙΛΑΔΕΛΦΕΙΑΣ ΧΑΛΚΗΔΟΝΟΣ",
     "Νέα Φιλαδέλφεια - Νέα Χαλκηδόνα":                "ΦΙΛΑΔΕΛΦΕΙΑΣ ΧΑΛΚΗΔΟΝΟΣ",
     "Νέα Φιλαδέλφεια":                                  "ΦΙΛΑΔΕΛΦΕΙΑΣ ΧΑΛΚΗΔΟΝΟΣ",
@@ -82,39 +82,39 @@ def strip_political_terms(text: str) -> str:
     """Remove accents, special characters, and administrative stop-words.
 
     Transformation pipeline:
-      1. UPPER-case folding.
-      2. NFD accent decomposition (robust for all Greek encodings).
-      3. Delimiter normalisation (``-``, ``_``, em/en dashes → space).
-      4. Administrative stop-word removal (ΔΗΜΟΤΙΚΗ ΕΝΟΤΗΤΑ, ΔΗΜΟΣ, …).
-      5. Whitespace collapse.
+
+    1. UPPER-case folding.
+    2. NFD accent decomposition (robust for all Greek encodings).
+    3. Delimiter normalisation (``-``, ``_``, en/em dashes → space).
+    4. Administrative stop-word removal (``ΔΗΜΟΤΙΚΗ ΕΝΟΤΗΤΑ``,
+       ``ΔΗΜΟΣ``, ``Δ.Ε.``, ``Δ.``), longest first to avoid partial hits.
+    5. Whitespace collapse.
 
     Parameters
     ----------
-    text:
-        Raw Greek administrative name, e.g. ``"Δημοτική Ενότητα Κρυονερίου"``.
+    text : str
+        Raw Greek administrative name, e.g.
+        ``"Δημοτική Ενότητα Κρυονερίου"``.
 
     Returns
     -------
     str
-        Normalised key, e.g. ``"ΚΡΥΟΝΕΡΙΟΥ"``.
+        Normalised key, e.g. ``"ΚΡΥΟΝΕΡΙΟΥ"``.  Returns an empty string if
+        *text* is not a ``str``.
     """
     if not isinstance(text, str):
         return ""
 
-    # 1. Upper-case
     t = text.upper().strip()
 
-    # 2. Strip combining marks (accents) via NFD decomposition
     t = "".join(
         c for c in unicodedata.normalize("NFD", t)
         if unicodedata.category(c) != "Mn"
     )
 
-    # 3. Delimiter normalisation
-    for delimiter in ("-", "_", "\u2013", "\u2014"):  # hyphen, underscore, en-dash, em-dash
+    for delimiter in ("-", "_", "–", "—"):
         t = t.replace(delimiter, " ")
 
-    # 4. Remove Greek administrative stop-words (longest first to avoid partial hits)
     _STOP_WORDS: tuple[str, ...] = (
         "ΔΗΜΟΤΙΚΗ ΕΝΟΤΗΤΑ",
         "ΔΗΜΟΤΙΚΕΣ ΕΝΟΤΗΤΕΣ",
@@ -125,19 +125,21 @@ def strip_political_terms(text: str) -> str:
     for sw in _STOP_WORDS:
         t = t.replace(sw, "")
 
-    # 5. Collapse whitespace
     return " ".join(t.split())
 
 
 def normalize_name(raw_name: str) -> str:
     """Apply alias lookup followed by political-term stripping.
 
-    This is the single entry-point callers should use when preparing a
-    name for dictionary lookup.
+    This is the single entry-point callers should use when preparing a name
+    for dictionary lookup.  It first checks :data:`ALIASES` for a known
+    nominative → genitive mapping; if found, the pre-normalised value is
+    returned after stop-word stripping.  If no alias exists, the raw name
+    is normalised directly.
 
     Parameters
     ----------
-    raw_name:
+    raw_name : str
         The name exactly as it appears in OSM or in user-facing labels.
 
     Returns

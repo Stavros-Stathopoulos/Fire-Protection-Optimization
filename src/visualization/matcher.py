@@ -1,16 +1,16 @@
 """Hybrid matching algorithm: OSM spatial units → fire station assignments.
 
-Extracts the matching decision matrix from ``test2.py`` lines 186–270 into
-a reusable, testable class.  The algorithm resolves every OSM community
-unit (admin_level=8) to a fire station via a four-tier cascade:
+Resolves every OSM community unit (admin_level=8) to a fire station via a
+four-tier cascade:
 
-  1. Community exact match (``unit_lookup``)
-  2. Community substring match
-  3. Municipality exact match (``mun_lookup``, via parent spatial join)
-  4. Municipality substring match
+1. Community exact match (``unit_lookup``).
+2. Community substring match.
+3. Municipality exact match (``mun_lookup``, via parent spatial join).
+4. Municipality substring match.
 
-All matching is done on normalised strings (uppercase, accent-free, no
-administrative stop-words) produced by ``normalization.strip_political_terms``.
+All matching is performed on normalised strings (uppercase, accent-free, no
+administrative stop-words) produced by
+:func:`~normalization.strip_political_terms`.
 """
 
 from __future__ import annotations
@@ -25,14 +25,14 @@ from .normalization import normalize_name, strip_political_terms
 
 
 class HybridMatcher:
-    """Resolves OSM community units to fire stations via hybrid matching.
+    """Resolve OSM community units to fire stations via four-tier hybrid matching.
 
     Parameters
     ----------
-    community_lookup:
-        Normalised community name → ``StationRecord``.
-    municipality_lookup:
-        Normalised municipality name → ``StationRecord``.
+    community_lookup : dict[str, StationRecord]
+        Normalised community name → :class:`~models.StationRecord` mapping.
+    municipality_lookup : dict[str, StationRecord]
+        Normalised municipality name → :class:`~models.StationRecord` mapping.
     """
 
     def __init__(
@@ -50,19 +50,26 @@ class HybridMatcher:
         gdf_units: gpd.GeoDataFrame,
         gdf_muns: gpd.GeoDataFrame,
     ) -> list[CoverageAssignment]:
-        """Match every community unit to a fire station.
+        """Match every OSM community unit to a fire station.
+
+        For each row in *gdf_units*, a parent municipality is determined via
+        a precomputed spatial join, and the four-tier cascade is applied.
+        Unmatched units are included in the output with ``station_id="unknown"``
+        and emitted as warnings to stdout (capped at 15).
 
         Parameters
         ----------
-        gdf_units:
-            OSM admin_level=8 GeoDataFrame with ``name`` and ``geometry``.
-        gdf_muns:
-            OSM admin_level=7 GeoDataFrame with ``name`` and ``geometry``.
+        gdf_units : geopandas.GeoDataFrame
+            OSM admin_level=8 boundaries with ``name`` and ``geometry``
+            columns.
+        gdf_muns : geopandas.GeoDataFrame
+            OSM admin_level=7 boundaries with ``name`` and ``geometry``
+            columns.
 
         Returns
         -------
         list[CoverageAssignment]
-            One assignment per community unit.
+            One :class:`~models.CoverageAssignment` per row in *gdf_units*.
         """
         parent_series = self._compute_parent_municipalities(gdf_units, gdf_muns)
 
@@ -74,7 +81,6 @@ class HybridMatcher:
             unit_geom = unit_row["geometry"]
             unit_clean = strip_political_terms(unit_name)
 
-            # Resolve parent municipality from precomputed spatial join
             raw_parent = parent_series.at[idx]
             parent_mun_name = str(raw_parent) if pd.notna(raw_parent) else "—"
             parent_mun_clean = normalize_name(parent_mun_name)
@@ -85,7 +91,7 @@ class HybridMatcher:
                 unmatched_count += 1
                 if unmatched_count <= 15:
                     print(
-                        f"⚠️ Unmatched → OSM Unit: '{unit_name}' "
+                        f"Unmatched → OSM Unit: '{unit_name}' "
                         f"[normalised: '{unit_clean}'] | "
                         f"Parent Municipality: '{parent_mun_name}' "
                         f"[normalised: '{parent_mun_clean}']"
@@ -103,23 +109,30 @@ class HybridMatcher:
                 )
             )
 
-        print(f"📊 Unmatched units: {unmatched_count}/{len(gdf_units)}")
+        print(f"Unmatched units: {unmatched_count}/{len(gdf_units)}")
         return assignments
 
     def build_municipality_base_layer(
         self,
         gdf_muns: gpd.GeoDataFrame,
     ) -> list[CoverageAssignment]:
-        """Build fallback municipality-level coverage for gap-filling.
+        """Build a fallback municipality-level coverage layer for gap-filling.
 
         Some municipalities have only partial community-unit coverage in OSM.
         Rendering every municipality polygon underneath the community units
-        fills those gaps.
+        fills those visual gaps.
+
+        Parameters
+        ----------
+        gdf_muns : geopandas.GeoDataFrame
+            OSM admin_level=7 boundaries with ``name`` and ``geometry``
+            columns.
 
         Returns
         -------
         list[CoverageAssignment]
-            One assignment per unique municipality.
+            One :class:`~models.CoverageAssignment` per unique municipality
+            name in *gdf_muns*.
         """
         seen: set[str] = set()
         records: list[CoverageAssignment] = []
@@ -145,7 +158,7 @@ class HybridMatcher:
                 )
             )
 
-        print(f"📍 Municipality base layer: {len(records)} polygons")
+        print(f"Municipality base layer: {len(records)} polygons")
         return records
 
     # -- Private matching logic ----------------------------------------------
@@ -155,21 +168,31 @@ class HybridMatcher:
         unit_clean: str,
         parent_mun_clean: str,
     ) -> tuple[Optional[StationRecord], str]:
-        """Run the four-tier matching cascade."""
-        # 1. Community exact match
+        """Run the four-tier matching cascade.
+
+        Parameters
+        ----------
+        unit_clean : str
+            Normalised name of the community unit.
+        parent_mun_clean : str
+            Normalised name of the parent municipality.
+
+        Returns
+        -------
+        tuple[StationRecord or None, str]
+            A two-tuple ``(station, method)`` where *station* is ``None`` if
+            no match was found and *method* is a human-readable tier name.
+        """
         if unit_clean in self._community_lookup:
             return self._community_lookup[unit_clean], "Unit Exact Match"
 
-        # 2. Community substring match
         for key, station in self._community_lookup.items():
             if key in unit_clean or unit_clean in key:
                 return station, "Unit Substring Match"
 
-        # 3. Municipality exact match (parent)
         if parent_mun_clean in self._municipality_lookup:
             return self._municipality_lookup[parent_mun_clean], "Municipal Fallback"
 
-        # 4. Municipality substring match (parent)
         for key, station in self._municipality_lookup.items():
             if key in parent_mun_clean or parent_mun_clean in key:
                 return station, "Municipal Substring Fallback"
@@ -177,7 +200,18 @@ class HybridMatcher:
         return None, "Unmatched"
 
     def _lookup_municipality(self, mun_clean: str) -> Optional[StationRecord]:
-        """Exact-then-substring municipality lookup."""
+        """Perform exact-then-substring municipality lookup.
+
+        Parameters
+        ----------
+        mun_clean : str
+            Normalised municipality name.
+
+        Returns
+        -------
+        StationRecord or None
+            The matched station, or ``None`` if no match exists.
+        """
         station = self._municipality_lookup.get(mun_clean)
         if station is not None:
             return station
@@ -186,24 +220,33 @@ class HybridMatcher:
                 return st
         return None
 
-    # -- Spatial join helpers -------------------------------------------------
+    # -- Spatial join helpers ------------------------------------------------
 
     @staticmethod
     def _compute_parent_municipalities(
         gdf_units: gpd.GeoDataFrame,
         gdf_muns: gpd.GeoDataFrame,
     ) -> pd.Series:
-        """Precompute the parent municipality for every community unit.
+        """Precompute the parent municipality name for every community unit.
 
         Uses a ``within`` spatial join with a ``nearest`` fallback for units
         whose centroids fall outside all municipality polygons (complex
-        mountain/forest shapes).
+        mountain / forest boundary shapes).  Both inputs are projected to
+        EPSG:2100 (ΕΓΣΑ'87) for metric-accurate centroid computation.
+
+        Parameters
+        ----------
+        gdf_units : geopandas.GeoDataFrame
+            OSM admin_level=8 boundaries.
+        gdf_muns : geopandas.GeoDataFrame
+            OSM admin_level=7 boundaries.
 
         Returns
         -------
-        pd.Series
+        pandas.Series
             Index-aligned with *gdf_units*, containing the parent
-            municipality name.
+            municipality name (or ``NaN`` if the nearest fallback also
+            failed).
         """
         gdf_units_proj = gdf_units.to_crs(epsg=2100)
         gdf_muns_proj = gdf_muns[["name", "geometry"]].copy().to_crs(epsg=2100)

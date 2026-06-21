@@ -1,13 +1,8 @@
 """Hierarchical JSON parser for ``real_world_fire_stations.json``.
 
-Fixes the original ``test2.py`` bug where the code read
-``station.get("assigned_units", [])`` but the JSON used the singular key
-``"assigned_unit"``, causing the community-level lookup table to be
-permanently empty.
-
-This parser defensively reads **all** known key variants for community-level
-data (``assigned_communities``, ``assigned_unit``, ``assigned_units``) and
-validates the schema, raising ``DataStructureMismatchError`` on structural
+Defensively reads **all** known key variants for community-level data
+(``assigned_communities``, ``assigned_unit``, ``assigned_units``) and
+validates the schema, raising :exc:`DataStructureMismatchError` on structural
 violations.
 """
 
@@ -33,15 +28,24 @@ _PS_ID_PREFIXES: tuple[str, ...] = (
 
 
 def _derive_station_type(station_id: str, station_name: str) -> str:
-    """Derive ΠΣ / ΠΥ / ΠΚ from station name or id.
+    """Infer the Hellenic Fire Service station type from its ID or name.
 
     The JSON has no explicit ``"type"`` field, so we infer from naming
     conventions used by the Hellenic Fire Service.
 
+    Parameters
+    ----------
+    station_id : str
+        Unique station identifier as stored in the JSON file.
+    station_name : str
+        Human-readable Greek station name.
+
     Returns
     -------
     str
-        One of ``"ΠΣ"``, ``"ΠΥ"``, ``"ΠΚ"``.
+        One of ``"ΠΣ"`` (Πυροσβεστικός Σταθμός), ``"ΠΥ"`` (Πυροσβεστική
+        Υπηρεσία), or ``"ΠΚ"`` (Πυροσβεστικό Κλιμάκιο).  Defaults to
+        ``"ΠΣ"`` for unknown stations.
     """
     if "ΠΣ" in station_name or station_id.startswith(_PS_ID_PREFIXES):
         return "ΠΣ"
@@ -49,7 +53,7 @@ def _derive_station_type(station_id: str, station_name: str) -> str:
         return "ΠΥ"
     if "ΠΚ" in station_name or station_id.startswith("pk_"):
         return "ΠΚ"
-    return "ΠΣ"  # sensible default for unnamed/unknown
+    return "ΠΣ"
 
 
 # ---------------------------------------------------------------------------
@@ -58,9 +62,6 @@ def _derive_station_type(station_id: str, station_name: str) -> str:
 
 _REQUIRED_STATION_FIELDS: frozenset[str] = frozenset({"id", "name", "lat", "lon"})
 
-# All keys the JSON might use for community-level (Δ.Ε.) assignments.
-# The original schema used "assigned_unit" (singular); the normalised
-# schema uses "assigned_communities"; we accept all variants defensively.
 _COMMUNITY_KEYS: tuple[str, ...] = (
     "assigned_communities",
     "assigned_unit",
@@ -70,10 +71,25 @@ _COMMUNITY_KEYS: tuple[str, ...] = (
 
 
 def _validate_station_entry(entry: dict[str, Any], index: int) -> None:
-    """Raise ``DataStructureMismatchError`` if *entry* is malformed."""
+    """Raise :exc:`DataStructureMismatchError` if *entry* is malformed.
+
+    Parameters
+    ----------
+    entry : dict[str, Any]
+        A single station object parsed from JSON.
+    index : int
+        Zero-based position of the entry in the stations array (used in
+        error messages).
+
+    Raises
+    ------
+    DataStructureMismatchError
+        If *entry* is not a dict, or if required fields are missing.
+    """
     if not isinstance(entry, dict):
         raise DataStructureMismatchError(
-            f"Station at index {index} is not a JSON object (got {type(entry).__name__}).",
+            f"Station at index {index} is not a JSON object "
+            f"(got {type(entry).__name__}).",
         )
     missing = _REQUIRED_STATION_FIELDS - entry.keys()
     if missing:
@@ -90,12 +106,28 @@ def _validate_station_entry(entry: dict[str, Any], index: int) -> None:
 # ---------------------------------------------------------------------------
 
 class StationDataParser:
-    """Parses ``real_world_fire_stations.json`` into typed ``StationRecord`` objects.
+    """Parse ``real_world_fire_stations.json`` into typed ``StationRecord`` objects.
 
     Handles the two-level hierarchical schema:
-      * ``assigned_municipalities`` — municipality-level (OSM admin_level=7)
-      * ``assigned_communities`` / ``assigned_unit`` / ``assigned_units``
-        — community-level (OSM admin_level=8)
+
+    * ``assigned_municipalities`` — municipality-level coverage (OSM
+      admin_level=7).
+    * ``assigned_communities`` / ``assigned_unit`` / ``assigned_units``
+      — community-level coverage (OSM admin_level=8).  All known key
+      variants are read defensively.
+
+    Parameters
+    ----------
+    path : Path or str
+        Path to ``real_world_fire_stations.json``.
+
+    Attributes
+    ----------
+    stations : list[StationRecord]
+        Most recently parsed station records (empty before :meth:`parse` is
+        called).
+    metadata : dict[str, str]
+        Optional ``"metadata"`` block from the JSON, if present.
     """
 
     def __init__(self, path: Path | str) -> None:
@@ -119,7 +151,9 @@ class StationDataParser:
         DataStructureMismatchError
             If the file structure is invalid or required fields are missing.
         FileNotFoundError
-            If the JSON file does not exist.
+            If the JSON file does not exist at ``self._path``.
+        json.JSONDecodeError
+            If the file is not valid JSON.
         """
         with open(self._path, encoding="utf-8") as fh:
             self._raw = json.load(fh)
@@ -134,7 +168,19 @@ class StationDataParser:
         return self._stations
 
     def _extract_stations_array(self) -> list[dict[str, Any]]:
-        """Extract the stations list from either nested or flat JSON."""
+        """Extract the stations list from either a nested or flat JSON structure.
+
+        Returns
+        -------
+        list[dict[str, Any]]
+            The raw list of station dicts.
+
+        Raises
+        ------
+        DataStructureMismatchError
+            If the JSON is not a list or dict, or if a dict lacks a
+            ``"stations"`` key.
+        """
         if isinstance(self._raw, list):
             return self._raw
         if isinstance(self._raw, dict):
@@ -151,21 +197,31 @@ class StationDataParser:
                 key="stations",
             )
         raise DataStructureMismatchError(
-            f"Expected JSON object or array at top level, got {type(self._raw).__name__}.",
+            f"Expected JSON object or array at top level, got "
+            f"{type(self._raw).__name__}.",
         )
 
     @staticmethod
     def _build_record(entry: dict[str, Any]) -> StationRecord:
-        """Convert a raw dict into a typed ``StationRecord``."""
+        """Convert a raw station dict into a typed :class:`StationRecord`.
+
+        Parameters
+        ----------
+        entry : dict[str, Any]
+            A validated station dict from the JSON file.
+
+        Returns
+        -------
+        StationRecord
+            Fully populated record with deduplicated community lists.
+        """
         station_id: str = str(entry["id"])
         station_name: str = str(entry["name"])
 
-        # Municipality-level coverage
         municipalities_raw: list[str] = entry.get("assigned_municipalities", [])
         if not isinstance(municipalities_raw, list):
             municipalities_raw = [str(municipalities_raw)]
 
-        # Community-level coverage — read ALL known key variants (THE FIX)
         communities_raw: list[str] = []
         for key in _COMMUNITY_KEYS:
             val = entry.get(key)
@@ -175,7 +231,6 @@ class StationDataParser:
                 elif isinstance(val, str):
                     communities_raw.append(val)
 
-        # Deduplicate while preserving order
         seen: set[str] = set()
         communities_deduped: list[str] = []
         for c in communities_raw:
@@ -198,13 +253,15 @@ class StationDataParser:
     def build_lookup_tables(
         self,
     ) -> tuple[dict[str, StationRecord], dict[str, StationRecord]]:
-        """Build normalised name → StationRecord lookup tables.
+        """Build normalised name → :class:`StationRecord` lookup tables.
+
+        Calls :meth:`parse` automatically if it has not been called yet.
 
         Returns
         -------
-        tuple[dict, dict]
-            ``(community_lookup, municipality_lookup)`` where keys are the
-            output of ``strip_political_terms()``.
+        tuple[dict[str, StationRecord], dict[str, StationRecord]]
+            A two-tuple ``(community_lookup, municipality_lookup)`` where keys
+            are the output of :func:`~normalization.strip_political_terms`.
         """
         if not self._stations:
             self.parse()
@@ -229,12 +286,25 @@ class StationDataParser:
 
     @property
     def stations(self) -> list[StationRecord]:
-        """Return the most recently parsed station records."""
+        """Return the most recently parsed station records.
+
+        Returns
+        -------
+        list[StationRecord]
+            A shallow copy of the internal station list.
+        """
         return list(self._stations)
 
     @property
     def metadata(self) -> dict[str, str]:
-        """Return the optional ``"metadata"`` block from the JSON, if present."""
+        """Return the optional ``"metadata"`` block from the JSON, if present.
+
+        Returns
+        -------
+        dict[str, str]
+            The metadata dict, or an empty dict if absent or if the JSON root
+            is not an object.
+        """
         if isinstance(self._raw, dict):
             return dict(self._raw.get("metadata", {}))
         return {}

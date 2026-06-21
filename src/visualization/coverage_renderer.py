@@ -1,10 +1,10 @@
 """Folium renderer for operational fire-station coverage maps.
 
-Refactored from ``test2.py`` lines 304–397.  Produces an interactive HTML
-map with:
-  * Colour-coded coverage polygons (community-unit and municipality layers).
-  * Fire-station markers with type-specific iconography (ΠΣ / ΠΥ / ΠΚ).
-  * Legend overlay and layer controls.
+Produces an interactive HTML map with:
+
+* Colour-coded coverage polygons (community-unit and municipality layers).
+* Fire-station markers with type-specific iconography (ΠΣ / ΠΥ / ΠΚ).
+* Legend overlay and Folium layer controls.
 """
 
 from __future__ import annotations
@@ -30,7 +30,6 @@ _PALETTE: tuple[str, ...] = (
 
 _UNASSIGNED_COLOUR = "#8c8c8c"
 
-# Station-type → marker colour
 _ICON_COLOUR: dict[str, str] = {
     "ΠΣ": "red",
     "ΠΥ": "orange",
@@ -39,7 +38,23 @@ _ICON_COLOUR: dict[str, str] = {
 
 
 def get_distinct_color(station_id: str) -> str:
-    """Return a stable hex colour for *station_id* via MD5 hashing."""
+    """Return a stable hex colour for *station_id* via MD5 hashing.
+
+    The colour is derived deterministically from the station ID so the same
+    station always receives the same colour across map renders.  Unknown
+    stations receive a neutral grey.
+
+    Parameters
+    ----------
+    station_id : str
+        Unique station identifier.
+
+    Returns
+    -------
+    str
+        A hex colour string from :data:`_PALETTE`, or ``"#8c8c8c"`` for
+        ``"unknown"`` stations.
+    """
     if station_id == "unknown":
         return _UNASSIGNED_COLOUR
     idx = int(hashlib.md5(station_id.encode()).hexdigest(), 16) % len(_PALETTE)
@@ -56,7 +71,21 @@ def _render_coverage_polygon(
     *,
     opacity: float = 0.55,
 ) -> None:
-    """Add a single coverage polygon to the Folium layer."""
+    """Add a single coverage polygon to the given Folium layer.
+
+    Parameters
+    ----------
+    row : CoverageAssignment
+        Coverage assignment containing the geometry, names, and station info.
+    target : folium.FeatureGroup
+        The layer to which the ``GeoJson`` element is appended.
+    opacity : float, optional
+        Fill opacity for the polygon.  Defaults to ``0.55``.
+
+    Returns
+    -------
+    None
+    """
     color = get_distinct_color(row.station_id)
     popup_html = (
         f'<div style="font-family:\'Segoe UI\', sans-serif; min-width:220px; font-size:12px;">'
@@ -94,7 +123,22 @@ def _render_station_markers(
     stations: list[StationRecord],
     target: folium.FeatureGroup,
 ) -> None:
-    """Add fire-station markers to the Folium layer."""
+    """Add fire-station markers to the given Folium layer.
+
+    Stations with missing coordinates (``lat == 0`` or ``lon == 0``) are
+    silently skipped.
+
+    Parameters
+    ----------
+    stations : list[StationRecord]
+        Parsed station records to render.
+    target : folium.FeatureGroup
+        The layer to which the ``Marker`` elements are appended.
+
+    Returns
+    -------
+    None
+    """
     for station in stations:
         if not station.lat or not station.lon:
             continue
@@ -134,7 +178,14 @@ def _render_station_markers(
 
 
 def _render_legend() -> folium.Element:
-    """Build the fixed-position HTML legend overlay."""
+    """Build the fixed-position HTML legend overlay.
+
+    Returns
+    -------
+    folium.Element
+        An HTML element containing a legend card for the bottom-left corner
+        of the map.
+    """
     return folium.Element(
         '<div style="position:fixed; bottom:36px; left:12px; z-index:9999; background:white;'
         " padding:10px 14px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.25);"
@@ -152,14 +203,15 @@ def _render_legend() -> folium.Element:
 # ---------------------------------------------------------------------------
 
 class CoverageMapRenderer:
-    """Renders the operational coverage map to interactive HTML.
+    """Render the operational coverage map to interactive HTML.
 
     Parameters
     ----------
-    center:
-        ``(lat, lon)`` map centre.
-    zoom_start:
-        Initial zoom level.
+    center : tuple[float, float], optional
+        ``(lat, lon)`` map centre.  Defaults to ``(38.05, 23.75)`` (central
+        Attica).
+    zoom_start : int, optional
+        Initial Folium zoom level.  Defaults to ``10``.
     """
 
     def __init__(
@@ -177,18 +229,26 @@ class CoverageMapRenderer:
         stations: list[StationRecord],
         output_path: Path | str,
     ) -> folium.Map:
-        """Build and save the coverage map.
+        """Build and save the operational coverage map.
+
+        Layer order (bottom to top):
+
+        1. Municipality base polygons (gap-filling background).
+        2. Community unit polygons (primary coverage layer).
+        3. Fire-station markers.
 
         Parameters
         ----------
-        community_assignments:
-            One ``CoverageAssignment`` per OSM community unit.
-        municipality_assignments:
-            Base-layer municipality polygons for gap-filling.
-        stations:
-            Parsed ``StationRecord`` objects for marker rendering.
-        output_path:
-            File path for the saved HTML.
+        community_assignments : list[CoverageAssignment]
+            One :class:`~models.CoverageAssignment` per OSM community unit
+            (admin_level=8).
+        municipality_assignments : list[CoverageAssignment]
+            Base-layer municipality polygons for gap-filling (admin_level=7).
+        stations : list[StationRecord]
+            Parsed station records for marker rendering.
+        output_path : Path or str
+            Destination HTML file path.  Parent directories are created as
+            needed.
 
         Returns
         -------
@@ -201,36 +261,30 @@ class CoverageMapRenderer:
             tiles="CartoDB positron",
         )
 
-        # -- Coverage layer --------------------------------------------------
         coverage_layer = folium.FeatureGroup(
-            name="📍 Αρμοδιότητα (Υβριδική Ανάλυση)", show=True
+            name="Αρμοδιότητα (Υβριδική Ανάλυση)", show=True
         )
 
-        # Municipality base layer first (background)
         for assignment in municipality_assignments:
             _render_coverage_polygon(assignment, coverage_layer, opacity=0.40)
 
-        # Community units on top
         for assignment in community_assignments:
             _render_coverage_polygon(assignment, coverage_layer, opacity=0.55)
 
         coverage_layer.add_to(m)
 
-        # -- Station markers -------------------------------------------------
         station_layer = folium.FeatureGroup(
-            name="🚒 Πυροσβεστικοί Σταθμοί", show=True
+            name="Πυροσβεστικοί Σταθμοί", show=True
         )
         _render_station_markers(stations, station_layer)
         station_layer.add_to(m)
 
-        # -- Legend & controls -----------------------------------------------
         m.get_root().html.add_child(_render_legend())
         folium.LayerControl(collapsed=False).add_to(m)
 
-        # -- Save ------------------------------------------------------------
         output = Path(output_path)
         output.parent.mkdir(parents=True, exist_ok=True)
         m.save(str(output))
-        print(f"✅ Coverage map saved → {output}")
+        print(f"Coverage map saved → {output}")
 
         return m

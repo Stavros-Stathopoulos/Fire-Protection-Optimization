@@ -1,15 +1,16 @@
 """Solver-agnostic MILP results visualizer.
 
-Ingests standardized ``MilpVisualizationInput`` (plain dicts / dataclasses)
-— **NOT** solver objects (PuLP variables, Gurobi models, etc.).
+Ingests standardised :class:`~models.MilpVisualizationInput` (plain dicts /
+dataclasses) — **not** solver objects (PuLP variables, Gurobi models, etc.).
 
-Visual outputs:
-  1. Municipality Coverage Polygons — choropleth fill colored by assigned station.
-  2. Active vs. Inactive Stations — green fire icons (open) / grey × icons (closed).
-  3. Demand-to-Station Allocation — dashed polylines from district centroids to
-     assigned stations.
-  4. Capacity / Unmet Demand — circle radius proportional to demand.
-  5. Response-Time Heatmap — optional layer showing response time as a gradient.
+Visual layers
+-------------
+1. Municipality Coverage Polygons — choropleth fill coloured by assigned station.
+2. Active vs. Inactive Stations — green fire icons (open) / grey × icons (closed).
+3. Demand-to-Station Allocation — dashed polylines from district centroids to
+   assigned stations.
+4. Demand Centroids — circle radius proportional to demand.
+5. Response-Time Heatmap — optional layer showing response time as a gradient.
 """
 
 from __future__ import annotations
@@ -38,7 +39,19 @@ if TYPE_CHECKING:
 def _generate_station_palette(
     station_ids: list[str],
 ) -> dict[str, str]:
-    """Assign visually distinct colours to each station via HSL rotation."""
+    """Assign visually distinct hex colours to each station via HSL rotation.
+
+    Parameters
+    ----------
+    station_ids : list[str]
+        Station IDs to colour.  The palette is computed from the sorted list
+        so the assignment is deterministic regardless of insertion order.
+
+    Returns
+    -------
+    dict[str, str]
+        ``{station_id: "#rrggbb"}`` mapping.
+    """
     n = max(len(station_ids), 1)
     palette: dict[str, str] = {}
     for rank, sid in enumerate(sorted(station_ids)):
@@ -50,20 +63,44 @@ def _generate_station_palette(
 
 
 def _response_time_colour(minutes: float) -> str:
-    """Map response time to a green → yellow → red gradient."""
+    """Map a response time to a green → yellow → red hex colour.
+
+    Parameters
+    ----------
+    minutes : float
+        Response time in minutes.
+
+    Returns
+    -------
+    str
+        A CSS hex colour string reflecting urgency:
+        green (≤ 10 min) → lawn green (≤ 15) → gold (≤ 20) →
+        dark orange (≤ 25) → red (> 25).
+    """
     if minutes <= 10.0:
-        return "#228B22"  # forest green
+        return "#228B22"
     if minutes <= 15.0:
-        return "#7CFC00"  # lawn green
+        return "#7CFC00"
     if minutes <= 20.0:
-        return "#FFD700"  # gold
+        return "#FFD700"
     if minutes <= 25.0:
-        return "#FF8C00"  # dark orange
-    return "#CC0000"      # red
+        return "#FF8C00"
+    return "#CC0000"
 
 
 def _demand_radius(demand: float) -> float:
-    """Circle marker radius proportional to demand."""
+    """Compute a circle marker radius proportional to district demand.
+
+    Parameters
+    ----------
+    demand : float
+        District demand value ``d_k``.
+
+    Returns
+    -------
+    float
+        Pixel radius clamped to ``[6, 35]``.
+    """
     return max(6, min(35, math.sqrt(demand) * 3.5))
 
 
@@ -77,29 +114,39 @@ def _build_municipality_polygons_layer(
     palette: dict[str, str],
     station_name_map: dict[str, str],
 ) -> folium.FeatureGroup:
-    """Layer: Choropleth polygons of municipalities colored by assigned MILP station."""
+    """Build the choropleth municipality layer coloured by assigned MILP station.
+
+    Parameters
+    ----------
+    assignments : list[MilpDistrictAssignment]
+        District assignment records from the MILP solution.
+    boundaries : geopandas.GeoDataFrame
+        OSM municipality polygons with ``name`` and ``geometry`` columns.
+    palette : dict[str, str]
+        ``{station_id: "#rrggbb"}`` colour map for active stations.
+    station_name_map : dict[str, str]
+        ``{station_id: station_name}`` for popup labels.
+
+    Returns
+    -------
+    folium.FeatureGroup
+        The constructed layer ready to be added to a ``folium.Map``.
+    """
     from .normalization import normalize_name
 
-    fg = folium.FeatureGroup(name="🗺️ Municipality Coverage (MILP)", show=True)
+    fg = folium.FeatureGroup(name="Municipality Coverage (MILP)", show=True)
 
-    # O(N) lookup index: normalized_name -> MilpDistrictAssignment
     assignment_map = {normalize_name(a.district_name): a for a in assignments}
 
     def highlight_fn(_):
-        return {
-            "weight": 2.5,
-            "color": "#222222",
-            "fillOpacity": 0.75,
-        }
+        return {"weight": 2.5, "color": "#222222", "fillOpacity": 0.75}
 
     for _, row in boundaries.iterrows():
         osm_name = str(row["name"])
         norm_name = normalize_name(osm_name)
 
-        # Main exact/aliased lookup
         assignment = assignment_map.get(norm_name)
 
-        # Fallback substring evaluation to guarantee mapping robustness
         if not assignment:
             for key, assoc in assignment_map.items():
                 if key in norm_name or norm_name in key:
@@ -131,11 +178,13 @@ def _build_municipality_polygons_layer(
                     "fillOpacity": 0.50,
                 },
                 highlight_function=highlight_fn,
-                tooltip=folium.Tooltip(f"<b>{assignment.district_name}</b> → {station_label} ({assignment.response_time_min:.1f} min)"),
+                tooltip=folium.Tooltip(
+                    f"<b>{assignment.district_name}</b> → {station_label} "
+                    f"({assignment.response_time_min:.1f} min)"
+                ),
                 popup=folium.Popup(popup_html, max_width=320),
             ).add_to(fg)
         else:
-            # Map unassigned boundaries cleanly in a muted tone
             folium.GeoJson(
                 data=row["geometry"].__geo_interface__,
                 style_function=lambda _: {
@@ -155,8 +204,23 @@ def _build_stations_layer(
     palette: dict[str, str],
     district_assignments: list[MilpDistrictAssignment],
 ) -> folium.FeatureGroup:
-    """Layer: Active vs. Inactive station markers."""
-    fg = folium.FeatureGroup(name="🏢 Stations (MILP Result)", show=True)
+    """Build the active vs. inactive station marker layer.
+
+    Parameters
+    ----------
+    statuses : list[MilpStationStatus]
+        One status record per candidate station.
+    palette : dict[str, str]
+        ``{station_id: "#rrggbb"}`` colour map for active stations.
+    district_assignments : list[MilpDistrictAssignment]
+        Used to compute per-station average response time for popup labels.
+
+    Returns
+    -------
+    folium.FeatureGroup
+        The constructed layer ready to be added to a ``folium.Map``.
+    """
+    fg = folium.FeatureGroup(name="Stations (MILP Result)", show=True)
 
     coverage_map: dict[str, list[MilpDistrictAssignment]] = {}
     for da in district_assignments:
@@ -219,8 +283,23 @@ def _build_district_zones_layer(
     palette: dict[str, str],
     station_name_map: dict[str, str],
 ) -> folium.FeatureGroup:
-    """Layer 2: District demand nodes coloured by assigned station."""
-    fg = folium.FeatureGroup(name="📍 Demand Centroids", show=False)
+    """Build the demand centroid layer coloured by assigned station.
+
+    Parameters
+    ----------
+    assignments : list[MilpDistrictAssignment]
+        District assignment records from the MILP solution.
+    palette : dict[str, str]
+        ``{station_id: "#rrggbb"}`` colour map for active stations.
+    station_name_map : dict[str, str]
+        ``{station_id: station_name}`` for popup labels.
+
+    Returns
+    -------
+    folium.FeatureGroup
+        The constructed layer ready to be added to a ``folium.Map``.
+    """
+    fg = folium.FeatureGroup(name="Demand Centroids", show=False)
 
     for d in assignments:
         colour = palette.get(d.assigned_station_id, "#b0b0b0")
@@ -232,7 +311,7 @@ def _build_district_zones_layer(
             f"Risk: <b>{d.wildfire_risk:.1f}</b>  |  Area: {d.area_km2:.0f} km²<br>"
             f"Demand: {d.demand:.1f}<br>"
             f"Assigned to: <b>{station_label}</b><br>"
-            f"Response time: <b>{d.response_time_min:.1f} min</b>"  # <- ΕΔΩ: Το ' min' βγήκε έξω από το }
+            f"Response time: <b>{d.response_time_min:.1f} min</b>"
             f"</div>"
         )
 
@@ -256,8 +335,23 @@ def _build_allocation_routes_layer(
     station_coords: dict[str, tuple[float, float]],
     palette: dict[str, str],
 ) -> folium.FeatureGroup:
-    """Layer: Dashed polylines from district to assigned station."""
-    fg = folium.FeatureGroup(name="🔗 Allocation Routes", show=True)
+    """Build the dashed-polyline allocation route layer.
+
+    Parameters
+    ----------
+    assignments : list[MilpDistrictAssignment]
+        District assignment records from the MILP solution.
+    station_coords : dict[str, tuple[float, float]]
+        ``{station_id: (lat, lon)}`` for drawing route endpoints.
+    palette : dict[str, str]
+        ``{station_id: "#rrggbb"}`` colour map for route colouring.
+
+    Returns
+    -------
+    folium.FeatureGroup
+        The constructed layer ready to be added to a ``folium.Map``.
+    """
+    fg = folium.FeatureGroup(name="Allocation Routes", show=True)
 
     for d in assignments:
         coords = station_coords.get(d.assigned_station_id)
@@ -280,8 +374,20 @@ def _build_allocation_routes_layer(
 def _build_response_heatmap_layer(
     assignments: list[MilpDistrictAssignment],
 ) -> folium.FeatureGroup:
-    """Layer: Response-time colour gradient (green → red)."""
-    fg = folium.FeatureGroup(name="⏱️ Response Time Heatmap", show=False)
+    """Build the response-time colour gradient layer.
+
+    Parameters
+    ----------
+    assignments : list[MilpDistrictAssignment]
+        District assignment records from the MILP solution.
+
+    Returns
+    -------
+    folium.FeatureGroup
+        The constructed layer (hidden by default) ready to be added to a
+        ``folium.Map``.
+    """
+    fg = folium.FeatureGroup(name="Response Time Heatmap", show=False)
 
     for d in assignments:
         colour = _response_time_colour(d.response_time_min)
@@ -304,7 +410,19 @@ def _build_response_heatmap_layer(
 
 
 def _build_summary_overlay(data: MilpVisualizationInput) -> folium.Element:
-    """Fixed-position HTML summary box."""
+    """Build the fixed-position HTML summary box.
+
+    Parameters
+    ----------
+    data : MilpVisualizationInput
+        Visualisation input bundle used to populate the summary fields.
+
+    Returns
+    -------
+    folium.Element
+        An HTML element containing a fixed-position summary card for the
+        top-right corner of the map.
+    """
     active = sum(1 for s in data.station_statuses if s.is_active)
     total = len(data.station_statuses)
 
@@ -329,7 +447,19 @@ def _build_summary_overlay(data: MilpVisualizationInput) -> folium.Element:
 class MilpResultVisualizer:
     """Decoupled MILP optimization output renderer.
 
-    Ingests standardized dicts / dataclasses — **NOT** solver objects.
+    Ingests standardised :class:`~models.MilpVisualizationInput` — **not**
+    solver objects.  Can be instantiated directly, or via one of the two
+    class-method factories.
+
+    Parameters
+    ----------
+    data : MilpVisualizationInput
+        Complete visualisation input bundle.
+    center : tuple[float, float], optional
+        ``(lat, lon)`` map centre.  Defaults to ``(38.00, 23.75)`` (central
+        Attica).
+    zoom_start : int, optional
+        Initial Folium zoom level.  Defaults to ``10``.
     """
 
     def __init__(
@@ -344,19 +474,34 @@ class MilpResultVisualizer:
         self._zoom = zoom_start
 
     def render(
-        self, 
-        output_path: Path | str, 
-        boundaries: Optional[gpd.GeoDataFrame] = None
+        self,
+        output_path: Path | str,
+        boundaries: Optional[gpd.GeoDataFrame] = None,
     ) -> folium.Map:
-        """Build and save the MILP results map.
+        """Build and save the MILP results map to *output_path*.
+
+        Layer order (bottom to top):
+
+        1. Municipality choropleth polygons (if boundaries available).
+        2. Station markers.
+        3. Allocation route polylines.
+        4. Demand centroid circles.
+        5. Response-time heatmap (hidden by default).
 
         Parameters
         ----------
-        output_path:
-            File path for the saved HTML.
-        boundaries:
-            Optional GeoDataFrame containing municipality polygons. If None,
-            the method attempts lazy fetching via osm_fetcher.
+        output_path : Path or str
+            Destination HTML file path.  Parent directories are created as
+            needed.
+        boundaries : geopandas.GeoDataFrame or None, optional
+            Municipality polygons for the choropleth layer.  If ``None``,
+            the method attempts a lazy OSM fetch via
+            :func:`~osm_fetcher.fetch_admin_layer`.
+
+        Returns
+        -------
+        folium.Map
+            The constructed map object (also saved to *output_path*).
         """
         m = folium.Map(
             location=self._center,
@@ -364,20 +509,18 @@ class MilpResultVisualizer:
             tiles="CartoDB positron",
         )
 
-        # Self-healing configuration fallback for JSON deserialization
         if boundaries is None and self._data.boundaries is not None:
             boundaries = self._data.boundaries  # type: ignore[assignment]
 
         if boundaries is None:
-            print("🌍 Boundaries missing from context. Lazily fetching Attica admin_level=7 from OSM...")
+            print("Boundaries missing from context. Lazily fetching Attica admin_level=7 from OSM...")
             try:
                 from .osm_fetcher import fetch_admin_layer, fetch_attica_hull
                 attica_hull = fetch_attica_hull()
                 boundaries = fetch_admin_layer("7", attica_hull)
             except Exception as err:
-                print(f"⚠️ Failed to dynamically load admin boundaries: {err}. Rendering without polygons.")
+                print(f"Failed to dynamically load admin boundaries: {err}. Rendering without polygons.")
 
-        # Build palette from active stations
         active_ids = [s.station_id for s in self._data.station_statuses if s.is_active]
         palette = _generate_station_palette(active_ids)
 
@@ -388,7 +531,6 @@ class MilpResultVisualizer:
             s.station_id: (s.lat, s.lon) for s in self._data.station_statuses
         }
 
-        # Step 1: Add the requested Choropleth Boundary Layer FIRST so it forms the background
         if boundaries is not None:
             m.add_child(
                 _build_municipality_polygons_layer(
@@ -396,7 +538,6 @@ class MilpResultVisualizer:
                 )
             )
 
-        # Step 2: Overlay point markers, vectors, and analytics layers on top
         m.add_child(
             _build_stations_layer(
                 self._data.station_statuses, palette, self._data.district_assignments,
@@ -416,25 +557,49 @@ class MilpResultVisualizer:
             _build_response_heatmap_layer(self._data.district_assignments)
         )
 
-        # Summary overlay & layer control
         m.get_root().html.add_child(_build_summary_overlay(self._data))
         folium.LayerControl(collapsed=False).add_to(m)
 
-        # Persist to disk
         output = Path(output_path)
         output.parent.mkdir(parents=True, exist_ok=True)
         m.save(str(output))
-        print(f"✅ MILP visualization saved → {output}")
+        print(f"MILP visualization saved → {output}")
 
         return m
 
     @classmethod
     def from_json(
         cls,
-        path: "Path | str",
+        path: Path | str,
         **kwargs: object,
     ) -> "MilpResultVisualizer":
-        """Build a visualizer directly from a full format JSON file."""
+        """Build a visualizer directly from a full-format JSON result file.
+
+        Expects the file to have been produced by
+        :meth:`~optimization.result.OptimizationResult.to_full_json`, which
+        embeds ``"stations"`` and ``"districts"`` metadata sections.
+
+        Parameters
+        ----------
+        path : Path or str
+            Path to the full-format JSON file.
+        **kwargs : object
+            Additional keyword arguments forwarded to the constructor
+            (e.g. ``center``, ``zoom_start``).
+
+        Returns
+        -------
+        MilpResultVisualizer
+            Populated visualizer ready to call :meth:`render`.
+
+        Raises
+        ------
+        ValueError
+            If the JSON file lacks the required ``"stations"`` or
+            ``"districts"`` keys.
+        json.JSONDecodeError
+            If the file is not valid JSON.
+        """
         import json as _json
 
         with open(Path(path), encoding="utf-8") as fh:
@@ -496,7 +661,28 @@ class MilpResultVisualizer:
         response_times: dict[tuple[str, str], float],
         **kwargs: object,
     ) -> "MilpResultVisualizer":
-        """Convenience factory that bridges OptimizationResult to the visualizer."""
+        """Convenience factory bridging ``OptimizationResult`` to the visualizer.
+
+        Converts solver output objects into solver-agnostic dataclasses so
+        the rest of the pipeline remains independent of PuLP.
+
+        Parameters
+        ----------
+        result : object
+            A solved :class:`~optimization.result.OptimizationResult`.
+        problem : object
+            The :class:`~domain.problem.FireProtectionProblem` that was passed
+            to the solver.
+        response_times : dict[tuple[str, str], float]
+            Pre-computed ``{(district_id, station_id): minutes}`` matrix.
+        **kwargs : object
+            Additional keyword arguments forwarded to the constructor.
+
+        Returns
+        -------
+        MilpResultVisualizer
+            Populated visualizer ready to call :meth:`render`.
+        """
         from domain.problem import FireProtectionProblem
         from optimization.result import OptimizationResult
 
