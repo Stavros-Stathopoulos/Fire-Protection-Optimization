@@ -1,13 +1,15 @@
 """Fire-protection optimization entry point.
 
-Multi-region formulation with 4 ΔΙΠΥ directorates.
+Multi-region capacitated facility location MILP for the 4 ΔΙΠΥ directorates
+of the Attica Region, Greece.
 
-Usage:
+Usage::
+
     python main.py
     python main.py --budget 10000000
-    python main.py --budget 10000000 --output results/solution.json
-    python main.py --no-map
-    python main.py --map-output public/milp_map.html
+    python main.py --budget 10000000 --output data/results/solution.json
+    python main.py --no-map --no-report
+    python main.py --map-output data/public/milp_map.html
 """
 
 from __future__ import annotations
@@ -27,12 +29,18 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-_DEFAULT_JSON_OUTPUT = Path("results") / "optimization_result.json"
-_DEFAULT_MAP_OUTPUT  = Path("public") / "milp_map.html"
+_DEFAULT_JSON_OUTPUT = Path("data") / "results" / "optimization_result.json"
+_DEFAULT_MAP_OUTPUT  = Path("data") / "public" / "milp_map.html"
 
 
 def _build_regions() -> list[FireRegion]:
-    """Construct FireRegion objects from the REGIONS config list."""
+    """Construct :class:`~domain.entities.FireRegion` objects from ``REGIONS`` config.
+
+    Returns
+    -------
+    list[FireRegion]
+        One ``FireRegion`` per entry in ``config.milp_config.REGIONS``.
+    """
     return [
         FireRegion(
             id=str(r["id"]),
@@ -50,8 +58,29 @@ def _report(
     problem: FireProtectionProblem,
     response_times: dict[tuple[str, str], float],
 ) -> None:
-    """Log a detailed breakdown of the optimization solution."""
-    # Lazy import to avoid circular references at module level
+    """Log a detailed per-station breakdown of the optimization solution.
+
+    Prints a structured console report including:
+
+    * Global KPIs (status, open station count, average and risk-weighted
+      response times, total operational cost).
+    * Per-ΔΙΠΥ fleet deployment summary.
+    * Per-station detail: average response time, firetruck allocation
+      per region, and a list of covered districts sorted by wildfire risk.
+
+    Parameters
+    ----------
+    result : object
+        A solved :class:`~optimization.result.OptimizationResult`.
+    problem : FireProtectionProblem
+        The problem instance used to recover station and district metadata.
+    response_times : dict[tuple[str, str], float]
+        Pre-computed ``{(district_id, station_id): minutes}`` matrix.
+
+    Returns
+    -------
+    None
+    """
     from optimization.result import OptimizationResult
     res: OptimizationResult = result  # type: ignore[assignment]
 
@@ -59,7 +88,6 @@ def _report(
     d_meta = {d.id: d for d in problem.districts}
     c = response_times
 
-    # Risk-weighted average
     assignments = res.district_assignments
     total_weight = sum(d_meta[did].demand * d_meta[did].wildfire_risk for did in assignments)
     risk_weighted_avg = (
@@ -78,14 +106,12 @@ def _report(
     logger.info(f"Operational cost:         {res.total_operational_cost:,.0f} EUR")
     logger.info("-" * 70)
 
-    # Per-region deployment summary
     logger.info("DIPY Regional Fleet Deployment:")
     for region in problem.regions:
         deployed = res.region_total_deployed.get(region.id, 0)
         logger.info(f"  {region.name}: {deployed}/{region.total_firetrucks} trucks deployed")
     logger.info("-" * 70)
 
-    # Per-station detail
     station_trucks = res.station_total_trucks
     for sid in sorted(res.open_stations):
         trucks = station_trucks.get(sid, 0)
@@ -95,7 +121,6 @@ def _report(
             if covered_dids else 0.0
         )
 
-        # Per-region breakdown for this station
         region_parts: list[str] = []
         for region in problem.regions:
             count = res.firetruck_allocations.get((region.id, sid), 0)
@@ -112,6 +137,20 @@ def _report(
 
 
 def _parse_args() -> argparse.Namespace:
+    """Parse and return CLI arguments.
+
+    Returns
+    -------
+    argparse.Namespace
+        Parsed argument namespace with the following attributes:
+
+        * ``budget`` (``float | None``) — optional budget override.
+        * ``output`` (``Path``) — JSON output path.
+        * ``map_output`` (``Path``) — HTML map output path.
+        * ``no_map`` (``bool``) — skip map generation if ``True``.
+        * ``report_output`` (``Path``) — HTML dashboard output path.
+        * ``no_report`` (``bool``) — skip report generation if ``True``.
+    """
     parser = argparse.ArgumentParser(
         description="Run the fire-protection MILP optimizer for Attica.",
     )
@@ -143,9 +182,9 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--report-output",
         type=Path,
-        default=Path("public") / "milp_report.html",
+        default=Path("data") / "public" / "milp_report.html",
         dest="report_output",
-        help="Output path for the HTML executive dashboard (default: public/milp_report.html).",
+        help="Output path for the HTML executive dashboard.",
     )
     parser.add_argument(
         "--no-report",
@@ -157,6 +196,27 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Run the end-to-end fire-protection optimization pipeline.
+
+    Pipeline:
+
+    1. Build :class:`~domain.entities.FireRegion` objects from config.
+    2. Load :class:`~domain.entities.IncidentDistrict` objects from the ODS
+       file via :func:`~utils.dataHandlers.preprocessor.load_districts`.
+    3. Load :class:`~domain.entities.FireStation` objects from JSON via
+       :func:`~utils.dataHandlers.station_loader.load_stations`.
+    4. Construct the :class:`~domain.problem.FireProtectionProblem`.
+    5. Solve the MILP via :func:`~optimization.solver.solve`.
+    6. Log a detailed report via :func:`_report`.
+    7. Serialise the result to JSON via
+       :meth:`~optimization.result.OptimizationResult.to_full_json`.
+    8. Optionally render the interactive Folium map.
+    9. Optionally render the HTML executive dashboard.
+
+    Returns
+    -------
+    None
+    """
     args = _parse_args()
 
     regions = _build_regions()
@@ -193,8 +253,6 @@ def main() -> None:
     response_times = problem.response_time_matrix(AVERAGE_SPEED_KMH)
     _report(result, problem, response_times)
 
-    # Serialize to JSON — full format includes station/district metadata so the
-    # src/visualization module can reconstruct the map from the file alone.
     result.to_full_json(args.output, problem, response_times)
     logger.info(f"Result serialized to {args.output}")
 
