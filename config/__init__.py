@@ -13,6 +13,8 @@ or import from a specific sub-module when only part of the config is needed::
 
 from .data_config import (
     DATA_PATH,
+    JSON_PATH,
+    ODS_PATH,
     FILE_NAME_ASTIKA,
     FILE_NAME_DASIKA,
     REQUIRED_COLUMNS,
@@ -47,6 +49,8 @@ from .milp_config import (
 
 __all__ = [
     "DATA_PATH",
+    "JSON_PATH",
+    "ODS_PATH",
     "FILE_NAME_ASTIKA",
     "FILE_NAME_DASIKA",
     "REQUIRED_COLUMNS",

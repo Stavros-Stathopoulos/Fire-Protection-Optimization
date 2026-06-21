@@ -13,9 +13,11 @@ correct regardless of the working directory when Python is invoked.
 import os
 
 # --- Paths ---
-DATA_PATH = os.path.join(os.path.dirname(__file__), '..', 'data') + os.sep
+DATA_PATH  = os.path.join(os.path.dirname(__file__), '..', 'data')         + os.sep
+JSON_PATH  = os.path.join(os.path.dirname(__file__), '..', 'data', 'json') + os.sep
+ODS_PATH   = os.path.join(os.path.dirname(__file__), '..', 'data', 'data') + os.sep
 
-# --- File names ---
+# --- File names (plain filenames; loaders prepend the appropriate *_PATH) ---
 FILE_NAME_ASTIKA = 'Stoixeia_Symvantwn.ods'
 FILE_NAME_DASIKA = 'Dasikes_Pyrkagies_2024.ods'
 
