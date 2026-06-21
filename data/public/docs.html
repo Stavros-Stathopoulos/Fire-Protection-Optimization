@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Code Documentation — Attica Fire Protection</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+
+<style>
+  :root{
+    --bg:#12151a;
+    --bg-grid:rgba(255,255,255,0.04);
+    --panel:#1a1e25;
+    --panel-border:#262b34;
+    --text-on-dark:#ece7da;
+    --text-muted-on-dark:#8d92a0;
+    --text-body:#c7cad3;
+    --ember:#d97706;
+    --code-accent:#e8b87a;
+
+    --risk-low:#10b981;
+    --risk-mid:#f59e0b;
+    --risk-high:#f97316;
+    --risk-extreme:#f43f5e;
+
+    --font-display:'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --font-body:'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:var(--bg);
+    color:var(--text-on-dark);
+    font-family:var(--font-body);
+    min-height:100vh;
+    position:relative;
+  }
+
+  .bg-contours{
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.5;
+    background-image:
+      repeating-radial-gradient(circle at 20% 30%, var(--bg-grid) 0px, var(--bg-grid) 1px, transparent 1px, transparent 64px),
+      repeating-radial-gradient(circle at 85% 75%, var(--bg-grid) 0px, var(--bg-grid) 1px, transparent 1px, transparent 88px);
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:relative; z-index:2;
+    max-width:920px; margin:0 auto;
+    padding:1.6rem clamp(1.25rem,5vw,2.5rem) 0;
+  }
+  .back-link{
+    font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted-on-dark);
+    text-decoration:none; letter-spacing:0.02em;
+  }
+  .back-link:hover{ color:var(--ember); }
+  .topbar h1{
+    font-family:var(--font-display); font-weight:700; color:#fff;
+    font-size:clamp(1.6rem,3.6vw,2.2rem); margin:0.7rem 0 0; letter-spacing:-0.01em;
+  }
+  .topbar .subhead{
+    color:var(--text-muted-on-dark); font-size:0.95rem; max-width:62ch; margin:0.4rem 0 0;
+  }
+  .risk-bar{
+    height:5px; border-radius:999px; max-width:320px; margin-top:1.2rem;
+    background:linear-gradient(90deg, var(--risk-low) 0%, var(--risk-low) 18%, var(--risk-mid) 38%, var(--risk-high) 64%, var(--risk-extreme) 100%);
+  }
+
+  /* ---------- Tab bar ---------- */
+  .tabbar{
+    position:sticky; top:0; z-index:5;
+    background:rgba(18,21,26,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    margin-top:1.8rem;
+  }
+  .tabbar-inner{
+    max-width:920px; margin:0 auto;
+    padding:0 clamp(1.25rem,5vw,2.5rem);
+    display:flex; gap:0.4rem; overflow-x:auto;
+  }
+  .tab-btn{
+    font-family:var(--font-mono);
+    font-size:0.76rem;
+    letter-spacing:0.04em;
+    padding:0.85rem 1rem;
+    border:none; background:transparent; cursor:pointer;
+    color:var(--text-muted-on-dark);
+    border-bottom:2px solid transparent;
+    white-space:nowrap;
+    transition:color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover{ color:var(--text-on-dark); }
+  .tab-btn.active{ color:var(--ember); border-bottom-color:var(--ember); }
+
+  /* ---------- Layout ---------- */
+  main.content{
+    position:relative; z-index:1;
+    max-width:920px; margin:0 auto;
+    padding:2.4rem clamp(1.25rem,5vw,2.5rem) 4rem;
+  }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+
+  section.doc{ margin-bottom:2.6rem; scroll-margin-top:1.5rem; }
+  section.doc h2{
+    font-family:var(--font-display); font-weight:600; color:#fff;
+    font-size:1.3rem; margin:0 0 0.3rem;
+  }
+  section.doc .lead{
+    color:var(--text-muted-on-dark); font-size:0.92rem; line-height:1.6; max-width:68ch;
+    margin:0 0 1.2rem;
+  }
+  section.doc h3{
+    font-family:var(--font-display); font-weight:600; color:var(--text-on-dark);
+    font-size:1rem; margin:1.5rem 0 0.6rem;
+  }
+  section.doc h4{
+    font-family:var(--font-mono); font-weight:500; color:var(--code-accent);
+    font-size:0.82rem; letter-spacing:0.03em; text-transform:uppercase; margin:1.2rem 0 0.5rem;
+  }
+  section.doc p{ font-size:0.92rem; line-height:1.65; color:var(--text-body); max-width:70ch; }
+  section.doc p code, section.doc li code, section.doc td code{
+    font-family:var(--font-mono); font-size:0.85em; background:var(--panel);
+    border:1px solid var(--panel-border); border-radius:4px; padding:0.05em 0.4em; color:var(--code-accent);
+  }
+  section.doc ul, section.doc ol{ font-size:0.92rem; line-height:1.65; color:var(--text-body); max-width:70ch; padding-left:1.2rem; }
+  section.doc li{ margin-bottom:0.3rem; }
+  section.doc strong{ color:var(--text-on-dark); }
+
+  /* ---------- Code / data panels ---------- */
+  .panel{
+    background:var(--panel); border:1px solid var(--panel-border); border-radius:8px;
+    padding:1.1rem 1.3rem; margin:0.9rem 0 1.4rem; overflow-x:auto;
+  }
+  .panel pre{ margin:0; font-family:var(--font-mono); font-size:0.8rem; line-height:1.6; color:#d7dae2; white-space:pre; }
+  .panel-label{
+    font-family:var(--font-mono); font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--text-muted-on-dark); margin-bottom:0.5rem; display:block;
+  }
+
+  /* ---------- Math blocks ---------- */
+  .math-block{
+    background:var(--panel); border:1px solid var(--panel-border); border-radius:8px;
+    padding:1rem 1.3rem; margin:0.8rem 0 0.5rem; overflow-x:auto;
+  }
+  .math-block .katex-display{ margin:0; }
+  .math-caption{
+    font-family:var(--font-mono); font-size:0.74rem; color:var(--text-muted-on-dark);
+    margin:0 0 1.1rem;
+  }
+
+  /* ---------- Tables ---------- */
+  table.doc-table{
+    width:100%; border-collapse:collapse; margin:0.7rem 0 1.4rem; font-size:0.85rem;
+  }
+  table.doc-table th, table.doc-table td{
+    text-align:left; padding:0.55rem 0.7rem; border-bottom:1px solid var(--panel-border);
+    vertical-align:top;
+  }
+  table.doc-table th{
+    font-family:var(--font-mono); font-size:0.7rem; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--text-muted-on-dark);
+  }
+  table.doc-table td{ color:var(--text-body); }
+  table.doc-table td.sym{ font-family:var(--font-mono); color:var(--code-accent); white-space:nowrap; }
+
+  /* ---------- Architecture flow ---------- */
+  .flow{ display:flex; flex-direction:column; gap:0; margin:1rem 0 1.6rem; }
+  .flow-step{
+    background:var(--panel); border:1px solid var(--panel-border); border-radius:8px;
+    padding:0.85rem 1.1rem; position:relative;
+  }
+  .flow-step .mono{ font-family:var(--font-mono); font-size:0.8rem; color:var(--code-accent); }
+  .flow-step .desc{ font-size:0.83rem; color:var(--text-muted-on-dark); margin-top:0.25rem; line-height:1.5; }
+  .flow-arrow{
+    align-self:center; color:var(--text-muted-on-dark); font-family:var(--font-mono);
+    font-size:0.95rem; padding:0.2rem 0;
+  }
+  .flow-branch{ display:flex; gap:0.9rem; flex-wrap:wrap; }
+  .flow-branch .flow-step{ flex:1 1 220px; }
+
+  footer.doc-footer{
+    margin-top:2rem; padding-top:1.4rem; border-top:1px solid rgba(255,255,255,0.08);
+    font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted-on-dark);
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-contours" aria-hidden="true"></div>
+
+<div class="topbar">
+  <a class="back-link" href="index.html">← Deliverables</a>
+  <h1>Code Documentation</h1>
+  <p class="subhead">Attica Fire Protection Optimization — architecture, configuration reference, MILP formulation, and the visualization pipeline.</p>
+  <div class="risk-bar" aria-hidden="true"></div>
+</div>
+
+<div class="tabbar">
+  <div class="tabbar-inner">
+    <button class="tab-btn active" data-tab="architecture">01 · Architecture</button>
+    <button class="tab-btn" data-tab="configuration">02 · Configuration</button>
+    <button class="tab-btn" data-tab="optimization">03 · Optimization</button>
+    <button class="tab-btn" data-tab="visualization">04 · Visualization</button>
+  </div>
+</div>
+
+<main class="content">
+
+  <!-- ================= TAB 1 — ARCHITECTURE ================= -->
+  <div class="tab-panel active" id="panel-architecture">
+
+    <section class="doc">
+      <h2>Overview</h2>
+      <p class="lead">
+        Fire-Protection-Optimization is a Mixed-Integer Linear Program (MILP) solver for optimal
+        fire station placement across the four ΔΙΠΥ regional fire-service directorates of Attica,
+        Greece. The system is structured as a layered pipeline: raw incident data and geographic
+        files flow through data loaders, a domain model, a PuLP-based solver, and an independent
+        visualisation stack.
+      </p>
+    </section>
+
+    <section class="doc">
+      <h2>Package Layout</h2>
+      <div class="panel">
+        <span class="panel-label">Directory Tree</span>
+        <pre>Fire-Protection-Optimization/
+│
+├── main.py                     # CLI entry point
+│
+├── config/                     # All tunable constants (no business logic)
+│   ├── __init__.py             # Re-exports every public constant
+│   ├── milp_config.py          # Solver, fleet, response-time, budget params
+│   ├── data_config.py          # File paths &amp; ODS column contracts
+│   └── env_config.py           # Runtime flags via environment variables
+│
+├── domain/                     # Pure domain objects — zero solver imports
+│   ├── entities.py             # Frozen dataclasses: FireRegion, FireStation, IncidentDistrict
+│   └── problem.py              # FireProtectionProblem — matrix builders
+│
+├── optimization/                # MILP solver layer
+│   ├── model.py                 # build_model() → PuLP LpProblem (9 constraint groups)
+│   ├── solver.py                # solve() → CBC solver → OptimizationResult
+│   └── result.py                # OptimizationResult + JSON round-trip serialisation
+│
+├── utils/
+│   ├── logger/logger.py         # Colour-aware logging factory
+│   ├── traffic/traffic.py       # 8-axis Attica congestion profile router
+│   └── dataHandlers/
+│       ├── ods_loader.py        # ODS file reader + column validation
+│       ├── preprocessor.py      # ODS → IncidentDistrict aggregation
+│       └── station_loader.py    # fire_stations.json → FireStation objects
+│
+├── src/visualization/           # Solver-agnostic visualisation pipeline
+│   ├── models.py                # Typed dataclasses for the viz pipeline
+│   ├── exceptions.py            # Domain-specific exception hierarchy
+│   ├── normalization.py         # Greek text normalisation + alias table
+│   ├── parser.py                # real_world_fire_stations.json parser
+│   ├── matcher.py               # HybridMatcher: OSM units → stations
+│   ├── osm_fetcher.py           # OSM boundary fetcher + GeoPackage cache
+│   ├── coverage_renderer.py     # Operational coverage map renderer
+│   ├── milp_visualizer.py       # MILP result multi-layer Folium renderer
+│   ├── html_reporter.py         # 3-tab executive HTML dashboard
+│   └── cli.py                   # Coverage map CLI orchestrator
+│
+└── test/
+    └── infeasible_diagnostic_tool.py  # Pre-solve geographic feasibility check</pre>
+      </div>
+    </section>
+
+    <section class="doc">
+      <h2>End-to-End Data Flow</h2>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="mono">main.py — CLI</div>
+          <div class="desc">--budget 8000000 &nbsp;--output results/out.json &nbsp;--no-report</div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="mono">Data Loading Layer</div>
+          <div class="desc">
+            load_districts(ods_file) — ODS → DataFrame → IncidentDistrict[]<br>
+            load_stations() — fire_stations.json → FireStation[]<br>
+            _build_regions() — config.REGIONS → FireRegion[]
+          </div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="mono">FireProtectionProblem — domain/problem.py</div>
+          <div class="desc">
+            response_time_matrix() — c<sub>kj</sub>: Haversine + traffic factor<br>
+            region_station_distance_matrix() — d<sub>ij</sub>: ΔΙΠΥ HQ → station Haversine km
+          </div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="mono">optimization/model.py — build_model(problem, max_budget)</div>
+          <div class="desc">→ PuLP LpProblem (variables + 9 constraint groups)</div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="mono">optimization/solver.py — solve(problem, max_budget)</div>
+          <div class="desc">→ CBC solver → OptimizationResult</div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-branch">
+          <div class="flow-step">
+            <div class="mono">JSON output</div>
+            <div class="desc">.json — full round-trip result + metadata</div>
+          </div>
+          <div class="flow-step">
+            <div class="mono">Visualisation Layer</div>
+            <div class="desc">MilpResultVisualizer → Folium 5-layer HTML map<br>MilpHtmlReporter → Tailwind 3-tab dashboard</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc">
+      <h2>Layer Responsibilities</h2>
+
+      <h3><code>config/</code></h3>
+      <p>
+        No business logic. All constants are module-level literals or simple derivations.
+        The <code>__init__.py</code> re-exports every constant so callers can use either:
+      </p>
+      <div class="panel">
+        <pre>from config import MAX_BUDGET
+from config.milp_config import RISK_COVERAGE_MAX_TIMES</pre>
+      </div>
+
+      <h3><code>domain/</code></h3>
+      <p>
+        Frozen dataclasses that model the problem's input parameters. No imports from
+        <code>optimization/</code> or <code>utils/</code>. This ensures the solver layer can be
+        replaced (e.g. PuLP → Gurobi) without touching the domain model.
+      </p>
+      <table class="doc-table">
+        <tr><th>Class</th><th>Role</th><th>Key fields</th></tr>
+        <tr><td class="sym">FireRegion</td><td>ΔΙΠΥ directorate</td><td><code>id</code>, <code>name</code>, <code>total_firetrucks</code>, <code>lat</code>, <code>lon</code></td></tr>
+        <tr><td class="sym">FireStation</td><td>Candidate station</td><td><code>id</code>, <code>lat</code>, <code>lon</code>, <code>capacity</code> (s<sub>j</sub>), <code>cost</code> (f<sub>j</sub>)</td></tr>
+        <tr><td class="sym">IncidentDistrict</td><td>Demand node</td><td><code>id</code>, <code>lat</code>, <code>lon</code>, <code>demand</code> (d<sub>k</sub>), <code>area_km2</code>, <code>wildfire_risk</code></td></tr>
+      </table>
+      <p>
+        <code>FireProtectionProblem</code> is a non-frozen dataclass (holds lists) that wraps the
+        three entity lists and provides matrix-builder methods called by the model builder.
+      </p>
+
+      <h3><code>optimization/</code></h3>
+      <p>Stateless functions:</p>
+      <ul>
+        <li><code>build_model(problem, max_budget)</code> — builds a <code>pulp.LpProblem</code> with all variables and 9 constraint groups. Returns <code>(model, y, z, v)</code>.</li>
+        <li><code>solve(problem, max_budget)</code> — calls <code>build_model</code>, invokes CBC, extracts variable values into an <code>OptimizationResult</code>.</li>
+        <li><code>OptimizationResult</code> — plain-Python dataclass with JSON round-trip methods.</li>
+      </ul>
+
+      <h3><code>utils/</code></h3>
+      <p>Three independent sub-packages:</p>
+      <ul>
+        <li><strong>logger</strong> — singleton logging factory. All modules call <code>get_logger(__name__)</code>.</li>
+        <li><strong>traffic</strong> — geographic midpoint → road axis → congestion multiplier lookup with LRU cache.</li>
+        <li><strong>dataHandlers</strong> — ODS loading, column validation, district aggregation, station JSON parsing.</li>
+      </ul>
+
+      <h3><code>src/visualization/</code></h3>
+      <p>Solver-agnostic; depends only on <code>domain/</code> and the JSON output format. The entry points are:</p>
+      <ul>
+        <li><code>MilpResultVisualizer.from_json(path)</code> — reconstructs the visualizer from a full-format JSON without re-solving.</li>
+        <li><code>MilpResultVisualizer.from_optimization_result(result, problem, rt)</code> — used directly after solving in the same process.</li>
+        <li><code>MilpHtmlReporter(result, problem, rt).generate_report(path)</code> — 3-tab Tailwind HTML dashboard.</li>
+        <li><code>python -m src.visualization.cli</code> — operational coverage map pipeline.</li>
+      </ul>
+    </section>
+
+    <section class="doc">
+      <h2>Key Design Decisions</h2>
+
+      <h4>Domain Isolation</h4>
+      <p>
+        <code>domain/</code> entities are frozen dataclasses with zero solver imports. PuLP types
+        never leak past <code>optimization/</code>. Switching from CBC to another solver requires
+        changing only <code>optimization/solver.py</code>.
+      </p>
+
+      <h4>Solver Agnosticism in Visualisation</h4>
+      <p>
+        <code>src/visualization/</code> ingests typed dataclasses (<code>MilpVisualizationInput</code>,
+        <code>MilpStationStatus</code>, <code>MilpDistrictAssignment</code>) rather than PuLP
+        variable objects. This means the map and dashboard can be regenerated from a saved JSON
+        file without re-solving.
+      </p>
+
+      <h4>Integer Demand</h4>
+      <p>
+        Demands d<sub>k</sub> are rounded to integers before model construction. This keeps the
+        flow conservation constraint (Σ<sub>i</sub> v<sub>ij</sub> ≥ Σ<sub>k</sub> d<sub>k</sub>·z<sub>kj</sub>,
+        with v<sub>ij</sub> ∈ ℤ) feasible — you cannot deploy half a firetruck.
+      </p>
+
+      <h4>Budget Override</h4>
+      <p>
+        <code>build_model</code> and <code>solve</code> accept a <code>max_budget</code> keyword
+        that overrides the config value at runtime. The CLI <code>--budget</code> flag feeds
+        directly into this parameter without editing any file.
+      </p>
+
+      <h4>Round-Trip Serialisation</h4>
+      <p>
+        <code>OptimizationResult.to_full_json()</code> embeds full station and district metadata
+        so the visualisation pipeline can reconstruct everything from the JSON alone.
+        <code>from_json()</code> / <code>MilpResultVisualizer.from_json()</code> complete the
+        round-trip.
+      </p>
+    </section>
+
+  </div>
+
+  <!-- ================= TAB 2 — CONFIGURATION ================= -->
+  <div class="tab-panel" id="panel-configuration">
+
+    <section class="doc">
+      <h2>Configuration Reference</h2>
+      <p class="lead">
+        All tunable parameters are centralised in the <code>config/</code> package. Callers should
+        import from the appropriate sub-module or from the top-level <code>config</code> package —
+        never hard-code numeric constants elsewhere.
+      </p>
+    </section>
+
+    <section class="doc">
+      <h2><code>config/milp_config.py</code></h2>
+
+      <h3>Solver</h3>
+      <table class="doc-table">
+        <tr><th>Constant</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td class="sym">SOLVER_TIME_LIMIT_SECONDS</td><td>int</td><td>300</td><td>CBC wall-clock time limit in seconds.</td></tr>
+        <tr><td class="sym">SOLVER_MIP_GAP</td><td>float</td><td>0.01</td><td>Acceptable MIP optimality gap (1%). The solver stops when the gap between the best integer solution and the LP relaxation bound is ≤ this value.</td></tr>
+      </table>
+
+      <h3>Regional Directorates</h3>
+      <div class="panel">
+        <pre>REGIONS: list[dict] = [
+    {"id": "dipy_athens",  "name": "ΔΙΠΥ ΑΘΗΝΩΝ",             "total_firetrucks": 120, "lat": 37.9838, "lon": 23.7275},
+    {"id": "dipy_piraeus", "name": "ΔΙΠΥ ΠΕΙΡΑΙΩΣ",           "total_firetrucks": 120, "lat": 37.9430, "lon": 23.6460},
+    {"id": "dipy_west",    "name": "ΔΙΠΥ ΔΥΤΙΚΗΣ ΑΤΤΙΚΗΣ",    "total_firetrucks": 120, "lat": 38.0410, "lon": 23.5320},
+    {"id": "dipy_east",    "name": "ΔΙΠΥ ΑΝΑΤΟΛΙΚΗΣ ΑΤΤΙΚΗΣ", "total_firetrucks": 120, "lat": 38.0040, "lon": 23.8910},
+]</pre>
+      </div>
+      <p>Each entry in <code>REGIONS</code> must have:</p>
+      <table class="doc-table">
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+        <tr><td class="sym">id</td><td>str</td><td>ASCII identifier used in constraint names and JSON keys.</td></tr>
+        <tr><td class="sym">name</td><td>str</td><td>Greek display name.</td></tr>
+        <tr><td class="sym">total_firetrucks</td><td>int</td><td>Fleet size π<sub>i</sub>.</td></tr>
+        <tr><td class="sym">lat</td><td>float</td><td>HQ latitude (WGS 84) — used for proximity penalty.</td></tr>
+        <tr><td class="sym">lon</td><td>float</td><td>HQ longitude (WGS 84).</td></tr>
+      </table>
+
+      <h3>Station Defaults</h3>
+      <table class="doc-table">
+        <tr><th>Constant</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td class="sym">STATION_DEFAULT_CAPACITY</td><td>int</td><td>15</td><td>Firetruck slots (s<sub>j</sub>) when not specified in <code>fire_stations.json</code>.</td></tr>
+        <tr><td class="sym">STATION_DEFAULT_COST</td><td>float</td><td>800,000.0</td><td>Annual cost f<sub>j</sub> (EUR) when not specified in JSON.</td></tr>
+      </table>
+
+      <h3>Response-Time Estimation</h3>
+      <table class="doc-table">
+        <tr><th>Constant</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td class="sym">AVERAGE_SPEED_KMH</td><td>float</td><td>50.0</td><td>Assumed travel speed for Haversine distance → minutes.</td></tr>
+        <tr><td class="sym">DISPATCH_BASE_MINUTES</td><td>float</td><td>1.3</td><td>Fixed pre-departure time added to every route.</td></tr>
+        <tr><td class="sym">INTRA_DISTRICT_FACTOR</td><td>float</td><td>0.5</td><td>Scale factor for intra-district travel time (effective radius).</td></tr>
+        <tr><td class="sym">TRAFFIC_STRATEGY</td><td>str</td><td>"worst_case"</td><td>"worst_case" → max slot multiplier; "average" → mean.</td></tr>
+      </table>
+
+      <h3>Objective Weights</h3>
+      <table class="doc-table">
+        <tr><th>Constant</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td class="sym">DEMAND_WEIGHTED_RESPONSE</td><td>bool</td><td>True</td><td>Multiply objective terms by d<sub>k</sub>.</td></tr>
+        <tr><td class="sym">WILDFIRE_RISK_WEIGHT</td><td>bool</td><td>True</td><td>Apply risk²·ln(area) composite weight.</td></tr>
+        <tr><td class="sym">PROXIMITY_ALPHA</td><td>float</td><td>10.0</td><td>Secondary objective coefficient for proximity penalty.</td></tr>
+      </table>
+
+      <h3>Budget</h3>
+      <div class="panel">
+        <pre>MAX_BUDGET: float | None = 8_000_000.0   # EUR — roughly 10 stations at default cost
+# MAX_BUDGET = None                       # remove budget constraint entirely</pre>
+      </div>
+      <p>Setting <code>MAX_BUDGET = None</code> removes the budget constraint. The solver will open as many stations as needed to minimise response time subject to the coverage-time bounds.</p>
+
+      <h3>Response-Time Hard Bounds</h3>
+      <div class="panel">
+        <pre>RISK_COVERAGE_MAX_TIMES: dict[float, float] = {
+    5.0: 15.0,
+    4.5: 18.0,
+    4.0: 20.0,
+    3.5: 22.0,
+    3.0: 25.0,
+    2.5: 30.0,
+    2.0: 30.0,
+    1.5: 30.0,
+    1.0: 30.0,
+}</pre>
+      </div>
+      <p>Every district's <code>wildfire_risk</code> must be a key in this dict; otherwise the coverage-time constraint is skipped for that district.</p>
+
+      <h3>Demand Metric</h3>
+      <table class="doc-table">
+        <tr><th>Value</th><th>Description</th></tr>
+        <tr><td class="sym">"mean_vehicles" (default)</td><td>Average firetrucks per incident — best for capacity planning.</td></tr>
+        <tr><td class="sym">"incident_count"</td><td>Raw number of incidents (each = 1 unit).</td></tr>
+        <tr><td class="sym">"total_vehicles"</td><td>Cumulative firetrucks deployed over the year.</td></tr>
+      </table>
+
+      <h3>Forced-Open Stations</h3>
+      <div class="panel">
+        <pre>FORCED_OPEN_STATIONS: list[str] = []</pre>
+      </div>
+      <p>Station IDs listed here have their y<sub>j</sub> variable pinned to 1 before solving, regardless of budget. Useful for strategically critical perimeter locations.</p>
+    </section>
+
+    <section class="doc">
+      <h2><code>config/data_config.py</code></h2>
+      <table class="doc-table">
+        <tr><th>Constant</th><th>Type</th><th>Description</th></tr>
+        <tr><td class="sym">DATA_PATH</td><td>str</td><td>Absolute path to the <code>data/</code> directory (resolved relative to this file).</td></tr>
+        <tr><td class="sym">FILE_NAME_ASTIKA</td><td>str</td><td>ODS incident data file: <code>"Stoixeia_Symvantwn.ods"</code>.</td></tr>
+        <tr><td class="sym">FILE_NAME_DASIKA</td><td>str</td><td>Forest-fire ODS file (unused in main pipeline).</td></tr>
+        <tr><td class="sym">REQUIRED_COLUMNS</td><td>list[str]</td><td>Greek column names that must be present in the ODS file.</td></tr>
+        <tr><td class="sym">DATE_COLUMNS</td><td>list[str]</td><td>Columns to parse as dates.</td></tr>
+        <tr><td class="sym">TIME_COLUMNS</td><td>list[str]</td><td>Columns to parse as times.</td></tr>
+        <tr><td class="sym">CATEGORICAL_COLUMNS</td><td>list[str]</td><td>Columns to treat as categorical.</td></tr>
+        <tr><td class="sym">NUMERICAL_COLUMNS</td><td>list[str]</td><td>Columns to coerce to numeric.</td></tr>
+        <tr><td class="sym">COLUMN_RENAME_MAP</td><td>dict[str, str]</td><td>Greek → English column name mapping applied after loading.</td></tr>
+      </table>
+    </section>
+
+    <section class="doc">
+      <h2><code>config/env_config.py</code></h2>
+      <p class="lead">Runtime flags read from environment variables at import time.</p>
+      <table class="doc-table">
+        <tr><th>Variable</th><th>Python Constant</th><th>Default</th><th>Description</th></tr>
+        <tr><td class="sym">APP_DEBUG</td><td>DEBUG: bool</td><td>False</td><td>Set to <code>"true"</code> to enable debug mode.</td></tr>
+        <tr><td class="sym">APP_LOG_LEVEL</td><td>LOG_LEVEL: str</td><td>"INFO"</td><td>Logging level (DEBUG, INFO, WARNING, ERROR).</td></tr>
+      </table>
+      <div class="panel">
+        <span class="panel-label">Usage</span>
+        <pre># Enable debug logging
+APP_LOG_LEVEL=DEBUG python main.py
+
+# Debug mode
+APP_DEBUG=true python main.py</pre>
+      </div>
+    </section>
+
+    <section class="doc">
+      <h2>Traffic Data — <code>data/traffic_data.json</code></h2>
+      <div class="panel">
+        <pre>{
+  "traffic_profiles": {
+    "CENTER_URBAN":    [1.1, 1.6, 1.4, 1.35, 1.5, 1.15],
+    "KIFISIAS_AXIS":   [1.05, 1.55, 1.3, 1.3, 1.45, 1.1],
+    "KIFISOU_AXIS":    [1.1, 1.5, 1.3, 1.25, 1.45, 1.1],
+    "ATTIKI_ODOS":     [1.0, 1.35, 1.2, 1.2, 1.3, 1.05],
+    "POSEIDONOS_AVEN": [1.05, 1.4, 1.25, 1.3, 1.55, 1.15],
+    "ATHINON_AVENUE":  [1.05, 1.45, 1.3, 1.25, 1.4, 1.1],
+    "MESOGEION_AXIS":  [1.05, 1.5, 1.3, 1.3, 1.4, 1.1],
+    "RURAL_SUBURBAN":  [1.0, 1.2, 1.1, 1.1, 1.15, 1.0]
+  }
+}</pre>
+      </div>
+      <p>
+        Each array contains 6 multipliers for time slots: [00-06, 06-09, 09-14, 14-17, 17-21, 21-00].
+        The zone assignment is performed by <code>utils/traffic/traffic.py::_assign_profile()</code>
+        using geographic bounding-box tests on the route midpoint.
+      </p>
+    </section>
+
+  </div>
+
+  <!-- ================= TAB 3 — OPTIMIZATION ================= -->
+  <div class="tab-panel" id="panel-optimization">
+
+    <section class="doc">
+      <h2>MILP Formulation Deep-Dive</h2>
+      <p class="lead">
+        The fire station placement problem is formulated as a <strong>Multi-Region Capacitated
+        Facility Location Problem (CFLP)</strong>, extending the classical Klose &amp; Drexl (2005)
+        formulation with multi-source truck supply (4 ΔΙΠΥ directorates), hard per-district
+        response-time bounds (risk-dependent), WUI-priority composite objective weights, and a
+        geographic proximity penalty to break degeneracy.
+      </p>
+    </section>
+
+    <section class="doc">
+      <h2>Sets and Parameters</h2>
+      <table class="doc-table">
+        <tr><th>Symbol</th><th>Type</th><th>Meaning</th></tr>
+        <tr><td class="sym">I</td><td>Set</td><td>ΔΙΠΥ regional directorates (4 regions)</td></tr>
+        <tr><td class="sym">J</td><td>Set</td><td>Candidate fire station sites</td></tr>
+        <tr><td class="sym">K</td><td>Set</td><td>Incident demand districts</td></tr>
+        <tr><td class="sym">π<sub>i</sub></td><td>ℤ&gt;0</td><td>Fleet size (firetrucks) of region i</td></tr>
+        <tr><td class="sym">s<sub>j</sub></td><td>ℤ&gt;0</td><td>Firetruck capacity of station j</td></tr>
+        <tr><td class="sym">d<sub>k</sub></td><td>ℤ&gt;0</td><td>Fire-coverage demand of district k</td></tr>
+        <tr><td class="sym">c<sub>kj</sub></td><td>ℝ≥0</td><td>Traffic-adjusted response time: station j → district k (minutes)</td></tr>
+        <tr><td class="sym">f<sub>j</sub></td><td>ℝ&gt;0</td><td>Annual operational cost of station j (EUR)</td></tr>
+        <tr><td class="sym">w<sub>k</sub></td><td>ℝ&gt;0</td><td>WUI-priority composite weight for district k</td></tr>
+        <tr><td class="sym">T<sub>k</sub></td><td>ℝ&gt;0</td><td>Hard response-time bound for district k (minutes, risk-dependent)</td></tr>
+        <tr><td class="sym">B</td><td>ℝ&gt;0</td><td>Maximum annual operational budget (EUR)</td></tr>
+        <tr><td class="sym">d<sub>ij</sub></td><td>ℝ≥0</td><td>Haversine km from ΔΙΠΥ HQ i to station j</td></tr>
+        <tr><td class="sym">α</td><td>ℝ&gt;0</td><td>Proximity penalty coefficient (<code>PROXIMITY_ALPHA</code>)</td></tr>
+      </table>
+    </section>
+
+    <section class="doc">
+      <h2>Decision Variables</h2>
+      <table class="doc-table">
+        <tr><th>Variable</th><th>Domain</th><th>Meaning</th></tr>
+        <tr><td class="sym">y<sub>j</sub></td><td>{0, 1}</td><td>1 if station j is operational</td></tr>
+        <tr><td class="sym">z<sub>kj</sub></td><td>{0, 1}</td><td>1 if district k is assigned to station j</td></tr>
+        <tr><td class="sym">v<sub>ij</sub></td><td>ℤ≥0</td><td>Firetrucks deployed from region i to station j</td></tr>
+      </table>
+    </section>
+
+    <section class="doc">
+      <h2>Objective Function</h2>
+
+      <div class="math-block" data-katex="\min \sum_{k \in K, j \in J} w_k \cdot c_{kj} \cdot z_{kj} \;+\; \alpha \sum_{i \in I, j \in J} \frac{d_{ij}}{\max_d} \cdot \frac{v_{ij}}{\sum_i \pi_i}" data-display="true"></div>
+
+      <h3>Primary term</h3>
+      <p>Minimises the WUI-priority weighted total response time across all district–station assignments. The composite weight is:</p>
+      <div class="math-block" data-katex="w_k = d_k \cdot \text{risk}_k^2 \cdot \ln(\max(\text{area}_k, 1))" data-display="true"></div>
+
+      <table class="doc-table">
+        <tr><th>Factor</th><th>Role</th></tr>
+        <tr><td class="sym">d<sub>k</sub></td><td>Operational load (mean trucks per incident)</td></tr>
+        <tr><td class="sym">risk<sub>k</sub>²</td><td>Quadratic wildfire priority: risk=5 → 25×, risk=1 → 1×</td></tr>
+        <tr><td class="sym">ln(area<sub>k</sub>)</td><td>Geographic difficulty: 500 km² needs faster response than 4 km²</td></tr>
+      </table>
+      <p>
+        The quadratic risk exponent creates a non-linear incentive: the solver is 25× more
+        sensitive to a high-risk district than to a low-risk one, compared to only 5× under a
+        linear formulation.
+      </p>
+
+      <h3>Secondary term (proximity penalty)</h3>
+      <div class="math-block" data-katex="\alpha \sum_{i,j} \frac{d_{ij}}{\max_d} \cdot \frac{v_{ij}}{\sum_i \pi_i}" data-display="true"></div>
+      <p>
+        Breaks solver degeneracy in v<sub>ij</sub> allocation: when multiple feasible allocations
+        yield the same primary objective, the penalty prefers assigning trucks from the
+        geographically nearest ΔΙΠΥ directorate. Bounded in [0, α], it is always ≪ the primary
+        objective (O(10⁴)) and cannot distort station selection decisions.
+      </p>
+    </section>
+
+    <section class="doc">
+      <h2>Constraints</h2>
+
+      <h3>Structural Constraints</h3>
+
+      <h4>Budget</h4>
+      <div class="math-block" data-katex="\sum_{j \in J} f_j \cdot y_j \le B" data-display="true"></div>
+      <p class="math-caption">Total annual operational cost must not exceed the budget B. Implemented via <code>config.milp_config.MAX_BUDGET</code>. Set <code>MAX_BUDGET = None</code> to remove this constraint entirely.</p>
+
+      <h4>Assignment</h4>
+      <div class="math-block" data-katex="\sum_{j \in J} z_{kj} = 1 \quad \forall k \in K" data-display="true"></div>
+      <p class="math-caption">Every district is covered by exactly one station. This prevents unassigned districts.</p>
+
+      <h4>Capacity</h4>
+      <div class="math-block" data-katex="\sum_{k \in K} d_k \cdot z_{kj} \le s_j \cdot y_j \quad \forall j \in J" data-display="true"></div>
+      <p class="math-caption">The aggregate demand served by station j cannot exceed its truck capacity, and only open stations (y<sub>j</sub>=1) can take demand.</p>
+
+      <h4>Clique</h4>
+      <div class="math-block" data-katex="z_{kj} \le y_j \quad \forall k \in K, \forall j \in J" data-display="true"></div>
+      <p class="math-caption">A district can only be assigned to an open station. Redundant given the capacity constraint but tightens the LP relaxation.</p>
+
+      <h4>Coverage Time Bound</h4>
+      <div class="math-block" data-katex="\sum_{j \in J} c_{kj} \cdot z_{kj} \le T_k \quad \forall k \in K" data-display="true"></div>
+      <p class="math-caption">Hard upper bound on response time per district. T<sub>k</sub> is keyed by the district's <code>wildfire_risk</code> value.</p>
+
+      <table class="doc-table">
+        <tr><th>Risk</th><th>T<sub>k</sub> (minutes)</th></tr>
+        <tr><td class="sym">5.0</td><td>15</td></tr>
+        <tr><td class="sym">4.5</td><td>18</td></tr>
+        <tr><td class="sym">4.0</td><td>20</td></tr>
+        <tr><td class="sym">3.5</td><td>22</td></tr>
+        <tr><td class="sym">3.0</td><td>25</td></tr>
+        <tr><td class="sym">≤ 2.5</td><td>30</td></tr>
+      </table>
+      <p>
+        If no candidate station can reach district k within T<sub>k</sub>, the problem is
+        <strong>Infeasible</strong>. Use <code>test/infeasible_diagnostic_tool.py</code> to
+        identify such districts before solving.
+      </p>
+
+      <h4>Aggregate Capacity</h4>
+      <div class="math-block" data-katex="\sum_{j \in J} s_j \cdot y_j \ge \sum_{k \in K} d_k" data-display="true"></div>
+      <p class="math-caption">The total capacity of all open stations must cover total demand. Redundant for MIP but strengthens the LP relaxation bound.</p>
+
+      <h3>Multi-Region Constraints</h3>
+
+      <h4>(6) Supply</h4>
+      <div class="math-block" data-katex="\sum_{j \in J} v_{ij} \le \pi_i \quad \forall i \in I" data-display="true"></div>
+      <p class="math-caption">Total firetrucks deployed from region i cannot exceed its fleet.</p>
+
+      <h4>(7) Flow Sufficiency</h4>
+      <div class="math-block" data-katex="\sum_{i \in I} v_{ij} \ge \sum_{k \in K} d_k \cdot z_{kj} \quad \forall j \in J" data-display="true"></div>
+      <p class="math-caption">
+        Trucks arriving at station j must be sufficient to cover the total demand of its assigned
+        districts. Uses ≥ (not =) because d<sub>k</sub> is a float (mean vehicles) and
+        v<sub>ij</sub> ∈ ℤ: equality would be infeasible whenever the demand sum is non-integer.
+        With ≥, v<sub>ij</sub> naturally rounds up to ceil(demand_sum), which is physically correct.
+      </p>
+
+      <h4>(8) Variable Upper Bound</h4>
+      <div class="math-block" data-katex="v_{ij} \le \pi_i \cdot y_j \quad \forall i \in I, \forall j \in J" data-display="true"></div>
+      <p class="math-caption">No trucks go to a closed station.</p>
+
+      <h4>(9) Minimum Truck</h4>
+      <div class="math-block" data-katex="\sum_{i \in I} v_{ij} \ge y_j \quad \forall j \in J" data-display="true"></div>
+      <p class="math-caption">
+        Every open station receives at least one firetruck. Prevents the solver from opening a
+        station as a "coverage anchor" without actually staffing it. Also tightens the LP relaxation.
+      </p>
+    </section>
+
+    <section class="doc">
+      <h2>Response-Time Matrix (c<sub>kj</sub>)</h2>
+      <p class="lead">Computed by <code>FireProtectionProblem.response_time_matrix(speed_kmh)</code>:</p>
+
+      <div class="math-block" data-katex="\begin{aligned} \text{intra\_time} &amp;= \sqrt{\frac{\text{area}_k}{\pi}} \div \text{speed} \cdot 60 \cdot \text{INTRA\_DISTRICT\_FACTOR} \\ \text{travel\_time} &amp;= \frac{\text{haversine}(k,j)}{\text{speed}} \cdot 60 \cdot \text{traffic\_multiplier}(j,k) \\ c_{kj} &amp;= \text{DISPATCH\_BASE\_MINUTES} + \text{travel\_time} + \text{intra\_time} \end{aligned}" data-display="true"></div>
+
+      <table class="doc-table">
+        <tr><th>Component</th><th>Default</th><th>Description</th></tr>
+        <tr><td class="sym">DISPATCH_BASE_MINUTES</td><td>1.3 min</td><td>Fixed pre-departure time (crew boarding, checks)</td></tr>
+        <tr><td class="sym">INTRA_DISTRICT_FACTOR</td><td>0.5</td><td>Scales navigation within the district (non-straight roads)</td></tr>
+        <tr><td class="sym">AVERAGE_SPEED_KMH</td><td>50 km/h</td><td>Free-flow travel speed</td></tr>
+        <tr><td class="sym">Traffic multiplier</td><td>≥ 1.0</td><td>Peak congestion factor from <code>traffic_data.json</code></td></tr>
+      </table>
+      <p>
+        The intra-district term ensures that even a co-located station reports a non-zero response
+        time proportional to the effective municipality radius (√(area/π)).
+      </p>
+    </section>
+
+    <section class="doc">
+      <h2>Solver Configuration</h2>
+      <table class="doc-table">
+        <tr><th>Parameter</th><th>Default</th><th>Effect</th></tr>
+        <tr><td class="sym">SOLVER_TIME_LIMIT_SECONDS</td><td>300</td><td>CBC wall-clock time limit</td></tr>
+        <tr><td class="sym">SOLVER_MIP_GAP</td><td>0.01</td><td>Acceptable MIP optimality gap (1%)</td></tr>
+      </table>
+      <p>
+        CBC is invoked via PuLP with <code>msg=1</code> so its branch-and-bound log is printed to
+        stdout. The result status is extracted from <code>pulp.LpStatus[model.status]</code>.
+      </p>
+    </section>
+
+    <section class="doc">
+      <h2>Infeasibility Handling</h2>
+      <p>
+        If <code>model.status == -1</code> (INFEASIBLE), <code>solver.py</code> returns a sentinel
+        <code>OptimizationResult</code> with <code>status = "Infeasible"</code>,
+        <code>objective_value = float("inf")</code>, and all collections empty. A CRITICAL log
+        message is emitted. <code>main.py</code> checks <code>result.status != "Optimal"</code>
+        and exits cleanly without generating maps or reports.
+      </p>
+      <p><strong>Common causes of infeasibility:</strong></p>
+      <ol>
+        <li>A district with wildfire_risk=5.0 (T<sub>k</sub>=15 min) is more than 15 minutes from every candidate station.</li>
+        <li>Total station capacity Σ s<sub>j</sub>·y<sub>j</sub> is less than total demand Σ d<sub>k</sub> under the budget constraint.</li>
+      </ol>
+      <p>Use <code>python test/infeasible_diagnostic_tool.py</code> to diagnose cause (1) before solving.</p>
+    </section>
+
+    <section class="doc">
+      <h2>Forced-Open Stations</h2>
+      <div class="panel">
+        <pre>FORCED_OPEN_STATIONS: list[str] = ["ps_marathon", "ps_lavrio"]</pre>
+      </div>
+      <p>
+        Variables y[j] for stations in this list are pinned to 1 before the solver runs via
+        equality constraints. They are operational regardless of budget optimisation.
+      </p>
+    </section>
+
+  </div>
+
+  <!-- ================= TAB 4 — VISUALIZATION ================= -->
+  <div class="tab-panel" id="panel-visualization">
+
+    <section class="doc">
+      <h2>Visualization Pipeline</h2>
+      <p class="lead">
+        The <code>src/visualization/</code> package is a solver-agnostic visualisation pipeline.
+        It ingests typed Python dataclasses (not PuLP objects) and produces two output artefacts:
+        an interactive Folium map (<code>public/milp_map.html</code>, 5-layer Leaflet map) and an
+        executive HTML dashboard (<code>public/milp_report.html</code>, 3-tab Tailwind dashboard).
+        A third pipeline — the operational coverage map — renders the real-world Hellenic Fire
+        Service station coverage by fetching OSM boundaries and matching them to station records.
+      </p>
+    </section>
+
+    <section class="doc">
+      <h2>Package Components</h2>
+      <table class="doc-table">
+        <tr><th>Module</th><th>Class / Entry-point</th><th>Purpose</th></tr>
+        <tr><td class="sym">models.py</td><td>StationRecord, CoverageAssignment, MilpStationStatus, MilpDistrictAssignment, MilpVisualizationInput</td><td>Typed dataclasses for inter-stage data transfer</td></tr>
+        <tr><td class="sym">exceptions.py</td><td>VisualizationError, DataStructureMismatchError, CoverageResolutionError, ProjectionError</td><td>Domain-specific exception hierarchy</td></tr>
+        <tr><td class="sym">normalization.py</td><td>strip_political_terms(), normalize_name(), ALIASES</td><td>Greek administrative-text normalisation</td></tr>
+        <tr><td class="sym">parser.py</td><td>StationDataParser</td><td>JSON parser for real_world_fire_stations.json</td></tr>
+        <tr><td class="sym">matcher.py</td><td>HybridMatcher</td><td>Four-tier OSM unit → station matcher</td></tr>
+        <tr><td class="sym">osm_fetcher.py</td><td>fetch_attica_hull(), fetch_admin_layer()</td><td>OSM boundary fetcher with GeoPackage cache</td></tr>
+        <tr><td class="sym">coverage_renderer.py</td><td>CoverageMapRenderer</td><td>Operational coverage map renderer</td></tr>
+        <tr><td class="sym">milp_visualizer.py</td><td>MilpResultVisualizer</td><td>MILP result multi-layer Folium renderer</td></tr>
+        <tr><td class="sym">html_reporter.py</td><td>MilpHtmlReporter</td><td>3-tab executive HTML dashboard generator</td></tr>
+        <tr><td class="sym">cli.py</td><td>main()</td><td>CLI for the operational coverage map pipeline</td></tr>
+      </table>
+    </section>
+
+    <section class="doc">
+      <h2>MILP Result Visualisation</h2>
+
+      <h3>From a saved JSON (recommended for CI / post-processing)</h3>
+      <div class="panel">
+        <pre>from src.visualization.milp_visualizer import MilpResultVisualizer
+
+visualizer = MilpResultVisualizer.from_json("results/optimization_result.json")
+visualizer.render("public/milp_map.html")</pre>
+      </div>
+      <p>The JSON must be produced by <code>OptimizationResult.to_full_json()</code> (the "full" format includes <code>"stations"</code> and <code>"districts"</code> metadata).</p>
+
+      <h3>Directly from solver output</h3>
+      <div class="panel">
+        <pre>from src.visualization.milp_visualizer import MilpResultVisualizer
+
+visualizer = MilpResultVisualizer.from_optimization_result(
+    result=result,
+    problem=problem,
+    response_times=problem.response_time_matrix(AVERAGE_SPEED_KMH),
+    center=(38.00, 23.75),
+    zoom_start=10,
+)
+visualizer.render("public/milp_map.html")</pre>
+      </div>
+
+      <h3>Map Layers</h3>
+      <table class="doc-table">
+        <tr><th>Layer</th><th>Name</th><th>Default</th></tr>
+        <tr><td class="sym">1</td><td>Municipality Coverage (MILP)</td><td>Visible</td></tr>
+        <tr><td class="sym">2</td><td>Stations (MILP Result)</td><td>Visible</td></tr>
+        <tr><td class="sym">3</td><td>Allocation Routes</td><td>Visible</td></tr>
+        <tr><td class="sym">4</td><td>Demand Centroids</td><td>Hidden</td></tr>
+        <tr><td class="sym">5</td><td>Response Time Heatmap</td><td>Hidden</td></tr>
+      </table>
+      <p>A fixed summary overlay in the top-right corner shows solver status, open station count, average response time, total cost, and objective value.</p>
+    </section>
+
+    <section class="doc">
+      <h2>HTML Executive Dashboard</h2>
+      <div class="panel">
+        <pre>from src.visualization.html_reporter import MilpHtmlReporter
+
+reporter = MilpHtmlReporter(result, problem, response_times)
+reporter.generate_report(Path("public/milp_report.html"))</pre>
+      </div>
+
+      <h3>Tab Layout</h3>
+      <table class="doc-table">
+        <tr><th>Tab</th><th>Content</th></tr>
+        <tr><td class="sym">Γενικά Στατιστικά</td><td>5 global KPI cards + 4 regional fleet deployment cards with progress bars</td></tr>
+        <tr><td class="sym">Σταθμοί</td><td>Collapsible accordion card per active station (avg response, truck allocation, district sub-table) + compact grid of inactive stations</td></tr>
+        <tr><td class="sym">Χρόνοι Ανταπόκρισης</td><td>Sortable district datatable (district name, area, risk, demand, assigned station, response time badge)</td></tr>
+      </table>
+      <p>The dashboard is fully standalone HTML (single file) using Tailwind CSS via CDN. No server required.</p>
+    </section>
+
+    <section class="doc">
+      <h2>Operational Coverage Map Pipeline</h2>
+      <p>Generates a map of the existing Hellenic Fire Service station coverage by:</p>
+      <ol>
+        <li>Parsing <code>real_world_fire_stations.json</code> via <code>StationDataParser</code>.</li>
+        <li>Fetching OSM administrative boundaries via <code>fetch_admin_layer()</code>.</li>
+        <li>Matching every OSM community unit to a station via <code>HybridMatcher</code>.</li>
+        <li>Rendering the coverage map via <code>CoverageMapRenderer</code>.</li>
+      </ol>
+      <div class="panel">
+        <span class="panel-label">CLI</span>
+        <pre>python -m src.visualization.cli
+python -m src.visualization.cli --output public/attica_fire_stations_map.html
+python -m src.visualization.cli --no-cache   # skip GeoPackage cache</pre>
+      </div>
+
+      <h3>Hybrid Matching Algorithm</h3>
+      <p><code>HybridMatcher.resolve_coverage()</code> runs a four-tier cascade for each OSM admin_level=8 unit:</p>
+      <ol>
+        <li><strong>Community exact match</strong> — normalised unit name exactly matches a community in the station's <code>assigned_communities</code>.</li>
+        <li><strong>Community substring match</strong> — either string is a substring of the other.</li>
+        <li><strong>Municipality exact match</strong> — parent municipality (from spatial join) exactly matches a municipality in <code>assigned_municipalities</code>.</li>
+        <li><strong>Municipality substring match</strong> — either string is a substring of the other.</li>
+      </ol>
+      <p>All comparisons use <code>strip_political_terms()</code> normalised strings (uppercase, accent-free, stop-words removed).</p>
+
+      <h3>Greek Text Normalisation</h3>
+      <p><code>normalization.py</code> provides:</p>
+      <ul>
+        <li><code>strip_political_terms(text)</code> — removes accents (NFD decomposition), uppercases, collapses dashes to spaces, strips administrative stop-words (ΔΗΜΟΣ, ΔΗΜΟΤΙΚΗ ΕΝΟΤΗΤΑ, etc.).</li>
+        <li><code>normalize_name(raw_name)</code> — applies <code>ALIASES</code> lookup first (OSM nominative → genitive), then <code>strip_political_terms</code>.</li>
+        <li><code>ALIASES</code> — maps 40+ known OSM nominative forms to pre-normalised genitive keys used in the station JSON.</li>
+      </ul>
+
+      <h3>OSM Caching</h3>
+      <p><code>fetch_admin_layer()</code> caches downloaded GeoDataFrames as GeoPackages in <code>cache/osm/</code>. The cache key is an MD5 hash of <code>(place, admin_level)</code>. Use <code>--no-cache</code> to force a fresh download.</p>
+      <div class="panel">
+        <pre>cache/osm/admin_7_&lt;hash&gt;.gpkg   # municipalities
+cache/osm/admin_8_&lt;hash&gt;.gpkg   # community units</pre>
+      </div>
+    </section>
+
+    <section class="doc">
+      <h2>Exception Hierarchy</h2>
+      <div class="panel">
+        <pre>VisualizationError
+├── DataStructureMismatchError   # JSON schema validation failures
+├── CoverageResolutionError      # OSM unit cannot be matched to a station
+└── ProjectionError              # CRS conversion / spatial-join failures</pre>
+      </div>
+      <p>All exceptions carry contextual attributes (<code>key</code>, <code>station_id</code>, <code>unit_name</code>, <code>source_crs</code>, <code>target_crs</code>) for structured error logging.</p>
+    </section>
+
+    <section class="doc">
+      <h2>Data Model Relationships</h2>
+      <div class="panel">
+        <pre>StationDataParser.parse()
+    └── list[StationRecord]
+            ├── assigned_municipalities → tuple[str, ...]
+            └── assigned_communities   → tuple[str, ...]
+
+StationDataParser.build_lookup_tables()
+    ├── community_lookup:   {normalised_name → StationRecord}
+    └── municipality_lookup:{normalised_name → StationRecord}
+
+HybridMatcher.resolve_coverage(gdf_units, gdf_muns)
+    └── list[CoverageAssignment]
+            ├── geometry    (Shapely polygon)
+            ├── station_id  (matched or "unknown")
+            └── match_method
+
+CoverageMapRenderer.render(community_assignments, municipality_assignments, stations, path)
+    └── folium.Map  →  HTML file</pre>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="doc-footer">
+    Linear &amp; Combinatorial Optimization (ECE_EE916) · University of Patras · Spring Semester 2025–2026
+  </footer>
+
+</main>
+
+<script>
+  // Render all KaTeX math blocks
+  document.querySelectorAll('[data-katex]').forEach(function(el){
+    try{
+      katex.render(el.getAttribute('data-katex'), el, {
+        displayMode: el.getAttribute('data-display') === 'true',
+        throwOnError: false
+      });
+    }catch(e){
+      el.textContent = el.getAttribute('data-katex');
+    }
+  });
+
+  // Tab switching
+  var tabButtons = document.querySelectorAll('.tab-btn');
+  var tabPanels = document.querySelectorAll('.tab-panel');
+  tabButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var target = btn.getAttribute('data-tab');
+      tabButtons.forEach(function(b){ b.classList.toggle('active', b === btn); });
+      tabPanels.forEach(function(p){ p.classList.toggle('active', p.id === 'panel-' + target); });
+      window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+    });
+  });
+</script>
+
+</body>
+</html>
