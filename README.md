@@ -21,12 +21,12 @@ Spring Semester, Academic Year 2025–2026
 6. [Configuration Reference](#configuration-reference)
 7. [Usage](#usage)
    - [Running the Optimizer](#1-running-the-optimizer)
-   - [Generating the Interactive Map](#2-generating-the-interactive-map)
-   - [Advanced Visualization Module](#3-advanced-visualization-module)
-   - [Loading a Saved Result](#4-loading-a-saved-result)
+   - [Operational Coverage Map](#2-operational-coverage-map)
+   - [Loading a Saved Result](#3-loading-a-saved-result)
 8. [Output Format](#output-format)
 9. [Architecture Overview](#architecture-overview)
-10. [Academic Context](#academic-context)
+10. [Documentation](#documentation)
+11. [Academic Context](#academic-context)
 
 ---
 
@@ -49,16 +49,16 @@ so as to **minimize demand-weighted average response time** across all districts
 | ID | Name | Fleet |
 | ---- | ------ | ------: |
 | `dipy_athens` | ΔΙΠΥ ΑΘΗΝΩΝ | 120 trucks |
-| `dipy_piraeus` | ΔΙΠΥ ΠΕΙΡΑΙΩΣ | 40 trucks |
-| `dipy_west` | ΔΙΠΥ ΔΥΤΙΚΗΣ ΑΤΤΙΚΗΣ | 45 trucks |
-| `dipy_east` | ΔΙΠΥ ΑΝΑΤΟΛΙΚΗΣ ΑΤΤΙΚΗΣ | 45 trucks |
-| | **Total** | **250 trucks** |
+| `dipy_piraeus` | ΔΙΠΥ ΠΕΙΡΑΙΩΣ | 120 trucks |
+| `dipy_west` | ΔΙΠΥ ΔΥΤΙΚΗΣ ΑΤΤΙΚΗΣ | 120 trucks |
+| `dipy_east` | ΔΙΠΥ ΑΝΑΤΟΛΙΚΗΣ ΑΤΤΙΚΗΣ | 120 trucks |
+| | **Total** | **480 trucks** |
 
 ---
 
 ## Mathematical Formulation
 
-The model extends the classical Klose & Drexl (1999) capacitated facility location formulation with multi-source supply, hard response-time bounds, and an operational minimum-truck constraint.
+The model extends the classical Klose & Drexl (2005) capacitated facility location formulation with multi-source supply, hard response-time bounds, and an operational minimum-truck constraint.
 
 ### Sets & Parameters
 
@@ -85,9 +85,9 @@ The model extends the classical Klose & Drexl (1999) capacitated facility locati
 
 ### Objective Function
 
-$$\min \sum_{k \in K} \sum_{j \in J} w_k \cdot c_{kj} \cdot z_{kj}$$
+$$\min \sum_{k \in K} \sum_{j \in J} w_k \cdot c_{kj} \cdot z_{kj} + \alpha \sum_{i \in I} \sum_{j \in J} \frac{d_{ij}}{d_{\max}} \cdot \frac{v_{ij}}{\sum_i \pi_i}$$
 
-Minimizes the **WUI-priority weighted total response time** across all district–station assignments.
+The **primary term** minimises the WUI-priority weighted total response time. The **secondary term** (coefficient $\alpha$) is a proximity penalty that breaks solver degeneracy by preferring truck assignments from the geographically nearest ΔΙΠΥ.
 
 The composite weight $w_k = d_k \cdot \text{risk}_k^2 \cdot \ln(\text{area}_k)$ encodes:
 - **$d_k$** — operational load (how many trucks an incident typically needs),
@@ -112,9 +112,11 @@ The composite weight $w_k = d_k \cdot \text{risk}_k^2 \cdot \ln(\text{area}_k)$ 
 | # | Constraint | Meaning |
 | --- | ----------- | --------- |
 | (6) Supply | $\sum_{j \in J} v_{ij} \leq \pi_i \quad \forall i$ | Total trucks deployed from region $i$ cannot exceed its fleet |
-| (7) Flow | $\sum_{i \in I} v_{ij} = \sum_{k \in K} d_k z_{kj} \quad \forall j$ | Trucks arriving at station $j$ exactly cover the demand of its assigned districts |
+| (7) Flow | $\sum_{i \in I} v_{ij} \geq \sum_{k \in K} d_k z_{kj} \quad \forall j$ | Trucks arriving at station $j$ must be sufficient to serve its assigned districts |
 | (8) VUB | $v_{ij} \leq \pi_i \cdot y_j \quad \forall i, j$ | No trucks go to a closed station |
 | (9) Min-truck | $\sum_{i \in I} v_{ij} \geq y_j \quad \forall j$ | Every open station receives at least 1 firetruck |
+
+> **Note on constraint (7):** The inequality $\geq$ (not $=$) is intentional. District demands $d_k$ are floats (mean vehicles per incident). Since $v_{ij} \in \mathbb{Z}$, an equality constraint would be infeasible whenever the demand sum is non-integer. The $\geq$ form lets the solver naturally round up to $\lceil \sum_k d_k z_{kj} \rceil$, which is the physically correct minimum staffing.
 
 #### Response-Time Hard Bounds $T_k$
 
@@ -147,7 +149,7 @@ Fire-Protection-Optimization/
 │   └── problem.py                  # FireProtectionProblem — assembles parameter matrices
 │
 ├── optimization/
-│   ├── model.py                    # Builds the PuLP MILP model (all constraints)
+│   ├── model.py                    # Builds the PuLP MILP model (all 9 constraint groups)
 │   ├── solver.py                   # Runs CBC, extracts and returns OptimizationResult
 │   └── result.py                   # OptimizationResult dataclass + JSON serialization
 │
@@ -155,33 +157,40 @@ Fire-Protection-Optimization/
 │   ├── dataHandlers/
 │   │   ├── preprocessor.py         # ODS → IncidentDistrict objects
 │   │   ├── station_loader.py       # fire_stations.json → FireStation objects
-│   │   └── ods_loader.py           # Raw ODS file reader
+│   │   └── ods_loader.py           # Raw ODS file reader + column validation
 │   ├── traffic/
-│   │   └── traffic.py              # Congestion-aware route multiplier lookup
+│   │   └── traffic.py              # 8-axis Attica congestion profile router
 │   └── logger/
-│       └── logger.py               # Structured logging setup
-│
-├── visualization/
-│   └── generate_map.py             # Standalone Folium map (optimal + diagnostic modes)
+│       └── logger.py               # Colour-aware logging factory
 │
 ├── src/
 │   └── visualization/
 │       ├── models.py               # Typed dataclasses for the visualization pipeline
-│       ├── milp_visualizer.py      # Solver-agnostic Folium multi-layer renderer
+│       ├── exceptions.py           # Domain-specific exception hierarchy
+│       ├── normalization.py        # Greek text normalization + alias table
 │       ├── parser.py               # real_world_fire_stations.json parser
-│       ├── matcher.py              # OSM geometry ↔ station coverage matcher
-│       ├── coverage_renderer.py    # Real-world coverage map renderer
-│       ├── normalization.py        # Greek text normalization utilities
-│       ├── osm_fetcher.py          # OSM boundary fetcher
-│       ├── exceptions.py           # Domain-specific exceptions
-│       └── cli.py                  # Visualization CLI entry point
+│       ├── matcher.py              # HybridMatcher: OSM units → stations (4-tier cascade)
+│       ├── osm_fetcher.py          # OSM boundary fetcher with GeoPackage cache
+│       ├── coverage_renderer.py    # Operational coverage map renderer
+│       ├── milp_visualizer.py      # MILP result multi-layer Folium renderer
+│       ├── html_reporter.py        # 3-tab executive HTML dashboard (Tailwind)
+│       └── cli.py                  # Coverage map CLI orchestrator
+│
+├── docs/
+│   ├── architecture.md             # System architecture, package layout, data flow
+│   ├── optimization.md             # Full MILP formulation and constraint documentation
+│   ├── configuration.md            # Complete configuration reference
+│   └── visualization.md            # Visualization pipeline deep-dive
+│
+├── test/
+│   └── infeasible_diagnostic_tool.py  # Pre-solve geographic feasibility checker
 │
 └── data/
-    ├── fire_stations.json          # Candidate station locations, capacities, costs
-    ├── municipalities.json         # District centroids, area, wildfire risk factor
-    ├── island_municipalities.json  # Island districts excluded from the model
-    ├── traffic_data.json           # Per-axis congestion multipliers (6 time slots)
-    └── real_world_fire_stations.json  # Actual Hellenic Fire Service stations (ground truth)
+    ├── fire_stations.json              # Candidate station locations, capacities, costs
+    ├── municipalities.json             # District centroids, area, wildfire risk factor
+    ├── island_municipalities.json      # Island districts excluded from the model
+    ├── traffic_data.json               # Per-axis congestion multipliers (6 time slots)
+    └── real_world_fire_stations.json   # Actual Hellenic Fire Service stations (ground truth)
 ```
 
 ---
@@ -217,10 +226,20 @@ python -m venv .venv
 ### 3 — Install dependencies
 
 ```bash
-pip install pulp pandas folium shapely geopandas requests
+pip install -r requirements.txt
 ```
 
-> **Note:** PuLP ships with the CBC solver bundled — no separate CBC installation is required.
+This installs:
+
+| Package | Version | Purpose |
+| ------- | ------- | ------- |
+| `pulp` | 3.3.2 | MILP model builder + CBC solver (bundled — no separate CBC install needed) |
+| `pandas` | 3.0.3 | ODS data loading and preprocessing |
+| `folium` | 0.20.0 | Interactive Leaflet HTML maps |
+| `geopandas` | 1.1.3 | Geospatial data manipulation |
+| `osmnx` | 2.1.0 | OSM boundary fetching for the coverage map |
+| `odfpy` | 1.4.1 | ODS file reader (OpenDocument Spreadsheet) |
+| `shapely` | 2.1.2 | Geometry primitives |
 
 ### 4 — Verify the setup
 
@@ -289,7 +308,7 @@ Per-axis congestion multipliers for 6 daily time slots (00–06, 06–09, 09–1
   "traffic_profiles": {
     "CENTER_URBAN": [1.1, 1.6, 1.4, 1.35, 1.5, 1.15],
     "KIFISIAS_AXIS": [1.05, 1.55, 1.3, 1.3, 1.45, 1.1],
-    ...
+    "..."
   }
 }
 ```
@@ -300,7 +319,7 @@ The strategy for aggregating slots is controlled by `TRAFFIC_STRATEGY` in `milp_
 
 ## Configuration Reference
 
-All tunable parameters live in [`config/milp_config.py`](config/milp_config.py).
+All tunable parameters live in [`config/milp_config.py`](config/milp_config.py). See [`docs/configuration.md`](docs/configuration.md) for the complete reference.
 
 ### Solver
 
@@ -314,9 +333,9 @@ All tunable parameters live in [`config/milp_config.py`](config/milp_config.py).
 ```python
 REGIONS: list[dict] = [
     {"id": "dipy_athens",  "name": "ΔΙΠΥ ΑΘΗΝΩΝ",             "total_firetrucks": 120},
-    {"id": "dipy_piraeus", "name": "ΔΙΠΥ ΠΕΙΡΑΙΩΣ",           "total_firetrucks": 40},
-    {"id": "dipy_west",    "name": "ΔΙΠΥ ΔΥΤΙΚΗΣ ΑΤΤΙΚΗΣ",    "total_firetrucks": 45},
-    {"id": "dipy_east",    "name": "ΔΙΠΥ ΑΝΑΤΟΛΙΚΗΣ ΑΤΤΙΚΗΣ", "total_firetrucks": 45},
+    {"id": "dipy_piraeus", "name": "ΔΙΠΥ ΠΕΙΡΑΙΩΣ",           "total_firetrucks": 120},
+    {"id": "dipy_west",    "name": "ΔΙΠΥ ΔΥΤΙΚΗΣ ΑΤΤΙΚΗΣ",    "total_firetrucks": 120},
+    {"id": "dipy_east",    "name": "ΔΙΠΥ ΑΝΑΤΟΛΙΚΗΣ ΑΤΤΙΚΗΣ", "total_firetrucks": 120},
 ]
 ```
 
@@ -342,6 +361,7 @@ REGIONS: list[dict] = [
 | ----------- | --------- | ------------- |
 | `DEMAND_WEIGHTED_RESPONSE` | `True` | Multiply each term by district demand $d_k$ |
 | `WILDFIRE_RISK_WEIGHT` | `True` | Apply $\text{risk}_k^2 \cdot \ln(\text{area}_k)$ composite weight |
+| `PROXIMITY_ALPHA` | `10.0` | Secondary objective coefficient for proximity penalty |
 
 ### Budget
 
@@ -363,10 +383,7 @@ Setting `MAX_BUDGET = None` removes the budget constraint entirely and lets the 
 ### Forced-Open Stations
 
 ```python
-FORCED_OPEN_STATIONS: list[str] = [
-    # "ps_marathon",
-    # "ps_lavrio",
-]
+FORCED_OPEN_STATIONS: list[str] = []
 ```
 
 Station IDs in this list have their $y_j$ variable pinned to 1 before solving, regardless of budget. Use this for strategically critical perimeter locations.
@@ -377,7 +394,7 @@ Station IDs in this list have their $y_j$ variable pinned to 1 before solving, r
 
 ### 1. Running the Optimizer
 
-The main entry point is `main.py`. It loads the data, builds the problem, solves the MILP, prints a detailed log report, and saves the result as JSON.
+The main entry point is `main.py`. It loads the data, builds the problem, solves the MILP, prints a detailed log report, saves the result as JSON, and renders an interactive Folium map and an HTML executive dashboard.
 
 **Basic run (uses budget from `milp_config.py`):**
 ```bash
@@ -389,28 +406,42 @@ python main.py
 python main.py --budget 12000000
 ```
 
-**Override both budget and output path:**
+**Skip map and report generation:**
 ```bash
-python main.py --budget 12000000 --output results/high_budget_solution.json
+python main.py --no-map --no-report
 ```
 
-**Remove budget limit entirely (pass 0 to signal unconstrained — or edit config):**
+**Custom output paths:**
 ```bash
-python main.py --budget 0
+python main.py --output results/run1.json \
+               --map-output public/run1_map.html \
+               --report-output public/run1_report.html
 ```
 
 #### CLI arguments
 
 | Argument | Type | Default | Description |
 | ---------- | ------ | --------- | ------------- |
-| `--budget` | float | `None` (use config) | Override `MAX_BUDGET` in EUR. If omitted, the value from `milp_config.py` is used. |
-| `--output` | path | `results/optimization_result.json` | Path for the JSON output file |
+| `--budget` | float | `None` (use config) | Override `MAX_BUDGET` in EUR. |
+| `--output` | path | `results/optimization_result.json` | JSON result output path |
+| `--map-output` | path | `public/milp_map.html` | Interactive Folium map output path |
+| `--no-map` | flag | `False` | Skip rendering the interactive HTML map |
+| `--report-output` | path | `public/milp_report.html` | HTML executive dashboard output path |
+| `--no-report` | flag | `False` | Skip generating the HTML executive dashboard |
+
+#### Output artefacts
+
+| File | Description |
+| ---- | ----------- |
+| `results/optimization_result.json` | Full round-trip JSON (stations + districts metadata embedded) |
+| `public/milp_map.html` | 5-layer interactive Leaflet map (open in any browser) |
+| `public/milp_report.html` | 3-tab Tailwind executive dashboard (standalone HTML) |
 
 #### Example log output
 
 ```
 INFO  Problem built — 28 candidate stations, 62 districts,
-      total demand = 147.30, 4 DIPY regions, total fleet = 250 trucks
+      total demand = 147.30, 4 DIPY regions, total fleet = 480 trucks
 INFO  Budget override: 12,000,000 EUR
 INFO  Solver finished — status: Optimal
 INFO  Objective value: 3284.71
@@ -422,10 +453,10 @@ INFO  Risk-weighted avg:         9.8 min  (weighted by demand x risk)
 INFO  Operational cost:         11,200,000 EUR
 INFO  ──────────────────────────────────────────────────────────────────────
 INFO  DIPY Regional Fleet Deployment:
-INFO    ΔΙΠΥ ΑΘΗΝΩΝ: 87/120 trucks deployed
-INFO    ΔΙΠΥ ΠΕΙΡΑΙΩΣ: 32/40 trucks deployed
-INFO    ΔΙΠΥ ΔΥΤΙΚΗΣ ΑΤΤΙΚΗΣ: 31/45 trucks deployed
-INFO    ΔΙΠΥ ΑΝΑΤΟΛΙΚΗΣ ΑΤΤΙΚΗΣ: 39/45 trucks deployed
+INFO    ΔΙΠΥ ΑΘΗΝΩΝ:             87/120 trucks deployed
+INFO    ΔΙΠΥ ΠΕΙΡΑΙΩΣ:           32/120 trucks deployed
+INFO    ΔΙΠΥ ΔΥΤΙΚΗΣ ΑΤΤΙΚΗΣ:   31/120 trucks deployed
+INFO    ΔΙΠΥ ΑΝΑΤΟΛΙΚΗΣ ΑΤΤΙΚΗΣ: 39/120 trucks deployed
 INFO  ──────────────────────────────────────────────────────────────────────
 INFO    ΠΣ Μαραθώνα
 INFO      avg response   : 14.2 min  |  firetrucks: 5 [dipy_east=5]
@@ -437,104 +468,58 @@ INFO  Result serialized to results/optimization_result.json
 
 ---
 
-### 2. Generating the Interactive Map
+### 2. Operational Coverage Map
 
-`visualization/generate_map.py` runs the optimizer and produces a **standalone HTML map** that opens in any browser.
+The `src/visualization/` CLI renders a map of the **existing** Hellenic Fire Service station coverage by fetching OSM administrative boundaries and matching them to station records in `data/real_world_fire_stations.json`.
 
 ```bash
-python visualization/generate_map.py
-# → saves to attica_fire_coverage_map.html
+# Default output: public/attica_fire_stations_map.html
+python -m src.visualization.cli
 
-python visualization/generate_map.py results/my_map.html
-# → saves to a custom path
+# Custom output path
+python -m src.visualization.cli --output public/coverage.html
+
+# Skip GeoPackage cache (force fresh OSM download)
+python -m src.visualization.cli --no-cache
 ```
 
-The script automatically detects the solver status:
-
-**Optimal mode** — four interactive layers:
-1. **Incident Districts** — circles colour-coded by wildfire risk (dark red = 5.0 → green = 1.0); popup shows risk, area, demand, assigned station, and response time.
-2. **Candidate Stations** — blue markers for open stations, grey for closed; popup shows status, firetrucks deployed, capacity, and cost.
-3. **Real-World ΠΣ Stations** — red star markers showing the actual Hellenic Fire Service stations as a ground-truth baseline.
-4. **Assignment Routes** — dashed polylines from each district centroid to its assigned station, coloured by the district's risk level.
-
-**Diagnostic mode** (when the model is infeasible) — districts coloured by feasibility gap:
-- **Red** — geometrically infeasible: the nearest candidate station still exceeds the risk-based time bound.
-- **Yellow** — tight: within bound but with less than 10 % margin.
-- **Green** — comfortably within bound.
-
-This mode is useful for debugging `RISK_COVERAGE_MAX_TIMES` settings or sparse station configurations.
+OSM boundaries are cached as GeoPackages under `cache/osm/` after the first download. Subsequent runs use the cache and are significantly faster.
 
 ---
 
-### 3. Advanced Visualization Module
+### 3. Loading a Saved Result
 
-The `src/visualization/` package provides a **solver-agnostic** multi-layer Folium renderer. It ingests typed dataclasses (not PuLP objects) and can be driven programmatically:
-
-```python
-from config.milp_config import AVERAGE_SPEED_KMH
-from domain.entities import FireRegion
-from domain.problem import FireProtectionProblem
-from optimization import solve
-from src.visualization.milp_visualizer import MilpResultVisualizer
-
-# ... build problem and solve ...
-
-result = solve(problem, max_budget=10_000_000)
-
-visualizer = MilpResultVisualizer.from_optimization_result(
-    result=result,
-    problem=problem,
-    response_times=problem.response_time_matrix(AVERAGE_SPEED_KMH),
-    center=(38.00, 23.75),
-    zoom_start=10,
-)
-visualizer.render("output/milp_result.html")
-```
-
-The rendered map includes four layers:
-1. **District Assignments** — circles coloured by assigned station, sized by demand.
-2. **Stations (MILP Result)** — open/closed station markers; popup shows per-ΔΙΠΥ truck allocation and covered districts.
-3. **Allocation Routes** — dashed polylines from district centroids to their assigned station.
-4. **Response Time Heatmap** — (hidden by default) colour gradient from green (≤ 10 min) to red (> 25 min).
-
-A fixed **summary overlay** in the top-right corner shows solver status, open station count, average response time, total cost, and objective value.
-
-#### Parsing real-world station data
-
-To overlay actual Hellenic Fire Service stations fetched from `data/real_world_fire_stations.json`:
-
-```python
-from src.visualization.parser import StationDataParser
-
-parser = StationDataParser("data/real_world_fire_stations.json")
-stations = parser.parse()
-community_lookup, municipality_lookup = parser.build_lookup_tables()
-```
-
----
-
-### 4. Loading a Saved Result
-
-`OptimizationResult` supports full round-trip JSON serialization. To reload a previously saved result without re-solving:
+`OptimizationResult` supports full round-trip JSON serialization. Use `to_full_json()` / `from_json()` to preserve station and district metadata for later visualization:
 
 ```python
 from optimization.result import OptimizationResult
 
+# Save (to_full_json embeds station and district metadata)
+result.to_full_json("results/optimization_result.json")
+
+# Reload without re-solving
 result = OptimizationResult.from_json("results/optimization_result.json")
 
 print(result.status)                    # "Optimal"
 print(result.open_stations)             # {"ps_marathon", "ps_lavrio", ...}
 print(result.station_total_trucks)      # {"ps_marathon": 5, ...}
-print(result.region_total_deployed)     # {"dipy_athens": 87, "dipy_east": 39, ...}
+print(result.region_total_deployed)     # {"dipy_athens": 87, ...}
 ```
 
-> **Note:** Station and district metadata (names, coordinates) is not stored in the JSON. If you need to pair the result with geographic data for visualization, reload `FireProtectionProblem` from the original data sources alongside the result.
+Reload the visualization from a saved JSON:
+
+```python
+from src.visualization.milp_visualizer import MilpResultVisualizer
+
+visualizer = MilpResultVisualizer.from_json("results/optimization_result.json")
+visualizer.render("public/milp_map.html")
+```
 
 ---
 
 ## Output Format
 
-The JSON file produced by `result.to_json()` has the following top-level structure:
+The JSON file produced by `result.to_full_json()` has the following top-level structure:
 
 ```json
 {
@@ -547,21 +532,19 @@ The JSON file produced by `result.to_json()` has the following top-level structu
 
   "district_assignments": {
     "dist_0": "ps_marathon",
-    "dist_1": "ps_acharnes",
-    "..."
+    "dist_1": "ps_acharnes"
   },
 
   "region_allocations": {
-    "dipy_athens":  {"ps_acharnes": 12, "ps_kifisia": 8, "...": "..."},
-    "dipy_east":    {"ps_marathon": 5,  "ps_lavrio": 7,  "...": "..."},
-    "dipy_piraeus": {"ps_piraeus": 9,   "...": "..."},
-    "dipy_west":    {"ps_elefsina": 6,  "...": "..."}
+    "dipy_athens":  {"ps_acharnes": 12, "ps_kifisia": 8},
+    "dipy_east":    {"ps_marathon": 5,  "ps_lavrio": 7},
+    "dipy_piraeus": {"ps_piraeus": 9},
+    "dipy_west":    {"ps_elefsina": 6}
   },
 
   "station_totals": {
     "ps_acharnes": 12,
-    "ps_marathon": 5,
-    "..."
+    "ps_marathon": 5
   },
 
   "stations_detail": {
@@ -576,9 +559,11 @@ The JSON file produced by `result.to_json()` has the following top-level structu
       "total_trucks": 0,
       "region_breakdown": {},
       "assigned_districts": []
-    },
-    "..."
-  }
+    }
+  },
+
+  "stations": { "...": "station metadata (name, lat, lon, capacity, cost)" },
+  "districts": { "...": "district metadata (name, lat, lon, area, risk, demand)" }
 }
 ```
 
@@ -588,13 +573,15 @@ The JSON file produced by `result.to_json()` has the following top-level structu
 | ----- | ------------- |
 | `status` | PuLP solver status: `"Optimal"`, `"Infeasible"`, `"Not Solved"`, etc. |
 | `objective_value` | Value of the minimized objective (weighted response time sum) |
-| `avg_response_time_min` | Simple average response time across all assigned district–station pairs |
+| `avg_response_time_min` | Simple average response time across all district–station pairs |
 | `total_operational_cost` | Sum of annual operating costs for all open stations (EUR) |
 | `open_stations` | Sorted list of station IDs where $y_j = 1$ |
 | `district_assignments` | Flat map `{district_id → station_id}` for every district $k$ |
 | `region_allocations` | Nested map `{region_id → {station_id → truck_count}}` for non-zero $v_{ij}$ |
 | `station_totals` | Flat map `{station_id → total_trucks}` aggregated across all regions |
 | `stations_detail` | Per-station summary: active flag, total trucks, per-ΔΙΠΥ breakdown, assigned districts |
+| `stations` | Full station metadata (embedded by `to_full_json()` for visualization round-trip) |
+| `districts` | Full district metadata (embedded by `to_full_json()` for visualization round-trip) |
 
 ---
 
@@ -603,7 +590,7 @@ The JSON file produced by `result.to_json()` has the following top-level structu
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         main.py (CLI)                           │
-│          --budget 10000000  --output results/out.json           │
+│   --budget 10000000  --output results/out.json  --no-report     │
 └──────────────────────┬──────────────────────────────────────────┘
                        │
           ┌────────────▼────────────┐
@@ -615,22 +602,23 @@ The JSON file produced by `result.to_json()` has the following top-level structu
                        │
           ┌────────────▼────────────┐
           │  FireProtectionProblem  │
-          │  (domain/problem.py)    │  ← assembles ckj response-time matrix
-          │                         │    via Haversine + traffic multipliers
+          │  (domain/problem.py)    │  ← builds c_{kj} response-time matrix
+          │                         │    via Haversine + 8-axis traffic multipliers
           └────────────┬────────────┘
                        │
           ┌────────────▼────────────┐
           │   optimization/         │
-          │   model.py  ────────────┼──► PuLP LpProblem (constraints 1–9)
+          │   model.py  ────────────┼──► PuLP LpProblem (9 constraint groups)
           │   solver.py ────────────┼──► CBC solver → OptimizationResult
-          │   result.py ────────────┼──► to_json() / from_json()
+          │   result.py ────────────┼──► to_full_json() / from_json()
           └────────────┬────────────┘
                        │
-          ┌────────────▼────────────────────────────────────┐
-          │              Visualization Layer                  │
-          │  visualization/generate_map.py   (standalone)    │
-          │  src/visualization/milp_visualizer.py (advanced) │
-          └───────────────────────────────────────────────────┘
+          ┌────────────▼──────────────────────────────────────────┐
+          │              Visualization Layer                        │
+          │  src/visualization/milp_visualizer.py  → Folium map   │
+          │  src/visualization/html_reporter.py    → HTML report   │
+          │  src/visualization/cli.py              → coverage map  │
+          └────────────────────────────────────────────────────────┘
 ```
 
 ### Design principles
@@ -638,7 +626,20 @@ The JSON file produced by `result.to_json()` has the following top-level structu
 - **Domain isolation** — `domain/` entities are frozen dataclasses with no solver imports. PuLP types never leak past `optimization/`.
 - **Solver agnosticism** — `src/visualization/` ingests typed dataclasses (`MilpVisualizationInput`), not PuLP variables. Switching from CBC to Gurobi requires changing only `solver.py`.
 - **Dynamic budget override** — `build_model(problem, max_budget=...)` and `solve(problem, max_budget=...)` accept a runtime override. The CLI `--budget` flag feeds directly into this parameter without touching `milp_config.py`.
-- **Round-trip serialization** — `OptimizationResult.to_json()` / `from_json()` guarantee that a saved result can be reloaded and fed to the visualization pipeline without re-solving.
+- **Round-trip serialization** — `OptimizationResult.to_full_json()` embeds full station and district metadata so the visualisation pipeline can reconstruct everything from JSON alone without re-solving.
+
+---
+
+## Documentation
+
+In-depth technical documentation lives in the [`docs/`](docs/) directory:
+
+| File | Contents |
+| ---- | -------- |
+| [`docs/architecture.md`](docs/architecture.md) | Package layout, end-to-end data flow diagram, layer responsibilities, key design decisions |
+| [`docs/optimization.md`](docs/optimization.md) | Complete MILP formulation: sets, parameters, variables, objective function, all 9 constraint groups, response-time matrix formula, infeasibility handling |
+| [`docs/configuration.md`](docs/configuration.md) | Full `milp_config.py` reference, `data_config.py` column contracts, `env_config.py` environment variables, `traffic_data.json` schema |
+| [`docs/visualization.md`](docs/visualization.md) | Visualization pipeline deep-dive: MILP map/dashboard, operational coverage map, HybridMatcher algorithm, Greek text normalization, OSM caching, exception hierarchy |
 
 ---
 
@@ -649,7 +650,7 @@ The JSON file produced by `result.to_json()` has the following top-level structu
 | **Course** | ECE_CK806 — Linear & Combinatorial Optimization |
 | **Semester** | Spring 2025–2026 |
 | **Model basis** | Klose, A. & Drexl, A. (2005). *Facility location models for distribution system design*. European Journal of Operational Research, 162(1), 4–29. |
-| **Solver** | COIN-OR CBC (via PuLP 2.x) |
+| **Solver** | COIN-OR CBC (via PuLP 3.x) |
 | **Region** | Attica, Greece — 4 ΔΙΠΥ regional fire directorates |
 
 ### Key modelling decisions
@@ -657,5 +658,5 @@ The JSON file produced by `result.to_json()` has the following top-level structu
 - **WUI composite weight** ($d_k \cdot \text{risk}_k^2 \cdot \ln(\text{area}_k)$): the quadratic risk term makes the solver non-linearly sensitive to high-risk zones — a district with risk=5 receives 25× the weight of a risk=1 district under the objective, versus only 5× under a linear formulation.
 - **Traffic-adjusted response time**: rather than pure Haversine distance, each $c_{kj}$ entry is multiplied by a congestion factor derived from the dominant Attica road axis between the two points (8 axes: center urban, Kifisias, Kifisou, Attiki Odos, Poseidonos, Athinon, Mesogeion, rural).
 - **Intra-district travel time**: models the average time to navigate from the district boundary to the fire location within the municipality, approximated from the effective circular radius $\sqrt{\text{area}/\pi}$.
-- **Integer demand** ($d_k \in \mathbb{Z}_{>0}$): demands are rounded to integers so that the flow conservation constraint (7) — which equates integer $v_{ij}$ to $\sum_k d_k z_{kj}$ — remains feasible without fractional truck assignments.
+- **Integer demand** ($d_k \in \mathbb{Z}_{>0}$): demands are rounded to integers so that the flow constraint (7) — which bounds integer $v_{ij}$ from below by $\sum_k d_k z_{kj}$ — remains feasible without fractional truck assignments.
 - **Constraint (9) — minimum truck**: prevents the solver from opening a station as a "coverage anchor" without actually staffing it, which would be operationally meaningless. It also tightens the LP relaxation.
