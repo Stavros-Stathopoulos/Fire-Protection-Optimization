@@ -22,18 +22,28 @@ def main() -> None:
     """Parse CLI arguments, load the ODS file, and log a summary.
 
     Exits with code ``1`` if the file is not found or fails column
-    validation.
+    validation.  Uses :class:`~utils.dataHandlers.ods_loader.OdsLoader`
+    internally for both file I/O and schema validation.
 
     Parameters
     ----------
     None
         Arguments are read directly from ``sys.argv`` via
         :mod:`argparse`.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    SystemExit
+        With exit code ``1`` if the file is not found or validation fails.
     """
     parser = argparse.ArgumentParser(
         description="Load and validate an ODS fire incident data file."
     )
-    parser.add_argument("file", help="ODS filename inside the data/ directory")
+    parser.add_argument("file", help="ODS filename inside the data/data/ directory")
     parser.add_argument(
         "--no-validate", action="store_true", help="Skip column validation"
     )

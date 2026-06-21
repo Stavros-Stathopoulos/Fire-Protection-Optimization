@@ -1,10 +1,13 @@
 """Colour-aware logging factory for the project.
 
-Provides a single ``get_logger`` factory that returns a ``logging.Logger``
-pre-configured with a ``StreamHandler`` whose formatter applies per-level
-ANSI colours and the fixed message structure::
+Provides a single :func:`get_logger` factory that returns a
+``logging.Logger`` pre-configured with a ``StreamHandler`` whose formatter
+applies per-level ANSI colours and the fixed message structure::
 
     HH:MM:SS | <script> | <LEVEL>   | <message>
+
+The handler is attached only once per logger name; subsequent calls with
+the same *name* return the already-configured singleton.
 """
 
 import io
@@ -14,7 +17,7 @@ import sys
 
 
 class _Colour:
-    """ANSI escape codes used by ``_ColourFormatter``."""
+    """ANSI escape codes used by :class:`_ColourFormatter`."""
 
     RESET    = '\033[0m'
     GREY     = '\033[38;5;245m'
@@ -40,8 +43,8 @@ class _ColourFormatter(logging.Formatter):
 
         HH:MM:SS | <script> | <LEVEL>   | <message>
 
-    where ``<script>`` is derived from ``record.pathname`` (stem only) and
-    ``<LEVEL>`` is left-padded to seven characters for column alignment.
+    ``<script>`` is the stem of ``record.pathname`` and ``<LEVEL>`` is
+    left-padded to seven characters for column alignment.
     """
 
     def format(self, record: logging.LogRecord) -> str:

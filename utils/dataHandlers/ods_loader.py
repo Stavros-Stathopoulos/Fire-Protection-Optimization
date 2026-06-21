@@ -1,7 +1,7 @@
 """ODS file loader and validator for fire-incident datasets.
 
-Provides ``OdsLoader``, which wraps :func:`pandas.read_excel` with an ODF
-engine and enforces the column contract defined in
+Provides :class:`OdsLoader`, which wraps :func:`pandas.read_excel` with an
+ODF engine and enforces the column contract defined in
 ``config.data_config.REQUIRED_COLUMNS``.
 """
 
@@ -9,7 +9,7 @@ import os
 
 import pandas as pd
 
-from config.data_config import DATA_PATH, REQUIRED_COLUMNS
+from config.data_config import ODS_PATH, REQUIRED_COLUMNS
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -18,16 +18,19 @@ logger = get_logger(__name__)
 class OdsLoader:
     """Load and validate a single ODS fire-incident data file.
 
+    The loader constructs the absolute file path from ``ODS_PATH`` and the
+    supplied filename so callers never need to know the on-disk layout.
+
     Parameters
     ----------
     file_path : str
         Filename (not full path) of the ODS file located inside
-        ``config.data_config.DATA_PATH``.
+        ``config.data_config.ODS_PATH`` (``data/data/``).
 
     Attributes
     ----------
     file_path : str
-        Absolute path assembled from ``DATA_PATH`` and the supplied filename.
+        Absolute path assembled from ``ODS_PATH`` and the supplied filename.
 
     Examples
     --------
@@ -37,15 +40,15 @@ class OdsLoader:
     """
 
     def __init__(self, file_path: str) -> None:
-        self.file_path = os.path.join(DATA_PATH, file_path)
+        self.file_path = os.path.join(ODS_PATH, file_path)
 
     def load_data(self) -> pd.DataFrame:
-        """Read the ODS file into a DataFrame.
+        """Read the ODS file into a ``DataFrame``.
 
         Returns
         -------
         pandas.DataFrame
-            All rows and columns from the ODS file, with no transformation
+            All rows and columns from the ODS file with no transformation
             applied.
 
         Raises
@@ -74,7 +77,7 @@ class OdsLoader:
         Parameters
         ----------
         data : pandas.DataFrame
-            DataFrame returned by :meth:`load_data`.
+            ``DataFrame`` returned by :meth:`load_data`.
 
         Returns
         -------
@@ -85,12 +88,15 @@ class OdsLoader:
         Raises
         ------
         ValueError
-            If one or more required columns are absent, listing their names.
+            If one or more required columns are absent, with their names
+            listed in the exception message.
         """
         missing = [col for col in REQUIRED_COLUMNS if col not in data.columns]
 
         if missing:
-            raise ValueError(f"[{os.path.basename(self.file_path)}] Missing columns: {missing}")
+            raise ValueError(
+                f"[{os.path.basename(self.file_path)}] Missing columns: {missing}"
+            )
 
         logger.debug(f"[{os.path.basename(self.file_path)}] All required columns present")
         return True
