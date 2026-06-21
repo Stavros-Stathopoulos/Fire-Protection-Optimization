@@ -1,16 +1,16 @@
 """Holds the structured output of a solved MILP optimization run.
 
 Multi-region formulation: ``firetruck_allocations`` is keyed by
-``(region_id, station_id)`` so the full ΔΙΠΥ → station deployment
-matrix is preserved.
+``(region_id, station_id)`` so the full ΔΙΠΥ → station deployment matrix is
+preserved and can be round-tripped through JSON without information loss.
 """
 
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, Set, Tuple
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from domain.problem import FireProtectionProblem
@@ -20,54 +20,79 @@ if TYPE_CHECKING:
 class OptimizationResult:
     """Structured output of a solved MILP run.
 
+    All attributes are solver-agnostic plain Python types so the object can
+    be serialised, logged, and passed to the visualisation pipeline without
+    importing PuLP or any other solver library.
+
+    Parameters
+    ----------
+    status : str
+        PuLP solver status string (e.g. ``"Optimal"``, ``"Infeasible"``).
+    objective_value : float
+        ``Σ w_k·c_{kj}·z_{kj}`` — the minimised WUI-priority weighted total
+        response time.
+    open_stations : set[str]
+        Station IDs where ``y_j = 1`` in the optimal solution.
+    district_assignments : dict[str, str]
+        ``{district_id: station_id}`` — which station serves each district
+        (``z_{kj} = 1``).
+    firetruck_allocations : dict[tuple[str, str], int]
+        ``{(region_id, station_id): truck_count}`` — integer ``v_{ij}`` values
+        for all ``(i, j)`` pairs.
+    avg_response_time_min : float
+        Simple arithmetic mean of ``c_{kj}`` across all assigned district–
+        station pairs.
+    total_operational_cost : float
+        ``Σ f_j`` for open stations (EUR / year).
+
     Attributes
     ----------
-    status:
-        PuLP solver status string (``"Optimal"``, ``"Infeasible"``, …).
-    objective_value:
-        Σ wk·ckj·zkj — demand-weighted response time.
-    open_stations:
-        Station ids where yj = 1.
-    district_assignments:
-        ``{district_id: station_id}`` — which station serves which district (zkj = 1).
-    firetruck_allocations:
-        ``{(region_id, station_id): truck_count}`` — how many trucks each ΔΙΠΥ
-        deploys to each station (vij values).
-    avg_response_time_min:
-        Simple average ckj across all assigned districts.
-    total_operational_cost:
-        Σ fj for open stations (EUR).
+    status : str
+    objective_value : float
+    open_stations : set[str]
+    district_assignments : dict[str, str]
+    firetruck_allocations : dict[tuple[str, str], int]
+    avg_response_time_min : float
+    total_operational_cost : float
     """
 
     status: str
     objective_value: float
-    open_stations: Set[str]
-    district_assignments: Dict[str, str]
-    firetruck_allocations: Dict[Tuple[str, str], int]
+    open_stations: set[str]
+    district_assignments: dict[str, str]
+    firetruck_allocations: dict[tuple[str, str], int]
     avg_response_time_min: float
     total_operational_cost: float
 
     # -- Convenience accessors -----------------------------------------------
 
     @property
-    def station_total_trucks(self) -> Dict[str, int]:
-        """Aggregate trucks per station across all regions.
+    def station_total_trucks(self) -> dict[str, int]:
+        """Aggregate firetrucks per station across all regions.
 
-        Returns ``{station_id: total_trucks}`` — useful for callers that
-        don't need the per-region breakdown (e.g. the visualizer).
+        Returns
+        -------
+        dict[str, int]
+            ``{station_id: total_trucks}`` — the sum of ``v_{ij}`` over all
+            regions ``i`` for each station ``j``.  Useful for callers that
+            only need the total count without the per-region breakdown.
         """
-        totals: Dict[str, int] = {}
+        totals: dict[str, int] = {}
         for (_, sid), count in self.firetruck_allocations.items():
             totals[sid] = totals.get(sid, 0) + count
         return totals
 
     @property
-    def region_total_deployed(self) -> Dict[str, int]:
-        """Aggregate trucks deployed per region across all stations.
+    def region_total_deployed(self) -> dict[str, int]:
+        """Aggregate firetrucks deployed per region across all stations.
 
-        Returns ``{region_id: total_deployed}``.
+        Returns
+        -------
+        dict[str, int]
+            ``{region_id: total_deployed}`` — the sum of ``v_{ij}`` over all
+            stations ``j`` for each region ``i``.
         """
-        totals: Dict[str, int] = {}
+        totals: dict[str, int] = {}
         for (rid, _), count in self.firetruck_allocations.items():
             totals[rid] = totals.get(rid, 0) + count
         return totals
@@ -75,51 +100,35 @@ class OptimizationResult:
     # -- JSON serialization --------------------------------------------------
 
     def to_dict(self) -> dict:
-        """Convert to a JSON-serializable dictionary.
+        """Convert to a compact JSON-serialisable dictionary.
 
-        Structure:
-        ```json
-        {
-          "status": "Optimal",
-          "objective_value": 42.0,
-          "avg_response_time_min": 8.5,
-          "total_operational_cost": 6400000,
-          "open_stations": ["ps_athens_1", ...],
-          "district_assignments": {"dist_0": "ps_athens_1", ...},
-          "region_allocations": {
-            "dipy_athens": {"ps_athens_1": 5, ...},
-            "dipy_piraeus": {"ps_piraeus": 3, ...}
-          },
-          "station_totals": {"ps_athens_1": 8, ...},
-          "stations_detail": {
-            "ps_athens_1": {
-              "is_active": true,
-              "total_trucks": 8,
-              "region_breakdown": {"dipy_athens": 5, "dipy_piraeus": 3},
-              "assigned_districts": ["dist_0", "dist_1"]
-            }
-          }
-        }
-        ```
+        The compact format omits station and district metadata (names,
+        coordinates).  Use :meth:`to_full_dict` when the visualisation
+        pipeline needs to reconstruct maps from the JSON alone.
+
+        Returns
+        -------
+        dict
+            JSON-safe dictionary with the following top-level keys:
+            ``status``, ``objective_value``, ``avg_response_time_min``,
+            ``total_operational_cost``, ``open_stations``,
+            ``district_assignments``, ``region_allocations``,
+            ``station_totals``, ``stations_detail``.
         """
-        # region → station → trucks (non-zero only)
         region_allocs: dict[str, dict[str, int]] = {}
         for (rid, sid), count in self.firetruck_allocations.items():
             if count > 0:
                 region_allocs.setdefault(rid, {})[sid] = count
 
-        # station → {region_id: count} (non-zero only)
         station_region_breakdown: dict[str, dict[str, int]] = {}
         for (rid, sid), count in self.firetruck_allocations.items():
             if count > 0:
                 station_region_breakdown.setdefault(sid, {})[rid] = count
 
-        # station → [district_ids]  (invert district_assignments)
         station_districts: dict[str, list[str]] = {}
         for did, sid in self.district_assignments.items():
             station_districts.setdefault(sid, []).append(did)
 
-        # Collect every station that appears anywhere in the solution
         all_station_ids: set[str] = (
             self.open_stations
             | set(self.district_assignments.values())
@@ -156,32 +165,40 @@ class OptimizationResult:
     def to_full_dict(
         self,
         problem: "FireProtectionProblem",
-        response_times: "dict[tuple[str, str], float]",
+        response_times: dict[tuple[str, str], float],
     ) -> dict:
-        """Like :meth:`to_dict` but embeds all station and district metadata.
+        """Build a self-contained dictionary embedding all station and district metadata.
 
-        The resulting document is fully self-contained: the ``src/visualization``
-        pipeline can reconstruct a ``MilpResultVisualizer`` from it via
-        ``MilpResultVisualizer.from_json()`` without reloading any data source.
+        The resulting document is fully self-contained: the
+        ``src/visualization`` pipeline can reconstruct a
+        ``MilpResultVisualizer`` from it via
+        ``MilpResultVisualizer.from_json()`` without reloading any original
+        data sources.
 
         Parameters
         ----------
-        problem:
-            The same ``FireProtectionProblem`` that was passed to the solver.
-            Provides station / district names, coordinates, capacities, and costs.
-        response_times:
+        problem : FireProtectionProblem
+            The same problem instance passed to the solver.  Provides station
+            and district names, coordinates, capacities, and costs.
+        response_times : dict[tuple[str, str], float]
             Pre-computed ``{(district_id, station_id): minutes}`` matrix from
-            ``FireProtectionProblem.response_time_matrix()``.
+            :meth:`~domain.problem.FireProtectionProblem.response_time_matrix`.
+
+        Returns
+        -------
+        dict
+            The output of :meth:`to_dict` augmented with two additional
+            top-level keys: ``"stations"`` (list of station dicts) and
+            ``"districts"`` (list of district dicts), each containing full
+            geographic and operational metadata.
         """
         base = self.to_dict()
 
-        # station → {region_id: count}
         station_region_breakdown: dict[str, dict[str, int]] = {}
         for (rid, sid), count in self.firetruck_allocations.items():
             if count > 0:
                 station_region_breakdown.setdefault(sid, {})[rid] = count
 
-        # station → [district_ids]
         station_districts: dict[str, list[str]] = {}
         for did, sid in self.district_assignments.items():
             station_districts.setdefault(sid, []).append(did)
@@ -228,16 +245,33 @@ class OptimizationResult:
 
     def to_full_json(
         self,
-        path: "Path | str",
+        path: Path | str,
         problem: "FireProtectionProblem",
-        response_times: "dict[tuple[str, str], float]",
+        response_times: dict[tuple[str, str], float],
         *,
         indent: int = 2,
     ) -> None:
-        """Serialize to a self-contained JSON for the visualization pipeline.
+        """Serialise to a self-contained JSON file for the visualisation pipeline.
 
-        Equivalent to calling ``to_full_dict()`` then writing to *path*.
-        The parent directory is created automatically if it does not exist.
+        Equivalent to calling :meth:`to_full_dict` and writing the result to
+        *path*.  The parent directory is created automatically if it does not
+        exist.
+
+        Parameters
+        ----------
+        path : Path or str
+            Destination file path.
+        problem : FireProtectionProblem
+            The same problem instance passed to the solver.
+        response_times : dict[tuple[str, str], float]
+            Pre-computed ``{(district_id, station_id): minutes}`` matrix.
+        indent : int, optional
+            JSON indentation level (default ``2``).
+
+        Raises
+        ------
+        OSError
+            If the file cannot be written (e.g. permission error).
         """
         output = Path(path)
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -250,28 +284,39 @@ class OptimizationResult:
             )
 
     @classmethod
-    def from_json(cls, path: "Path | str") -> "OptimizationResult":
-        """Deserialize a result previously written by :meth:`to_json`.
+    def from_json(cls, path: Path | str) -> "OptimizationResult":
+        """Deserialise a result previously written by :meth:`to_json`.
 
-        Only the fields that appear in the JSON are reconstructed.
-        Station / district metadata (names, coordinates) is not stored in the
-        JSON and must be reloaded from the original data sources when needed.
+        Only the fields that appear in the compact JSON format are
+        reconstructed.  Station and district metadata (names, coordinates) is
+        not stored in the compact format and must be reloaded from the original
+        data sources when needed.
 
         Parameters
         ----------
-        path:
-            Path to the JSON file produced by :meth:`to_json`.
+        path : Path or str
+            Path to the JSON file produced by :meth:`to_json` or
+            :meth:`to_full_json`.
+
+        Returns
+        -------
+        OptimizationResult
+            Populated result object.
 
         Raises
         ------
         KeyError
-            If a required top-level key is absent from the file.
+            If a required top-level key (``status``, ``objective_value``,
+            ``open_stations``, ``district_assignments``,
+            ``avg_response_time_min``, ``total_operational_cost``) is absent
+            from the file.
+        json.JSONDecodeError
+            If the file is not valid JSON.
         """
         with open(Path(path), encoding="utf-8") as fh:
             data: dict = json.load(fh)
 
-        # Reconstruct firetruck_allocations from the nested region_allocations block.
-        allocations: Dict[Tuple[str, str], int] = {}
+        allocations: dict[tuple[str, str], int] = {}
         for rid, stations in data.get("region_allocations", {}).items():
             for sid, count in stations.items():
                 allocations[(rid, sid)] = int(count)
@@ -286,15 +331,23 @@ class OptimizationResult:
             total_operational_cost=float(data["total_operational_cost"]),
         )
 
-    def to_json(self, path: "Path | str", *, indent: int = 2) -> None:
-        """Serialize the result to a JSON file.
+    def to_json(self, path: Path | str, *, indent: int = 2) -> None:
+        """Serialise the compact result to a JSON file.
+
+        Does **not** embed station or district metadata.  For a self-contained
+        file usable by the visualisation pipeline, use :meth:`to_full_json`.
 
         Parameters
         ----------
-        path:
-            Output file path.
-        indent:
-            JSON indentation level.
+        path : Path or str
+            Output file path.  Parent directories are created as needed.
+        indent : int, optional
+            JSON indentation level (default ``2``).
+
+        Raises
+        ------
+        OSError
+            If the file cannot be written.
         """
         output = Path(path)
         output.parent.mkdir(parents=True, exist_ok=True)

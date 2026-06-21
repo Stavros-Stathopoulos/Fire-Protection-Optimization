@@ -1,10 +1,9 @@
 """Runs the CBC solver on the built MILP and extracts a structured result.
 
-Multi-region formulation: ``v`` variables are keyed ``(region_id, station_id)``,
-and the solver extracts the per-region firetruck allocation matrix.
+Multi-region formulation: ``v`` variables are keyed ``(region_id, station_id)``
+and the solver extracts the full per-region firetruck allocation matrix into
+``OptimizationResult.firetruck_allocations``.
 """
-
-from typing import Optional
 
 import pulp
 
@@ -17,18 +16,51 @@ from .result import OptimizationResult
 
 logger = get_logger(__name__)
 
-# PuLP status codes
 _OPTIMAL = 1
 _INFEASIBLE = -1
 
 
 def _safe_value(var: pulp.LpVariable) -> float:
+    """Return the numeric value of *var*, defaulting to ``0.0`` if unset.
+
+    PuLP returns ``None`` for variables that are not in the basis (e.g. when
+    the solver terminates at a time limit without finding a feasible solution).
+    This helper converts ``None`` to ``0.0`` so downstream code never has to
+    handle ``None`` arithmetic.
+
+    Parameters
+    ----------
+    var : pulp.LpVariable
+        A solved (or partially solved) PuLP decision variable.
+
+    Returns
+    -------
+    float
+        ``pulp.value(var)`` if defined, else ``0.0``.
+    """
     v = pulp.value(var)
     return v if v is not None else 0.0
 
 
 def _infeasible_result(status: str) -> OptimizationResult:
-    """Return a sentinel result and emit the mandatory critical warning."""
+    """Build and return a sentinel ``OptimizationResult`` for infeasible runs.
+
+    Logs a CRITICAL-level warning before returning so operators are
+    immediately alerted that the current station configuration cannot safely
+    cover all districts within their risk-based time bounds.
+
+    Parameters
+    ----------
+    status : str
+        PuLP status string (e.g. ``"Infeasible"`` or ``"Not Solved"``).
+
+    Returns
+    -------
+    OptimizationResult
+        A sentinel result with ``status`` set to the solver status and all
+        numeric fields set to sentinel values (``float("inf")`` for times and
+        costs, empty collections for assignments).
+    """
     logger.critical(
         "CRITICAL: Current infrastructure capacity is mathematically insufficient to safely "
         "cover Attica's peripheral risk. "
@@ -48,21 +80,33 @@ def _infeasible_result(status: str) -> OptimizationResult:
 def solve(
     problem: FireProtectionProblem,
     *,
-    max_budget: Optional[float] = None,
+    max_budget: float | None = None,
 ) -> OptimizationResult:
-    """Solve the fire-protection MILP and return a populated OptimizationResult.
+    """Solve the fire-protection MILP and return a populated ``OptimizationResult``.
+
+    Builds the PuLP model via :func:`~optimization.model.build_model`, invokes
+    the CBC solver, and extracts all decision variable values into a typed
+    result object.
+
+    If the model is **Infeasible** (e.g. a high-risk district cannot be reached
+    within its hard time bound by any candidate station), a sentinel result is
+    returned and a CRITICAL warning is logged — no exception is raised.
 
     Parameters
     ----------
-    problem:
-        Multi-region ``FireProtectionProblem``.
-    max_budget:
-        If provided, overrides ``config.milp_config.MAX_BUDGET``.
-        Pass ``None`` to use the config default.
+    problem : FireProtectionProblem
+        Multi-region problem definition carrying regions, stations, and
+        districts.
+    max_budget : float or None, optional
+        If provided, overrides ``config.milp_config.MAX_BUDGET``.  Pass
+        ``None`` (default) to use the config value.
 
-    If the model is Infeasible (e.g., a high-risk district cannot be reached within
-    its hard time bound by any candidate station), a sentinel result is returned
-    and a CRITICAL warning is logged — no exception is raised.
+    Returns
+    -------
+    OptimizationResult
+        Fully populated result if the solver reaches **Optimal** status.
+        A sentinel result (with ``float("inf")`` placeholders) for all other
+        solver outcomes.
     """
     mdl, y, z, v = build_model(problem, max_budget=max_budget)
 
@@ -76,12 +120,10 @@ def solve(
     status = pulp.LpStatus[mdl.status]
     logger.info(f"Solver finished — status: {status}")
 
-    # --- Non-optimal outcomes ---
     if mdl.status == _INFEASIBLE:
         return _infeasible_result(status)
 
     if mdl.status != _OPTIMAL:
-        # Time-limit hit without a feasible incumbent, or numerically undefined
         logger.error(
             f"Solver did not reach optimality (status: {status}). "
             "Results may be absent or partial."
@@ -100,7 +142,6 @@ def solve(
         if _safe_value(var) > 0.5
     }
 
-    # Multi-region allocation: v is keyed (region_id, station_id)
     allocations: dict[tuple[str, str], int] = {
         (rid, sid): int(round(_safe_value(var)))
         for (rid, sid), var in v.items()
